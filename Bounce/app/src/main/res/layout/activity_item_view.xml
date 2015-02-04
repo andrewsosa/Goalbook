@@ -1,0 +1,84 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.andrewsosa.bounce.TaskViewActivity">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/primaryColor"
+        android:id="@+id/color_panel"></LinearLayout>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:contentInsetStart="72dp"
+        android:contentInsetLeft="72dp"
+        app:contentInsetLeft="72dp"
+        app:contentInsetStart="72dp"
+        android:contentInsetEnd="16dp"
+        android:contentInsetRight="16dp"
+        app:contentInsetEnd="16dp"
+        app:contentInsetRight="16dp"/>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/container"
+        android:layout_below="@+id/my_toolbar">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/windowBackground"
+            android:elevation="4dp"
+            android:paddingTop="32dp"
+            android:layout_below="@+id/name_wrapper"
+            android:id="@+id/content_wrapper"></LinearLayout>
+
+        <RelativeLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="156dp"
+            android:id="@+id/name_wrapper">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Task Name"
+                android:id="@+id/task_name"
+                android:layout_alignParentTop="false"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textSize="34sp"
+                android:layout_marginLeft="72dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="32dp"
+                android:textColor="@color/primaryTextLight"
+                android:layout_marginRight="72dp"
+                android:layout_alignParentEnd="true" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <com.melnykov.fab.FloatingActionButton
+        android:id="@+id/edit_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_mode_edit_white_24dp"
+        fab:fab_colorNormal="@color/accentColor"
+        fab:fab_colorPressed="@color/accentColor"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="false"
+        android:layout_marginRight="8dp"
+        android:layout_below="@+id/my_toolbar"
+        android:layout_marginTop="120dp" />
+
+</RelativeLayout>

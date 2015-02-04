@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="178dp"
+        android:background="@color/primaryColor">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/nav_toolbar"
+            android:layout_height="?android:attr/actionBarSize"
+            android:layout_width="match_parent"
+            android:contentInsetStart="72dp"
+            android:contentInsetLeft="72dp"
+            app:contentInsetLeft="72dp"
+            app:contentInsetStart="72dp"/>
+
+
+        </RelativeLayout>
+
+</LinearLayout>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Bounce</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_item_view">ItemView</string>
+
+    <!-- Action Strings for Item View -->
+    <string name="action_delete">Delete</string>
+    <string name="action_postpone">Bounce</string>
+    <string name="action_complete">Complete</string>
+    <string name="action_edit">Edit</string>
+
+
+</resources>
