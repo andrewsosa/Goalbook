@@ -12,10 +12,7 @@ class CustomCell: UITableViewCell {
 
     @IBOutlet weak var mainLabel: UILabel!
     
-    @IBOutlet weak var taskDate: UILabel! = nil
-    
-    @IBOutlet weak var largeLabel: UILabel!
-    
+    @IBOutlet weak var taskDate: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()
