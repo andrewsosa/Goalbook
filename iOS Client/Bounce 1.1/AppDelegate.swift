@@ -8,14 +8,24 @@
 
 import UIKit
 
+var passObj:ContainerViewController?
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        window = UIWindow(frame: UIScreen.mainScreen().bounds)            // tutorial had something different after launchOptions
+        
+        let containerViewController = ContainerViewController()
+        
+        
+        window!.rootViewController = containerViewController
+        window!.makeKeyAndVisible()
+        
+        passObj = containerViewController.getObj()
+        
         return true
     }
 

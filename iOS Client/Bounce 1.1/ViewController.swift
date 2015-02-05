@@ -7,10 +7,13 @@
 //
 
 import UIKit
-var task1 = Task(task: "Walk the Dog")
-var task2 = Task(task: "Buy groceries")
+
 var arrayOfTasks:[Task] = []
-var passTask: Task?
+
+var passController:ViewController?
+var delegate: CenterViewControllerDelegate?
+var listPass: List!
+
 
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
     
@@ -21,6 +24,18 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var myTabelView: UITableView!
     
     @IBOutlet weak var textEntry: UITextField!
+    
+    @IBOutlet weak var listLabel: UILabel!
+    
+    var currentList: List!
+    
+    @IBAction func slidePress(sender: AnyObject) {
+        
+        println(delegate)
+        delegate?.toggleLeftPanel?()
+        
+        
+    }
 // ------------------------------------------REQUIRED FUNCTIONS----------------------------------------------------
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -48,15 +63,23 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         entryBar.layer.shadowColor = UIColor.blackColor().CGColor
         entryBar.layer.shadowOffset = CGSizeMake(5, 5)
         entryBar.layer.shadowRadius = 5
-        
         entryBar.layer.shadowOpacity = 0.2
         
-        topBar.layer.shadowColor = UIColor.blackColor().CGColor
-        topBar.layer.shadowOffset = CGSizeMake(5, 5)
-        topBar.layer.shadowRadius = 5
+        let app = UIApplication.sharedApplication()
+        let height = app.statusBarFrame.size.height
         
-        topBar.layer.shadowOpacity = 0.2
-
+        self.navigationController?.navigationBarHidden = true // TO HIDE NAVIGATION BAR
+        
+        passController = self
+        
+        arrayOfLists.append(item1)
+        
+        currentList = arrayOfLists[0]
+        
+        listLabel.text = currentList.listName
+        
+        self.prefersStatusBarHidden()
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -70,25 +93,25 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         if textEntry.text != "" {
             
             var tempString:String = textEntry.text
-            var newTask = Task(task: tempString)
-            println(newTask.taskName)
+            var newTask:Task = Task(task: tempString)
+            currentList.addTask(tempString)
             arrayOfTasks.append(newTask)
             
-            textEntry.text = ""
             
+            textEntry.text = ""
             myTabelView.reloadData()
         }
     }
     
     func textFieldShouldReturn(textField: UITextField!) -> Bool // called when 'return' key pressed. return NO to ignore.
     {
+        //textField.resignFirstResponder()
         AddListItem()
         return true
     }
     
     func tableView(tableView: UITableView, willSelectRowAtIndexPath indexPath: NSIndexPath) -> NSIndexPath? {
         let task = arrayOfTasks[indexPath.row]
-        passTask = task
         
         var detailedViewController: DetailViewController = self.storyboard?.instantiateViewControllerWithIdentifier("TaskPage") as DetailViewController
         
@@ -99,12 +122,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         return indexPath
     }
     
+    func call() {
     
-    
-
-    
-    
-    
+        listLabel.text = currentList.listName
+        arrayOfTasks.removeAll(keepCapacity: false)
+        
+        for var i = 0; i < currentList.listSize; i++ {
+            
+            var task = currentList.getTask(i)
+            arrayOfTasks.append(task)
+            
+        }
+        myTabelView.reloadData()
+    }
     
 } // END OF VIEW CONTROLLER
 

@@ -36,8 +36,8 @@ class DetailViewController: UIViewController {
         topDrop.layer.shadowColor = UIColor.blackColor().CGColor
         topDrop.layer.shadowOffset = CGSizeMake(5, 5)
         topDrop.layer.shadowRadius = 5
-        
         topDrop.layer.shadowOpacity = 0.4
+        
         
     }
         // Do any additional setp after loading the view.
@@ -48,9 +48,12 @@ class DetailViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    @IBAction func goBack(sender: AnyObject) {
+    @IBAction func exit(sender: AnyObject) {
         
-        println("works")
+        
+        var viewController: ViewController = self.storyboard?.instantiateViewControllerWithIdentifier("MainView") as ViewController
+        
+        self.presentViewController(viewController, animated: false, completion: nil)
         
     }
     
