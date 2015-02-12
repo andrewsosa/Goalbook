@@ -92,6 +92,8 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
             layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
             holder.titleText.setLayoutParams(layoutParams);
 
+        } else {
+            holder.subtitleText.setText(TaskDataSource.toDisplayFormat(task.getDate()));
         }
 
 

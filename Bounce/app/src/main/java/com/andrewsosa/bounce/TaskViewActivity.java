@@ -3,14 +3,20 @@ package com.andrewsosa.bounce;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.melnykov.fab.FloatingActionButton;
 
 
 public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClickListener {
@@ -47,6 +53,27 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         // Set up actual task stuff
         TextView taskName = (TextView) findViewById(R.id.task_name);
         taskName.setText(task.getName());
+
+        // buh
+        RelativeLayout date_layout = (RelativeLayout) findViewById(R.id.date_layout);
+        date_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+               Toast.makeText(TaskViewActivity.this, "Hello!", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+        FloatingActionButton editButton = (FloatingActionButton) findViewById(R.id.edit_fab);
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(TaskViewActivity.this, TaskEditActivity.class);
+                startActivity(i);
+            }
+        });
+
     }
 
 

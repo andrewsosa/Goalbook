@@ -11,6 +11,6 @@
     <string name="action_postpone">Bounce</string>
     <string name="action_complete">Complete</string>
     <string name="action_edit">Edit</string>
-
+    <string name="title_activity_task_edit">TaskEditActivity</string>
 
 </resources>

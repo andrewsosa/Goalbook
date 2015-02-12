@@ -44,7 +44,8 @@
             <include
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                layout="@layout/item_details" />
+                layout="@layout/item_details"
+                android:layout_marginTop="16dp" />
         </LinearLayout>
 
         <RelativeLayout

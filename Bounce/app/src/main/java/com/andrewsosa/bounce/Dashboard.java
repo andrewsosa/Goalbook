@@ -35,6 +35,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.melnykov.fab.FloatingActionButton;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 
 public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListener{
@@ -46,10 +47,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     // Recyclerview things
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
-    private TaskRecyclerAdapter mAdapter;
+    private static TaskRecyclerAdapter mAdapter;
+    static EditText editText;
 
     // Data sources
-    private TaskDataSource dataSource;
+    private static TaskDataSource dataSource;
 
     // Temp holder for a picked date
     private int tempDay;
@@ -99,7 +101,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
                 }
 
-                EditText editText = (EditText) findViewById(R.id.task_name_edittext);
+                editText = (EditText) findViewById(R.id.task_name_edittext);
                 editText.requestFocus();
 
                 //actionButton.setVisibility(View.GONE);
@@ -256,7 +258,13 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
 
+            GregorianCalendar temp = new GregorianCalendar(year, month, day);
+            Log.d("Bounce", "The date created was: " + TaskDataSource.dateToString(temp));
 
+            if (editText.getText() != null) {
+                mAdapter.addElement(dataSource.createTask(editText.getText().toString(),
+                        TaskDataSource.dateToString(temp)));
+            }
 
         }
     }
