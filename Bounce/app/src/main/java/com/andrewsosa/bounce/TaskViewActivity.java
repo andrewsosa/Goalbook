@@ -30,7 +30,7 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         setContentView(R.layout.activity_item_view);
 
         // Extract Task
-        task = (Task) getIntent().getSerializableExtra("Task");
+        Task intentTask = (Task) getIntent().getSerializableExtra("Task");
 
         // Toolbar craziness
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -49,10 +49,12 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         dataSource = new TaskDataSource(this);
         dataSource.open();
 
+        // Retrieve the actual task
+        long taskID = intentTask.getId();
+        task = dataSource.getTask(taskID);
 
-        // Set up actual task stuff
-        TextView taskName = (TextView) findViewById(R.id.task_name);
-        taskName.setText(task.getName());
+        updateFields();
+
 
         // buh
         RelativeLayout date_layout = (RelativeLayout) findViewById(R.id.date_layout);
@@ -70,12 +72,31 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(TaskViewActivity.this, TaskEditActivity.class);
+                i.putExtra("Task", task);
                 startActivity(i);
             }
         });
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        task = dataSource.getTask(task.getId());
+        updateFields();
+
+    }
+
+    private void updateFields() {
+        // Set up actual task stuff
+        TextView taskName = (TextView) findViewById(R.id.task_name);
+        taskName.setText(task.getName());
+        TextView deadlineText = (TextView) findViewById(R.id.deadlineText);
+        deadlineText.setText(task.getDateAsString());
+        TextView listText = (TextView) findViewById(R.id.listText);
+        listText.setText(task.getParentList());
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

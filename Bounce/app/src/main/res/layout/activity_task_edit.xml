@@ -34,7 +34,8 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:background="@color/windowBackground">
 
         <ScrollView
             android:layout_width="fill_parent"
@@ -57,9 +58,9 @@
                     <EditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/labelText"
+                        android:id="@+id/nameEditText"
 
-                        android:hint="Label"
+                        android:hint="Task Name"
                         android:lines="1"
                         android:maxLines="1"
                         android:singleLine="true"
@@ -102,7 +103,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Jan 1, 2016"
-                            android:id="@+id/timeDisplay"
+                            android:id="@+id/dateDisplay"
                             android:textSize="16sp"
                             android:textColor="@color/abc_primary_text_material_light"
                             android:layout_marginLeft="56dp"
@@ -118,7 +119,7 @@
                             android:textColor="@color/abc_secondary_text_material_light"
                             android:layout_marginLeft="56dp"
                             android:layout_marginBottom="24dp"
-                            android:layout_below="@+id/timeDisplay"
+                            android:layout_below="@+id/dateDisplay"
                             android:visibility="gone" />
                     </RelativeLayout>
 
@@ -149,7 +150,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Unassigned"
-                            android:id="@+id/repeatsText"
+                            android:id="@+id/listDisplay"
                             android:textSize="16sp"
                             android:textColor="@color/abc_primary_text_material_light"
                             android:layout_centerVertical="true"

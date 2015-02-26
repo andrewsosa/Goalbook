@@ -89,11 +89,38 @@ public class TaskDataSource {
         return newTask;
     }
 
+    public void updateTask(Task task) {
+        long id = task.getId();
+
+        ContentValues values = new ContentValues();
+        values.put(TaskOpenHelper.COLUMN_NAME, task.getName());
+        values.put(TaskOpenHelper.COLUMN_DATE, dateToString(task.getDate()));
+        values.put(TaskOpenHelper.COLUMN_COMPLETE, task.isDone());
+        values.put(TaskOpenHelper.COLUMN_LIST, task.getParentList());
+
+        database.update(TaskOpenHelper.TABLE_TASKS,
+                values, TaskOpenHelper.COLUMN_ID + " = " + id, null);
+    }
+
     public void deleteTask(Task task) {
         long id = task.getId();
         Log.d("Bounce", "Comment deleted with id: " + id);
         database.delete(TaskOpenHelper.TABLE_TASKS, TaskOpenHelper.COLUMN_ID
                 + " = " + id, null);
+    }
+
+    public Task getTask(long id){
+
+        // Reread tuple
+        Cursor cursor = database.query(TaskOpenHelper.TABLE_TASKS,
+                allColumns, TaskOpenHelper.COLUMN_ID + " = " + id, null,
+                null, null, null);
+
+        // Convert tuple to java object
+        cursor.moveToFirst();
+        Task task = cursorToTask(cursor);
+        cursor.close();
+        return task;
     }
 
     public ArrayList<Task> getAllTasks() {

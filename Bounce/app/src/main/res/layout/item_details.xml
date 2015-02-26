@@ -13,7 +13,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No Deadline"
-            android:id="@+id/textView"
+            android:id="@+id/deadlineText"
             android:layout_marginLeft="72dp"
             android:layout_marginRight="72dp"
             android:layout_alignParentEnd="true"
@@ -37,7 +37,7 @@
             android:id="@+id/textView3"
             android:layout_marginLeft="72dp"
             android:textSize="14sp"
-            android:layout_below="@+id/textView" />
+            android:layout_below="@+id/deadlineText" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -58,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Unassigned"
-            android:id="@+id/textView4"
+            android:id="@+id/listText"
             android:layout_marginLeft="72dp"
             android:layout_marginRight="72dp"
             android:layout_alignParentEnd="true"
@@ -73,9 +73,9 @@
             android:text="List"
             android:id="@+id/textView5"
             android:textSize="14sp"
-            android:layout_below="@+id/textView4"
-            android:layout_alignLeft="@+id/textView4"
-            android:layout_alignStart="@+id/textView4" />
+            android:layout_below="@+id/listText"
+            android:layout_alignLeft="@+id/listText"
+            android:layout_alignStart="@+id/listText" />
     </RelativeLayout>
 
 </LinearLayout>

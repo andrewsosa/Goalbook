@@ -34,11 +34,14 @@ import com.afollestad.materialdialogs.MaterialDialog;
 //import com.getbase.floatingactionbutton.AddFloatingActionButton;
 import com.melnykov.fab.FloatingActionButton;
 
+import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.concurrent.Callable;
 
 
-public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListener{
+public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListener,
+        DatePickerReceiver {
 
 
     // Actionbar and Navdrawer nonsense
@@ -57,6 +60,9 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     private int tempDay;
     private int tempMonth;
     private int tempYear;
+
+    // Toggle view for the add menu
+    private boolean showingInput = false;
 
 
     @Override
@@ -92,21 +98,18 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             public void onClick(View v) {
 
                 LinearLayout addBox = (LinearLayout) findViewById(R.id.add_box);
+                editText = (EditText) findViewById(R.id.task_name_edittext);
 
-                if(addBox == null) {
-                    Log.d("Bounce", "addBox's reference is null");
+                if(showingInput) {
+                    addBox.setVisibility(View.GONE);
+                    actionButton.setImageResource(R.drawable.ic_add_white_24dp);
                 } else {
                     addBox.setVisibility(View.VISIBLE);
-                    Log.d("Bounce", "addBox's reference is NOT null");
-
+                    actionButton.setImageResource(R.drawable.ic_close_white_24dp);
+                    editText.requestFocus();
                 }
 
-                editText = (EditText) findViewById(R.id.task_name_edittext);
-                editText.requestFocus();
-
-                //actionButton.setVisibility(View.GONE);
-                actionButton.hide();
-
+                showingInput = !showingInput;
             }
         });
 
@@ -164,11 +167,19 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         calendarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DialogFragment newFragment = new DatePickerFragment();
+                DatePickerFragment newFragment = new DatePickerFragment();
+                newFragment.assignMethod(Dashboard.this);
                 newFragment.show(getFragmentManager(), "timePicker");
             }
         });
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mAdapter = new TaskRecyclerAdapter(dataSource.getAllTasks(), this);
+        mAdapter.notifyItemChanged(mAdapter.getActiveItem());
     }
 
     @Override
@@ -209,63 +220,16 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         return super.onOptionsItemSelected(item);
     }
 
-    public void launchCreateDialog() {
-        new MaterialDialog.Builder(this)
-                .customView(R.layout.create_dialog_view, false)
-                .positiveText("Create")
-                .negativeText("Cancel")
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
 
-                        View view = dialog.getCustomView();
-                        EditText editText = (EditText) view.findViewById(R.id.namingEditText);
+    public void receiveDate(int year, int month, int day) {
 
-                        if(editText == null) {
-                            Log.d("Bounce", "edidtText = null");
-                        }
+        GregorianCalendar temp = new GregorianCalendar(year, month, day);
+        Log.d("Bounce", "The date created was: " + TaskDataSource.dateToString(temp));
 
-                        if(editText != null && !editText.getText().toString().equals("")) {
-                            Log.d("Bounce", "Adding Task called " + editText.getText().toString());
-                            mAdapter.addElement(dataSource.createTask(editText.getText().toString()));
-
-                        }
-
-                    }
-                })
-                .build()
-                .show();
-
-
-    }
-
-
-    // Inner class for date picker dialog
-    public static class DatePickerFragment extends DialogFragment
-            implements DatePickerDialog.OnDateSetListener {
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current date as the default date in the picker
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-
-            // Create a new instance of DatePickerDialog and return it
-            return new DatePickerDialog(getActivity(), this, year, month, day);
-        }
-
-        public void onDateSet(DatePicker view, int year, int month, int day) {
-
-            GregorianCalendar temp = new GregorianCalendar(year, month, day);
-            Log.d("Bounce", "The date created was: " + TaskDataSource.dateToString(temp));
-
-            if (editText.getText() != null) {
-                mAdapter.addElement(dataSource.createTask(editText.getText().toString(),
-                        TaskDataSource.dateToString(temp)));
-            }
-
+        if (editText.getText() != null) {
+            mAdapter.addElement(dataSource.createTask(editText.getText().toString(),
+                    TaskDataSource.dateToString(temp)));
         }
     }
+
 }

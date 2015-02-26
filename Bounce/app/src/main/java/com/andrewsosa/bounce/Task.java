@@ -41,6 +41,13 @@ public class Task implements Serializable {
         return date;
     }
 
+    public String getDateAsString() {
+        if(date != null)
+            return TaskDataSource.toDisplayFormat(date);
+        else
+            return "No Deadline";
+    }
+
     public void setDate(GregorianCalendar date) {
         this.date = date;
     }
@@ -49,8 +56,13 @@ public class Task implements Serializable {
         this.date = new GregorianCalendar(year,month,day);
     }
 
+
+
     public String getParentList() {
-        return parentList;
+        if (parentList != null)
+            return parentList;
+        else
+            return "Unassigned";
     }
 
     public void setParentList(String parentList) {

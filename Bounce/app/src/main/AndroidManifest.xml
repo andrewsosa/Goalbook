@@ -13,7 +13,6 @@
             android:windowSoftInputMode="adjustPan" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -29,7 +28,9 @@
         <activity
             android:name=".TaskEditActivity"
             android:label="@string/title_activity_task_edit"
-            android:parentActivityName=".TaskViewActivity" >
+            android:parentActivityName=".TaskViewActivity"
+            android:theme="@style/AppTheme.ItemView"
+            android:windowSoftInputMode="adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.andrewsosa.bounce.TaskViewActivity" />
