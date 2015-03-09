@@ -41,7 +41,10 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+
+                Intent data = new Intent();
+                setResult(RESULT_OK, data);
+                TaskViewActivity.this.finish();
             }
         });
 
