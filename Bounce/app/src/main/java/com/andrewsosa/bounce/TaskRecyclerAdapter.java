@@ -18,7 +18,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     // The Dataset
     private static ArrayList<Task> mDataset;
     private static Activity activity;
-    private static int activeItem = -1;
+    private int activeItemNumber = -1;
 
     // Constructor for setting up the dataset
     public TaskRecyclerAdapter(ArrayList<Task> myDataset, Activity c) {
@@ -35,7 +35,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
                 .inflate(R.layout.recycler_view_tile, parent, false);
 
         // Return the new view
-        return new ViewHolder(v);
+        return new ViewHolder(v, this);
 
     }
 
@@ -47,6 +47,10 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
     }
 
+    public void changeElement(int i, Task e){
+        mDataset.set(i, e);
+    }
+
     public void removeElementAt(int i) {
 
         mDataset.remove(mDataset.get(i));
@@ -55,19 +59,24 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     }
 
     public void setActiveElement(int i) {
-        activeItem =  i;
+        activeItemNumber =  i;
     }
 
     public void removeActiveElement() {
 
-        mDataset.remove(activeItem);
-        notifyItemRemoved(activeItem);
-        Log.d("Bounce", "Removed postion " + activeItem);
+        mDataset.remove(activeItemNumber);
+        notifyItemRemoved(activeItemNumber);
+        Log.d("Bounce", "Removed postion " + activeItemNumber);
 
     }
 
-    public static int getActiveItem() {
-        return activeItem;
+    public int getActiveItemNumber() {
+        return activeItemNumber;
+    }
+
+
+    public Task getActiveItem() {
+        return mDataset.get(activeItemNumber);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
@@ -134,6 +143,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
         // Reference for the Event that needs to be opened on the click listener
         Task task;
+        TaskRecyclerAdapter t;
 
         // each data item is just a string in this case
         public TextView titleText;
@@ -141,11 +151,12 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         public CheckBox checkbox;
 
         // Constructor
-        public ViewHolder(View v) {
+        public ViewHolder(View v, TaskRecyclerAdapter t) {
             super(v);
             titleText = (TextView) v.findViewById(R.id.tile_header);
             subtitleText = (TextView) v.findViewById(R.id.tile_subheader);
             checkbox = (CheckBox) v.findViewById(R.id.tile_checkbox);
+            this.t = t;
 
             v.setOnClickListener(this);
         }
@@ -157,7 +168,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
             Intent intent = new Intent(activity, TaskViewActivity.class);
             intent.putExtra("Task", task);
 
-            TaskRecyclerAdapter.activeItem = mDataset.indexOf(task);
+            t.activeItemNumber = mDataset.indexOf(task);
 
             //activity.startActivity(intent);
             activity.startActivityForResult(intent, 1);

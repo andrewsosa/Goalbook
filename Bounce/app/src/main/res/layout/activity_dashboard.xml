@@ -116,7 +116,8 @@
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="?android:attr/windowBackground">
+        android:background="?android:attr/windowBackground"
+        android:clickable="true">
 
         <!-- Your drawer content -->
         <include layout="@layout/nav_drawer"/>

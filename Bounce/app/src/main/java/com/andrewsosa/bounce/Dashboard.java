@@ -1,10 +1,6 @@
 package com.andrewsosa.bounce;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.widget.DrawerLayout;
@@ -14,30 +10,26 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateFormat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 //import com.getbase.floatingactionbutton.AddFloatingActionButton;
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.melnykov.fab.FloatingActionButton;
 
-import java.lang.reflect.Method;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.concurrent.Callable;
 
 
 public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListener,
@@ -175,12 +167,12 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     }
 
-    @Override
+    /* @Override
     protected void onResume() {
         super.onResume();
-        mAdapter = new TaskRecyclerAdapter(dataSource.getAllTasks(), this);
-        mAdapter.notifyItemChanged(mAdapter.getActiveItem());
-    }
+        //mAdapter = new TaskRecyclerAdapter(dataSource.getAllTasks(), this);
+        //mAdapter.notifyItemChanged(mAdapter.getActiveItemNumber());
+    } */
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -189,11 +181,18 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         Log.d("Bounce", "On Activity Result");
         if (resultCode == RESULT_OK) {
             Log.d("Bounce", "Result Ok");
-            if(data.getStringExtra("Action").equals("delete")) {
+            if((data.getStringExtra("Action") != null) && (data.getStringExtra("Action").equals("delete"))) {
                 Log.d("Bounce", "Action == Delete");
                 mAdapter.removeActiveElement();
             }
+            else {
+                Task temp = dataSource.getTask(mAdapter.getActiveItem().getId());
+                mAdapter.changeElement(mAdapter.getActiveItemNumber(), temp);
+                mAdapter.notifyItemChanged(mAdapter.getActiveItemNumber());
+            }
         }
+
+
     }
 
     @Override
@@ -212,9 +211,12 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             //Toast.makeText(this, "Hello, world!", Toast.LENGTH_SHORT).show();
-            dataSource.deleteTask(mAdapter.getItem(0));
-            mAdapter.removeElementAt(0);
+            //dataSource.deleteTask(mAdapter.getItem(0));
+            //mAdapter.removeElementAt(0);
             return true;
+        }
+        if (id == R.id.action_create_list) {
+            createNewListDialog();
         }
 
         return super.onOptionsItemSelected(item);
@@ -230,6 +232,49 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             mAdapter.addElement(dataSource.createTask(editText.getText().toString(),
                     TaskDataSource.dateToString(temp)));
         }
+    }
+
+    private EditText nameInput;
+    private View positiveAction;
+    private void createNewListDialog() {
+
+        MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .customView(R.layout.create_dialog_view, true)
+                .title("List Name")
+                .positiveText("Create")
+                .negativeText(android.R.string.cancel)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        if (nameInput != null) {
+                            Toast.makeText(getApplicationContext(), "Password: " + nameInput.getText().toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                    }
+                }).build();
+
+        positiveAction = dialog.getActionButton(DialogAction.POSITIVE);
+        nameInput = (EditText) dialog.getCustomView().findViewById(R.id.list_name_input);
+        nameInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                positiveAction.setEnabled(s.toString().trim().length() > 0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        dialog.show();
+        positiveAction.setEnabled(false); // disabled by default
     }
 
 }
