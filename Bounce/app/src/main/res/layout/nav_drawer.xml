@@ -4,6 +4,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:clickable="true">
@@ -13,7 +15,7 @@
         android:orientation="vertical" android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <RelativeLayout
+        <!-- <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="178dp"
             android:background="@color/primaryColor">
@@ -39,9 +41,92 @@
                 android:background="@android:color/transparent" />
 
 
-        </RelativeLayout>
+        </RelativeLayout> -->
+
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/drawer_list"
+            android:layout_weight="1"
+            android:footerDividersEnabled="true"
+            android:headerDividersEnabled="true"
+            android:choiceMode="singleChoice"
+            android:divider="@drawable/divider_background"
+            android:dividerHeight="1dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/windowBackground"
+            android:elevation="2dp">
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="horizontal" android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/imageView"
+                    android:layout_marginLeft="16dp"
+                    android:src="@drawable/ic_settings_grey600_24dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="false"
+                    android:layout_marginTop="0dp"
+                    android:layout_centerVertical="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Settings"
+                    android:id="@+id/textView3"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="72dp"
+                    android:layout_alignParentTop="false"
+                    android:layout_marginTop="0dp"
+                    android:layout_centerVertical="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/primaryTextDark" />
+            </RelativeLayout>
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="horizontal" android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:clickable="true"
+                android:background="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/imageView2"
+                    android:layout_marginLeft="16dp"
+                    android:src="@drawable/ic_info_grey600_24dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="false"
+                    android:layout_marginTop="0dp"
+                    android:layout_centerVertical="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="About"
+                    android:id="@+id/textView4"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="72dp"
+                    android:layout_alignParentTop="false"
+                    android:layout_marginTop="0dp"
+                    android:layout_centerVertical="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/primaryTextDark" />
+            </RelativeLayout>
 
         </LinearLayout>
+
+    </LinearLayout>
 
     <!-- <com.getbase.floatingactionbutton.FloatingActionsMenu
         android:layout_width="wrap_content"

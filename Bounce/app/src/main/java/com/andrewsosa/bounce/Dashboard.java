@@ -3,8 +3,10 @@ package com.andrewsosa.bounce;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,13 +16,16 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,7 +51,8 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     static EditText editText;
 
     // Data sources
-    private static TaskDataSource dataSource;
+    private static TaskDataSource taskDataSource;
+    private static ListDataSource listDataSource;
 
     // Temp holder for a picked date
     private int tempDay;
@@ -70,13 +76,15 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         toolbar.setTitleTextColor(getResources().getColor(R.color.abc_primary_text_material_dark));
 
         // Other toolbar craziness
-        Toolbar sidebar = (Toolbar) findViewById(R.id.nav_toolbar);
+        /* Toolbar sidebar = (Toolbar) findViewById(R.id.nav_toolbar);
         sidebar.inflateMenu(R.menu.menu_nav_drawer);
-        sidebar.setOnMenuItemClickListener(this);
+        sidebar.setOnMenuItemClickListener(this); */
 
-        // Open datasource
-        dataSource = new TaskDataSource(this);
-        dataSource.open();
+        // Open datasources
+        taskDataSource = new TaskDataSource(this);
+        taskDataSource.open();
+        listDataSource = new ListDataSource(this);
+        listDataSource.open();
 
         // Drawer craziness
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.my_drawer_layout);
@@ -120,8 +128,35 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter 
-        mAdapter = new TaskRecyclerAdapter(dataSource.getAllTasks(), this);
+        mAdapter = new TaskRecyclerAdapter(taskDataSource.getAllTasks(), this);
         mRecyclerView.setAdapter(mAdapter);
+
+
+        // Load the lists
+        ListView listView = (ListView) findViewById(R.id.drawer_list);
+        listView.setAdapter(new SimpleCursorAdapter(this, R.layout.drawer_item_view,
+                listDataSource.getListCursor(), new String[]{ListOpenHelper.COLUMN_NAME},
+                new int[]{R.id.list_name}, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER));
+        Log.d("Bounce", "We loaded the lists successfully");
+
+
+
+
+        // Header view
+        LayoutInflater inflater = getLayoutInflater();
+        ViewGroup header = (ViewGroup) inflater.inflate(R.layout.drawer_header, listView, false);
+        listView.addHeaderView(header, null, false);
+
+        // Footer view
+        ViewGroup footer = (ViewGroup) inflater.inflate(R.layout.drawer_footer, listView, false);
+        listView.addFooterView(footer, null, false);
+        footer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createNewListDialog();
+            }
+        });
+
 
         // Things for adding tasks
         EditText editText = (EditText) findViewById(R.id.task_name_edittext);
@@ -131,7 +166,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
                 if(actionId == EditorInfo.IME_ACTION_DONE) {
                     if(v.getText().toString().length() > 0) {
-                        mAdapter.addElement(dataSource.createTask(v.getText().toString()));
+                        mAdapter.addElement(taskDataSource.createTask(v.getText().toString()));
                         v.setText("");
 
                         InputMethodManager imm = (InputMethodManager)getSystemService(
@@ -170,7 +205,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     /* @Override
     protected void onResume() {
         super.onResume();
-        //mAdapter = new TaskRecyclerAdapter(dataSource.getAllTasks(), this);
+        //mAdapter = new TaskRecyclerAdapter(taskDataSource.getAllTasks(), this);
         //mAdapter.notifyItemChanged(mAdapter.getActiveItemNumber());
     } */
 
@@ -186,7 +221,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 mAdapter.removeActiveElement();
             }
             else {
-                Task temp = dataSource.getTask(mAdapter.getActiveItem().getId());
+                Task temp = taskDataSource.getTask(mAdapter.getActiveItem().getId());
                 mAdapter.changeElement(mAdapter.getActiveItemNumber(), temp);
                 mAdapter.notifyItemChanged(mAdapter.getActiveItemNumber());
             }
@@ -211,7 +246,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             //Toast.makeText(this, "Hello, world!", Toast.LENGTH_SHORT).show();
-            //dataSource.deleteTask(mAdapter.getItem(0));
+            //taskDataSource.deleteTask(mAdapter.getItem(0));
             //mAdapter.removeElementAt(0);
             return true;
         }
@@ -229,7 +264,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         Log.d("Bounce", "The date created was: " + TaskDataSource.dateToString(temp));
 
         if (editText.getText() != null) {
-            mAdapter.addElement(dataSource.createTask(editText.getText().toString(),
+            mAdapter.addElement(taskDataSource.createTask(editText.getText().toString(),
                     TaskDataSource.dateToString(temp)));
         }
     }
@@ -247,7 +282,8 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         if (nameInput != null) {
-                            Toast.makeText(getApplicationContext(), "Password: " + nameInput.getText().toString(), Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getApplicationContext(), "Password: " + nameInput.getText().toString(), Toast.LENGTH_SHORT).show();
+                            listDataSource.createList(nameInput.getText().toString());
                         }
                     }
 

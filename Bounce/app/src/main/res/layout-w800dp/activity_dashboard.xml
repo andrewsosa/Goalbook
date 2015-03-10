@@ -13,19 +13,6 @@
         android:layout_height="match_parent"
         android:background="@color/grey_200">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/my_toolbar"
-            android:layout_height="192dp"
-            android:layout_width="match_parent"
-            android:contentInsetStart="72dp"
-            android:contentInsetLeft="72dp"
-            android:gravity="top"
-            android:paddingTop="16dp"
-            app:contentInsetLeft="72dp"
-            app:contentInsetStart="72dp"
-            android:background="@color/primaryColor"
-            android:elevation="0dp" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -115,6 +102,23 @@
             android:layout_alignTop="@+id/linearLayout"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="192dp"
+            android:background="@color/primaryColor">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/my_toolbar"
+                android:layout_height="?android:attr/actionBarSize"
+                android:layout_width="match_parent"
+                android:contentInsetStart="72dp"
+                android:contentInsetLeft="72dp"
+                app:contentInsetLeft="72dp"
+                app:contentInsetStart="72dp"
+                android:background="@color/primaryColor" />
+        </LinearLayout>
 
     </RelativeLayout>
 

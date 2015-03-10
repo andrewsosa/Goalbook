@@ -100,6 +100,11 @@ public class ListDataSource {
         return lists;
     }
 
+    public Cursor getListCursor() {
+        return database.query(ListOpenHelper.TABLE_LISTS, allColumns,
+                null, null, null, null, null);
+    }
+
 
     private List cursorToList(Cursor c) {
         return new List(c.getLong(0), c.getString(1));
