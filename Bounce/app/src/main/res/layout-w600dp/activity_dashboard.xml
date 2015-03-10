@@ -13,27 +13,17 @@
         android:layout_height="match_parent"
         android:background="@color/grey_200">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/my_toolbar"
-            android:layout_height="?android:attr/actionBarSize"
-            android:layout_width="match_parent"
-            android:contentInsetStart="72dp"
-            android:contentInsetLeft="72dp"
-            app:contentInsetLeft="72dp"
-            app:contentInsetStart="72dp"
-            android:background="@color/primaryColor"
-            android:elevation="4dp" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:animateLayoutChanges="true"
-            android:layout_marginLeft="72dp"
-            android:layout_marginRight="72dp"
-            android:layout_below="@+id/my_toolbar"
+            android:layout_marginLeft="64dp"
+            android:layout_marginRight="64dp"
             android:background="@color/windowBackground"
-            android:elevation="2dp">
+            android:elevation="2dp"
+            android:layout_marginTop="64dp"
+            android:id="@+id/linearLayout">
 
             <LinearLayout
                 android:orientation="vertical"
@@ -106,11 +96,29 @@
             android:src="@drawable/ic_add_white_24dp"
             fab:fab_colorNormal="@color/accentColor"
             fab:fab_colorPressed="@color/accentColor"
-            android:layout_alignParentBottom="true"
+            android:layout_marginRight="36dp"
+            android:layout_marginEnd="36dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginBottom="@dimen/fab_margin"
-            android:layout_marginRight="44dp" />
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="36dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="192dp"
+            android:background="@color/primaryColor">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/my_toolbar"
+                android:layout_height="?android:attr/actionBarSize"
+                android:layout_width="match_parent"
+                android:contentInsetStart="72dp"
+                android:contentInsetLeft="72dp"
+                app:contentInsetLeft="72dp"
+                app:contentInsetStart="72dp"
+                android:background="@color/primaryColor" />
+        </LinearLayout>
 
     </RelativeLayout>
 

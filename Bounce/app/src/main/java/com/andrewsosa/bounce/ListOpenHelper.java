@@ -22,7 +22,7 @@ public class ListOpenHelper extends SQLiteOpenHelper {
     private static final String LISTS_TABLE_CREATE = "create table "
             + TABLE_LISTS       + "("
             + COLUMN_ID         + " integer primary key autoincrement, "
-            + COLUMN_NAME       + " text not null,"
+            + COLUMN_NAME       + " text not null"
             + ");";
 
 
