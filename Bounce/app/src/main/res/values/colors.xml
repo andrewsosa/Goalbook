@@ -16,6 +16,18 @@
     <color name="secondaryTextLight">@color/abc_secondary_text_material_dark</color>
     <color name="secondaryTextDark">@color/abc_secondary_text_material_light</color>
 
+    <!-- List item colors -->
+    <color name="inbox">@color/primaryColor</color>
+    <color name="inboxDark">@color/primaryColorDark</color>
+    <color name="upcoming">@color/amber_500</color>
+    <color name="upcomingDark">@color/amber_700</color>
+    <color name="alltasks">@color/purple_500</color>
+    <color name="alltasksDark">@color/purple_700</color>
+    <color name="completed">@color/green_500</color>
+    <color name="completedDark">@color/green_700</color>
+    <color name="unassigned">@color/blue_grey_500</color>
+    <color name="unassignedDark">@color/blue_grey_700</color>
+
     <!-- Menu stuff color -->
     <color name="black_semi_transparent">#B2000000</color>
     <color name="background">#e5e5e5</color>

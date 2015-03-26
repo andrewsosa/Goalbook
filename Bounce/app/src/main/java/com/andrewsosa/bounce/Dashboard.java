@@ -3,6 +3,9 @@ package com.andrewsosa.bounce;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.database.MergeCursor;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
@@ -22,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -62,6 +66,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     // Toggle view for the add menu
     private boolean showingInput = false;
 
+    // UI Components
+    Toolbar toolbar;
+    DrawerLayout drawerLayout;
+    FloatingActionButton actionButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,61 +78,32 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         setContentView(R.layout.activity_dashboard);
 
         // Toolbar craziness
-        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         toolbar.setTitle("Dashboard");
         toolbar.inflateMenu(R.menu.menu_dashboard);
         toolbar.setOnMenuItemClickListener(this);
         toolbar.setTitleTextColor(getResources().getColor(R.color.abc_primary_text_material_dark));
 
-        // Other toolbar craziness
-        /* Toolbar sidebar = (Toolbar) findViewById(R.id.nav_toolbar);
-        sidebar.inflateMenu(R.menu.menu_nav_drawer);
-        sidebar.setOnMenuItemClickListener(this); */
-
         // Open datasources
-        taskDataSource = new TaskDataSource(this);
-        taskDataSource.open();
-        listDataSource = new ListDataSource(this);
-        listDataSource.open();
+        initDatasources();
 
         // Drawer craziness
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.my_drawer_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.my_drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
         drawerLayout.setDrawerListener(mDrawerToggle);
+        drawerLayout.setStatusBarBackgroundColor(
+                getResources().getColor(R.color.primaryColorDark));
 
         // Add button stuff
-        final FloatingActionButton actionButton = (FloatingActionButton) findViewById(R.id.add_button);
-        actionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                LinearLayout addBox = (LinearLayout) findViewById(R.id.add_box);
-                editText = (EditText) findViewById(R.id.task_name_edittext);
-
-                if(showingInput) {
-                    addBox.setVisibility(View.GONE);
-                    actionButton.setImageResource(R.drawable.ic_add_white_24dp);
-                } else {
-                    addBox.setVisibility(View.VISIBLE);
-                    actionButton.setImageResource(R.drawable.ic_close_white_24dp);
-                    editText.requestFocus();
-                }
-
-                showingInput = !showingInput;
-            }
-        });
+        actionButton = (FloatingActionButton) findViewById(R.id.add_button);
+        actionButton.setOnClickListener(new FloatingActionButtonListener());
 
 
         // Things for recyclerviews
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, null, false, true));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
-
-        // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
@@ -131,16 +111,19 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         mAdapter = new TaskRecyclerAdapter(taskDataSource.getAllTasks(), this);
         mRecyclerView.setAdapter(mAdapter);
 
+        // Assemble Cursor for ListView
+        Cursor c = assembleCursor(listDataSource.getListCursor());
 
         // Load the lists
         ListView listView = (ListView) findViewById(R.id.drawer_list);
-        listView.setAdapter(new SimpleCursorAdapter(this, R.layout.drawer_item_view,
-                listDataSource.getListCursor(), new String[]{ListOpenHelper.COLUMN_NAME},
-                new int[]{R.id.list_name}, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER));
-        Log.d("Bounce", "We loaded the lists successfully");
-
-
-
+        listView.setAdapter(new DrawerListAdapter(this,
+                R.layout.drawer_item_view,
+                assembleCursor(listDataSource.getListCursor()),
+                prepareListIcons(),
+                new String[]{ListOpenHelper.COLUMN_NAME},
+                new int[]{R.id.list_name},
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER));
+        listView.setOnItemClickListener(new DrawerListListener());
 
         // Header view
         LayoutInflater inflater = getLayoutInflater();
@@ -157,38 +140,12 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             }
         });
 
+        listView.setItemChecked(1, true);
+        setTitle("Inbox");
 
         // Things for adding tasks
         EditText editText = (EditText) findViewById(R.id.task_name_edittext);
-        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-
-                if(actionId == EditorInfo.IME_ACTION_DONE) {
-                    if(v.getText().toString().length() > 0) {
-                        mAdapter.addElement(taskDataSource.createTask(v.getText().toString()));
-                        v.setText("");
-
-                        InputMethodManager imm = (InputMethodManager)getSystemService(
-                                Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-
-                        LinearLayout addBox = (LinearLayout) findViewById(R.id.add_box);
-                        addBox.setVisibility(View.GONE);
-
-                        LinearLayout decoy  = (LinearLayout) findViewById(R.id.decoy);
-                        decoy.requestFocus();
-
-                        actionButton.show();
-                        //actionButton.setVisibility(View.VISIBLE);
-
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-        });
+        editText.setOnEditorActionListener(new EditorListener());
 
         ImageButton calendarButton = (ImageButton) findViewById(R.id.calendar_button);
         calendarButton.setOnClickListener(new View.OnClickListener() {
@@ -201,13 +158,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         });
 
     }
-
-    /* @Override
-    protected void onResume() {
-        super.onResume();
-        //mAdapter = new TaskRecyclerAdapter(taskDataSource.getAllTasks(), this);
-        //mAdapter.notifyItemChanged(mAdapter.getActiveItemNumber());
-    } */
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -226,8 +176,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 mAdapter.notifyItemChanged(mAdapter.getActiveItemNumber());
             }
         }
-
-
     }
 
     @Override
@@ -256,7 +204,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
         return super.onOptionsItemSelected(item);
     }
-
 
     public void receiveDate(int year, int month, int day) {
 
@@ -311,6 +258,172 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
         dialog.show();
         positiveAction.setEnabled(false); // disabled by default
+    }
+
+    private Cursor assembleCursor(Cursor cursorFromDatabase) {
+
+        String[] columns = new String[] {
+                ListOpenHelper.COLUMN_ID,
+                ListOpenHelper.COLUMN_NAME
+        };
+        MatrixCursor matrixCursor= new MatrixCursor(columns);
+        matrixCursor.addRow(new Object[]{-1, "Inbox"});
+        matrixCursor.addRow(new Object[]{-1, "Upcoming"});
+        matrixCursor.addRow(new Object[]{-1, "All Tasks"});
+        matrixCursor.addRow(new Object[]{-1, "Completed"});
+        matrixCursor.addRow(new Object[]{-1, "Unassigned"});
+
+        return new MergeCursor(new Cursor[]{matrixCursor, cursorFromDatabase});
+
+    }
+
+    private int[] prepareListIcons() {
+        return new int[] {
+                R.drawable.ic_inbox_color,
+                R.drawable.ic_upcoming_color,
+                R.drawable.ic_alltasks_color,
+                R.drawable.ic_completed_color,
+                R.drawable.ic_unassigned_color
+        };
+    }
+
+    private void updateUIcolors(int position){
+        toolbar.setBackgroundColor(getToolbarColor(position));
+        drawerLayout.setStatusBarBackgroundColor(getStatusbarColor(position));
+        updateActionButton(position);
+    }
+
+    private int getToolbarColor(int position){
+        int i = position - 1;
+        switch(i) {
+            case 0: return getResources().getColor(R.color.inbox);
+            case 1: return getResources().getColor(R.color.upcoming);
+            case 2: return getResources().getColor(R.color.alltasks);
+            case 3: return getResources().getColor(R.color.completed);
+            case 4: return getResources().getColor(R.color.unassigned);
+        }
+
+        return getResources().getColor(R.color.unassigned);
+    }
+
+    private int getStatusbarColor(int position){
+        int i = position - 1;
+        switch(i) {
+            case 0: return getResources().getColor(R.color.inboxDark);
+            case 1: return getResources().getColor(R.color.upcomingDark);
+            case 2: return getResources().getColor(R.color.alltasksDark);
+            case 3: return getResources().getColor(R.color.completedDark);
+            case 4: return getResources().getColor(R.color.unassignedDark);
+        }
+
+        return getResources().getColor(R.color.unassignedDark);
+    }
+
+    private void updateActionButton(int position){
+        int i = position - 1;
+        if(i == 0) {
+            actionButton.setBackgroundColor(getResources().getColor(R.color.accentColor));
+            actionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_white_24dp));
+        } else {
+            actionButton.setBackgroundColor(getResources().getColor(R.color.windowBackground));
+            actionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_grey600_24dp));
+        }
+
+    }
+
+    private void setTitle(String title) {
+        toolbar.setTitle(title);
+    }
+
+
+    private void initDatasources() {
+        taskDataSource = new TaskDataSource(this);
+        taskDataSource.open();
+        listDataSource = new ListDataSource(this);
+        listDataSource.open();
+    }
+
+
+    /**
+     *  onClickListener class for FloatingActionButton
+     */
+    private class FloatingActionButtonListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+
+            LinearLayout addBox = (LinearLayout) findViewById(R.id.add_box);
+            editText = (EditText) findViewById(R.id.task_name_edittext);
+
+            if(toolbar.getTitle().toString().equals("Inbox")) {
+                if(showingInput) {
+                    addBox.setVisibility(View.GONE);
+                    actionButton.setImageResource(R.drawable.ic_add_white_24dp);
+                } else {
+                    addBox.setVisibility(View.VISIBLE);
+                    actionButton.setImageResource(R.drawable.ic_close_white_24dp);
+                    editText.requestFocus();
+                }
+            } else {
+                if(showingInput) {
+                    addBox.setVisibility(View.GONE);
+                    actionButton.setImageResource(R.drawable.ic_add_grey600_24dp);
+                } else {
+                    addBox.setVisibility(View.VISIBLE);
+                    actionButton.setImageResource(R.drawable.ic_close_grey600_24dp);
+                    editText.requestFocus();
+                }
+            }
+
+            showingInput = !showingInput;
+        }
+    }
+
+    /**
+     *  onItemClickListener class for Nav Drawer's ListView
+     */
+    private class DrawerListListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Toast.makeText(Dashboard.this, "Clicked position " + position, Toast.LENGTH_SHORT)
+                    .show();
+
+            setTitle(((TextView) view.findViewById(R.id.list_name)).getText().toString());
+            updateUIcolors(position);
+            drawerLayout.closeDrawer(findViewById(R.id.scrimInsetsFrameLayout));
+        }
+    }
+
+    /**
+     *  EditorListener class for the entry field
+     */
+    private class EditorListener implements TextView.OnEditorActionListener {
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+            if(actionId == EditorInfo.IME_ACTION_DONE) {
+                if(v.getText().toString().length() > 0) {
+                    mAdapter.addElement(taskDataSource.createTask(v.getText().toString()));
+                    v.setText("");
+
+                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+                    LinearLayout addBox = (LinearLayout) findViewById(R.id.add_box);
+                    addBox.setVisibility(View.GONE);
+
+                    LinearLayout decoy  = (LinearLayout) findViewById(R.id.decoy);
+                    decoy.requestFocus();
+
+                    actionButton.show();
+                    //actionButton.setVisibility(View.VISIBLE);
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
 }

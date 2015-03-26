@@ -124,19 +124,34 @@
 
 
 
-    <!-- Your drawer view. This can be any view, LinearLayout
-         is just an example. As we have set fitSystemWindows=true
-         this will be displayed under the status bar. -->
-    <LinearLayout
-        android:layout_width="@dimen/drawer_width"
+    <!-- The navigation drawer -->
+    <com.andrewsosa.bounce.ScrimInsetsFrameLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/scrimInsetsFrameLayout"
+        android:layout_width="304dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="?android:attr/windowBackground"
-        android:clickable="true">
+        android:background="@color/windowBackground"
+        android:elevation="10dp"
+        android:fitsSystemWindows="true"
+        app:insetForeground="#4000">
 
         <!-- Your drawer content -->
-        <include layout="@layout/nav_drawer"/>
+        <!-- Your drawer view. This can be any view, LinearLayout
+             is just an example. As we have set fitSystemWindows=true
+             this will be displayed under the status bar. -->
+        <LinearLayout
+            android:layout_width="@dimen/drawer_width"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:paddingTop="25dp"
+            android:clickable="true">
 
-    </LinearLayout>
+            <!-- Your drawer content -->
+            <include layout="@layout/nav_drawer"/>
+
+        </LinearLayout>
+
+    </com.andrewsosa.bounce.ScrimInsetsFrameLayout>
 
 </android.support.v4.widget.DrawerLayout>

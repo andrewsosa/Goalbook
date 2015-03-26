@@ -52,8 +52,7 @@
             android:footerDividersEnabled="true"
             android:headerDividersEnabled="true"
             android:choiceMode="singleChoice"
-            android:divider="@drawable/divider_background"
-            android:dividerHeight="1dp" />
+            android:divider="@android:color/transparent" />
 
         <LinearLayout
             android:orientation="vertical"

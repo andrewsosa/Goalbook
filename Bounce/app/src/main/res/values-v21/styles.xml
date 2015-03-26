@@ -12,6 +12,10 @@
         <!-- Enable dialog stuff -->
         <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
 
+        <!-- Window stuff -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
     </style>
 
     <!-- Styles for main pop-up dialogs -->
@@ -22,6 +26,12 @@
         <item name="colorAccent">@color/accentColor</item>
         <item name="android:textColorPrimary">@color/primary_text_default_material_dark</item>
 
+    </style>
+
+    <!-- Status bar override for edit activity -->
+    <style name="AppTheme.EditActivity" parent="AppTheme.ItemView">
+        <item name="colorPrimary">@color/grey_white_1000</item>
+        <item name="colorPrimaryDark">@color/grey_400</item>
     </style>
 
 
@@ -39,7 +49,5 @@
         <item name="android:background">@drawable/fab_label_background</item>
         <item name="android:textColor">@color/grey_white_1000</item>
     </style>
-
-
 
 </resources>

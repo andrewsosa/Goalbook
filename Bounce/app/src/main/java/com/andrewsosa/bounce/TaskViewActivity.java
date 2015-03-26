@@ -77,6 +77,10 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
                 Intent i = new Intent(TaskViewActivity.this, TaskEditActivity.class);
                 i.putExtra("Task", task);
                 startActivity(i);
+                boolean big = getResources().getBoolean(R.bool.large_layout);
+                if(big) {
+                    finish();
+                }
             }
         });
 

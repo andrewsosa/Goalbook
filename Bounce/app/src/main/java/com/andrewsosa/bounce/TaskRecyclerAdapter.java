@@ -17,11 +17,11 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
     // The Dataset
     private static ArrayList<Task> mDataset;
-    private static Activity activity;
+    private static Dashboard activity;
     private int activeItemNumber = -1;
 
     // Constructor for setting up the dataset
-    public TaskRecyclerAdapter(ArrayList<Task> myDataset, Activity c) {
+    public TaskRecyclerAdapter(ArrayList<Task> myDataset, Dashboard c) {
         mDataset = new ArrayList<>(myDataset);
         activity = c;
     }

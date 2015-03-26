@@ -19,6 +19,11 @@ public class ListDataSource {
             ListOpenHelper.COLUMN_NAME
     };
 
+    private String[] drawerColumns = {
+            ListOpenHelper.COLUMN_ID,
+            ListOpenHelper.COLUMN_NAME
+    };
+
     public ListDataSource(Context context) {
         dbHelper = new ListOpenHelper(context);
     }
@@ -66,7 +71,7 @@ public class ListDataSource {
     public void deleteList(List list) {
         long id = list.getId();
         database.delete(ListOpenHelper.TABLE_LISTS, ListOpenHelper.COLUMN_ID
-            + " = " + id,  null);
+                + " = " + id, null);
     }
 
     public List getList(long id) {
@@ -102,6 +107,11 @@ public class ListDataSource {
 
     public Cursor getListCursor() {
         return database.query(ListOpenHelper.TABLE_LISTS, allColumns,
+                null, null, null, null, null);
+    }
+
+    public Cursor getDrawerCursor() {
+        return database.query(ListOpenHelper.TABLE_LISTS, drawerColumns,
                 null, null, null, null, null);
     }
 

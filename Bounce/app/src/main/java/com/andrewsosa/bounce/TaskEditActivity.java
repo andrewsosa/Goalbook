@@ -28,7 +28,7 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
         // Toolbar stuff
         Toolbar toolbar = (Toolbar) findViewById(R.id.taskEditToolbar);
         toolbar.setTitle("Edit Task");
-        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_close_white_24dp));
+        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_close_black_24dp));
         toolbar.inflateMenu(R.menu.menu_task_edit);
         toolbar.setOnMenuItemClickListener(this);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -37,7 +37,8 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
                 finish();
             }
         });
-        toolbar.setTitleTextColor(getResources().getColor(R.color.primaryTextLight));
+        toolbar.setTitleTextColor(getResources().getColor(R.color.primaryTextDark));
+
 
         // Get a datasource
         dataSource = new TaskDataSource(this);

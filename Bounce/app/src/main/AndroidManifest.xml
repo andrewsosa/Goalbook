@@ -29,7 +29,7 @@
             android:name=".TaskEditActivity"
             android:label="@string/title_activity_task_edit"
             android:parentActivityName=".TaskViewActivity"
-            android:theme="@style/AppTheme.ItemView"
+            android:theme="@style/AppTheme.EditActivity"
             android:windowSoftInputMode="adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
