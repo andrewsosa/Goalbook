@@ -2,6 +2,7 @@ package com.andrewsosa.bounce;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -9,6 +10,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -31,6 +34,20 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
 
         // Extract Task
         Task intentTask = (Task) getIntent().getSerializableExtra("Task");
+
+        // Set color
+        int toolbarColor = getIntent().getIntExtra("ToolbarColor",
+                getResources().getColor(R.color.primaryColor));
+        int statusbarColor = getIntent().getIntExtra("StatusbarColor",
+                getResources().getColor(R.color.primaryColorDark));
+        View colorPanel = findViewById(R.id.color_panel);
+        colorPanel.setBackgroundColor(toolbarColor);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(statusbarColor);
+        }
 
         // Toolbar craziness
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -65,7 +82,7 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
             @Override
             public void onClick(View v) {
 
-               Toast.makeText(TaskViewActivity.this, "Hello!", Toast.LENGTH_SHORT).show();
+               //Toast.makeText(TaskViewActivity.this, "Hello!", Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -76,11 +93,12 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
             public void onClick(View v) {
                 Intent i = new Intent(TaskViewActivity.this, TaskEditActivity.class);
                 i.putExtra("Task", task);
-                startActivity(i);
                 boolean big = getResources().getBoolean(R.bool.large_layout);
                 if(big) {
                     finish();
                 }
+                startActivity(i);
+
             }
         });
 

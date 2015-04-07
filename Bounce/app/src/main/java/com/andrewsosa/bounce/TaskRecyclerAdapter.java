@@ -134,8 +134,6 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         return mDataset.get(i);
     }
 
-
-
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
@@ -167,6 +165,9 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
             Log.d("Bounce", "Tile onClick!");
             Intent intent = new Intent(activity, TaskViewActivity.class);
             intent.putExtra("Task", task);
+            intent.putExtra("ToolbarColor", activity.getCurrentToolbarColor());
+            intent.putExtra("StatusbarColor", activity.getCurrentStatusbarColor());
+
 
             t.activeItemNumber = mDataset.indexOf(task);
 

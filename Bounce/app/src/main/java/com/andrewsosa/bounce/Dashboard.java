@@ -3,6 +3,7 @@ package com.andrewsosa.bounce;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
@@ -28,8 +29,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +40,10 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.melnykov.fab.FloatingActionButton;
+import com.parse.ParseUser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 
 
@@ -67,10 +73,22 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     private boolean showingInput = false;
 
     // UI Components
+    ListView drawerList;
     Toolbar toolbar;
     DrawerLayout drawerLayout;
     FloatingActionButton actionButton;
 
+    // Data for menu navigation
+    Integer selectedPosition;
+    ArrayList<String> titles;
+    String[] presetTitles = {
+            "Inbox",
+            "Upcoming",
+            "Completed",
+            "All Tasks",
+            "Unassigned",
+            "Divider"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +116,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         actionButton = (FloatingActionButton) findViewById(R.id.add_button);
         actionButton.setOnClickListener(new FloatingActionButtonListener());
 
-
         // Things for recyclerviews
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, null, false, true));
@@ -112,36 +129,36 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         mRecyclerView.setAdapter(mAdapter);
 
         // Assemble Cursor for ListView
-        Cursor c = assembleCursor(listDataSource.getListCursor());
-
+        Cursor cursor = listDataSource.getListCursor();
+        titles = buildTitleList(cursor);
         // Load the lists
-        ListView listView = (ListView) findViewById(R.id.drawer_list);
-        listView.setAdapter(new DrawerListAdapter(this,
+        drawerList = (ListView) findViewById(R.id.drawer_list);
+        drawerList.setAdapter(new SimpleCursorAdapter(this,
                 R.layout.drawer_item_view,
-                assembleCursor(listDataSource.getListCursor()),
-                prepareListIcons(),
+                cursor,
                 new String[]{ListOpenHelper.COLUMN_NAME},
                 new int[]{R.id.list_name},
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER));
-        listView.setOnItemClickListener(new DrawerListListener());
+        drawerList.setOnItemClickListener(new DrawerListListener());
 
-        // Header view
-        LayoutInflater inflater = getLayoutInflater();
-        ViewGroup header = (ViewGroup) inflater.inflate(R.layout.drawer_header, listView, false);
-        listView.addHeaderView(header, null, false);
+        // Add Extra views to ListView
+        addExtraViews();
 
-        // Footer view
-        ViewGroup footer = (ViewGroup) inflater.inflate(R.layout.drawer_footer, listView, false);
-        listView.addFooterView(footer, null, false);
-        footer.setOnClickListener(new View.OnClickListener() {
+        if (savedInstanceState != null && selectedPosition !=null) {
+            selectPosition(selectedPosition);
+        } else {
+            // Select either the default item (0) or the last selected item.
+            selectPosition(0);
+        }
+
+        // For logout
+        RelativeLayout logout = (RelativeLayout) findViewById(R.id.logout_layout);
+        logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createNewListDialog();
+                displayLogoutDialog();
             }
         });
-
-        listView.setItemChecked(1, true);
-        setTitle("Inbox");
 
         // Things for adding tasks
         EditText editText = (EditText) findViewById(R.id.task_name_edittext);
@@ -231,6 +248,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                         if (nameInput != null) {
                             //Toast.makeText(getApplicationContext(), "Password: " + nameInput.getText().toString(), Toast.LENGTH_SHORT).show();
                             listDataSource.createList(nameInput.getText().toString());
+                            ((DrawerListAdapter)drawerList.getAdapter()).notifyDataSetChanged();
                         }
                     }
 
@@ -260,6 +278,23 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         positiveAction.setEnabled(false); // disabled by default
     }
 
+    private void displayLogoutDialog() {
+        new MaterialDialog.Builder(this)
+                .content("Would you like to sign out of Bounce?")
+                .positiveText("Sign out")
+                .negativeText("Cancel")
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        ParseUser.logOut();
+                        Intent intent = new Intent(Dashboard.this, DispatchActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+                })
+                .show();
+    }
+
     private Cursor assembleCursor(Cursor cursorFromDatabase) {
 
         String[] columns = new String[] {
@@ -269,9 +304,10 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         MatrixCursor matrixCursor= new MatrixCursor(columns);
         matrixCursor.addRow(new Object[]{-1, "Inbox"});
         matrixCursor.addRow(new Object[]{-1, "Upcoming"});
-        matrixCursor.addRow(new Object[]{-1, "All Tasks"});
         matrixCursor.addRow(new Object[]{-1, "Completed"});
+        matrixCursor.addRow(new Object[]{-1, "All Tasks"});
         matrixCursor.addRow(new Object[]{-1, "Unassigned"});
+        matrixCursor.addRow(new Object[]{-1, "Divider"});
 
         return new MergeCursor(new Cursor[]{matrixCursor, cursorFromDatabase});
 
@@ -279,11 +315,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     private int[] prepareListIcons() {
         return new int[] {
-                R.drawable.ic_inbox_color,
-                R.drawable.ic_upcoming_color,
-                R.drawable.ic_alltasks_color,
-                R.drawable.ic_completed_color,
-                R.drawable.ic_unassigned_color
+                R.drawable.ic_drawer_inbox,
+                R.drawable.ic_drawer_upcoming,
+                R.drawable.ic_drawer_completed,
+                R.drawable.ic_drawer_alltasks,
+                R.drawable.ic_drawer_unassigned
         };
     }
 
@@ -293,13 +329,21 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         updateActionButton(position);
     }
 
+    public int getCurrentToolbarColor() {
+        return getToolbarColor(selectedPosition);
+    }
+
+    public int getCurrentStatusbarColor() {
+        return getStatusbarColor(selectedPosition);
+    }
+
     private int getToolbarColor(int position){
-        int i = position - 1;
+        int i = position;
         switch(i) {
             case 0: return getResources().getColor(R.color.inbox);
             case 1: return getResources().getColor(R.color.upcoming);
-            case 2: return getResources().getColor(R.color.alltasks);
-            case 3: return getResources().getColor(R.color.completed);
+            case 3: return getResources().getColor(R.color.alltasks);
+            case 2: return getResources().getColor(R.color.completed);
             case 4: return getResources().getColor(R.color.unassigned);
         }
 
@@ -307,12 +351,12 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     }
 
     private int getStatusbarColor(int position){
-        int i = position - 1;
+        int i = position;
         switch(i) {
             case 0: return getResources().getColor(R.color.inboxDark);
             case 1: return getResources().getColor(R.color.upcomingDark);
-            case 2: return getResources().getColor(R.color.alltasksDark);
-            case 3: return getResources().getColor(R.color.completedDark);
+            case 3: return getResources().getColor(R.color.alltasksDark);
+            case 2: return getResources().getColor(R.color.completedDark);
             case 4: return getResources().getColor(R.color.unassignedDark);
         }
 
@@ -320,7 +364,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     }
 
     private void updateActionButton(int position){
-        int i = position - 1;
+        int i = position;
         if(i == 0) {
             actionButton.setBackgroundColor(getResources().getColor(R.color.accentColor));
             actionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_white_24dp));
@@ -335,12 +379,142 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         toolbar.setTitle(title);
     }
 
-
     private void initDatasources() {
         taskDataSource = new TaskDataSource(this);
         taskDataSource.open();
         listDataSource = new ListDataSource(this);
         listDataSource.open();
+    }
+
+    private ArrayList<String> buildTitleList(Cursor cursor) {
+        ArrayList<String> titles = new ArrayList<String>();
+
+        titles.addAll(Arrays.asList(presetTitles));
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            String title = cursor.getString(1);
+            titles.add(title);
+            cursor.moveToNext();
+        }
+
+        // don't close, needs to be used by adapter
+        //cursor.close();
+        return titles;
+    }
+
+    private void selectPosition(int position) {
+        selectedPosition = position;
+        setTitle(titles.get(position));
+        updateUIcolors(position);
+        drawerLayout.closeDrawer(findViewById(R.id.scrimInsetsFrameLayout));
+    }
+
+    private void updateDataSet(int position) {
+        switch(position) {
+            case 1:
+
+                break;
+        }
+    }
+
+    private void addExtraViews() {
+
+        int[] icons = prepareListIcons();
+
+
+        // Header view
+        LayoutInflater inflater = getLayoutInflater();
+        ViewGroup header = (ViewGroup) inflater.inflate(R.layout.drawer_header, drawerList, false);
+        displayUserData(header);
+        drawerList.addHeaderView(header, null, false);
+
+        // Add the 5 presets
+        for(int i = 0; i < 5; ++i) {
+            ViewGroup preset = (ViewGroup) inflater.inflate(R.layout.drawer_item_view, drawerList, false);
+            ImageView icon = (ImageView) preset.findViewById(R.id.list_icon);
+            TextView name = (TextView) preset.findViewById(R.id.list_name);
+            icon.setImageDrawable(getResources().getDrawable(icons[i]));
+            name.setText(presetTitles[i]);
+            name.setTextColor(makeColorStateListForItem(i));
+            drawerList.addHeaderView(preset, null, true);
+        }
+
+        // Add header divider
+        ViewGroup divider = (ViewGroup) inflater.inflate(R.layout.drawer_divider, drawerList, false);
+        drawerList.addHeaderView(divider, null, false);
+
+        // Add footer divider
+        ViewGroup divider2 = (ViewGroup) inflater.inflate(R.layout.drawer_divider, drawerList, false);
+        drawerList.addFooterView(divider2, null, false);
+
+        // Footer view
+        ViewGroup footer = (ViewGroup) inflater.inflate(R.layout.drawer_footer, drawerList, false);
+        drawerList.addFooterView(footer, null, false);
+        footer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createNewListDialog();
+            }
+        });
+    }
+
+    private void displayUserData(ViewGroup header) {
+        try {
+            TextView name = (TextView) header.findViewById(R.id.header_name);
+            TextView email = (TextView) header.findViewById(R.id.header_email);
+
+            name.setText(ParseUser.getCurrentUser().getUsername());
+            email.setText(ParseUser.getCurrentUser().getEmail());
+        } catch (Exception e) {
+            Log.e("displayUserData", "Had issue displaying User data, skipped.");
+        }
+    }
+
+    private ColorStateList makeColorStateListForItem(int position){
+        int pressedColor = pressedColorForItem(position);
+        int checkedColor = checkedColorForItem(position);
+        int defaultColor = defaultColorForItem(position);
+        ColorStateList colorStateList = new ColorStateList(
+                new int[][]{
+                        new int[]{android.R.attr.state_pressed},
+                        new int[]{android.R.attr.state_activated},
+                        new int[]{0},
+                },
+                new int[]{
+                        pressedColor, //use when state is pressed
+                        checkedColor, //use when state is checked, but not pressed
+                        defaultColor}); //used when state is not pressed, nor checked
+
+        return colorStateList;
+    }
+
+    private int pressedColorForItem(int position){
+        switch(position) {
+            case 0: return getResources().getColor(R.color.inbox);
+            case 1: return getResources().getColor(R.color.upcoming);
+            case 3: return getResources().getColor(R.color.alltasks);
+            case 2: return getResources().getColor(R.color.completed);
+            case 4: return getResources().getColor(R.color.unassigned);
+        }
+
+        return getResources().getColor(R.color.primaryTextDark);
+    }
+
+    private int checkedColorForItem(int position){
+        switch(position) {
+            case 0: return getResources().getColor(R.color.inbox);
+            case 1: return getResources().getColor(R.color.upcoming);
+            case 3: return getResources().getColor(R.color.alltasks);
+            case 2: return getResources().getColor(R.color.completed);
+            case 4: return getResources().getColor(R.color.unassigned);
+        }
+
+        return getResources().getColor(R.color.primaryTextDark);
+    }
+
+    private int defaultColorForItem(int position){
+        return getResources().getColor(R.color.primaryTextDark);
     }
 
 
@@ -387,9 +561,10 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             Toast.makeText(Dashboard.this, "Clicked position " + position, Toast.LENGTH_SHORT)
                     .show();
 
-            setTitle(((TextView) view.findViewById(R.id.list_name)).getText().toString());
-            updateUIcolors(position);
-            drawerLayout.closeDrawer(findViewById(R.id.scrimInsetsFrameLayout));
+            // Handles off-by-one error because header view counts as 0
+            selectPosition(position - 1);
+
+
         }
     }
 

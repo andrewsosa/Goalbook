@@ -109,6 +109,7 @@
     </RelativeLayout>
 
 
+
     <!-- The navigation drawer -->
     <com.andrewsosa.bounce.ScrimInsetsFrameLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -129,7 +130,6 @@
             android:layout_width="@dimen/drawer_width"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:paddingTop="25dp"
             android:clickable="true">
 
             <!-- Your drawer content -->

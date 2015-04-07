@@ -31,72 +31,49 @@ public class DrawerListAdapter extends SimpleCursorAdapter {
 
         try {
             ImageView imageView = (ImageView) view.findViewById(R.id.list_icon);
+            String name = ((TextView)view.findViewById(R.id.list_name)).getText().toString();
 
-            if (position < 5) {
-                imageView.setImageDrawable(context.getResources().getDrawable(icons[position]));
+            switch(name) {
+                case "Inbox":
+                    imageView.setImageDrawable(context.getResources().getDrawable(icons[0]));
+                    break;
+                case "Upcoming":
+                    imageView.setImageDrawable(context.getResources().getDrawable(icons[1]));
+                    break;
+                case "All Tasks":
+                    imageView.setImageDrawable(context.getResources().getDrawable(icons[2]));
+                    break;
+                case "Completed":
+                    imageView.setImageDrawable(context.getResources().getDrawable(icons[3]));
+                    break;
+                case "Unassigned":
+                    imageView.setImageDrawable(context.getResources().getDrawable(icons[4]));
+                    break;
+                case "Divider":
+                    view = ((Dashboard)context).getLayoutInflater().inflate(R.layout.drawer_divider, parent, false);
+                    return view;
+
             }
 
         } catch (NullPointerException e) {
-            Log.e("Beacon", "Could not find R.id.list_icon in layout");
+            Log.e("Bounce", "Could not find R.id.list_icon in layout");
         } catch (IndexOutOfBoundsException i) {
-            Log.e("Beacon", "Index out of bounds error, could not find icon for position given.");
+            Log.e("Bounce", "Index out of bounds error, could not find icon for position given.");
         }
 
         try {
             TextView textView = (TextView) view.findViewById(R.id.list_name);
-            textView.setTextColor(makeColorStateListForItem(position));
+            //textView.setTextColor(makeColorStateListForItem(position));
+        } catch (NullPointerException n) {
+            Log.e("Bounce", "Could not find 'list_name' view by id. ");
         } catch (Exception e) {
-            Log.e("Beacon", "butts");
+            Log.e("Bounce", "Could not make color state list for position: " + position);
         }
 
         return view;
     }
 
-    private ColorStateList makeColorStateListForItem(int position){
-        int pressedColor = pressedColorForItem(position);
-        int checkedColor = checkedColorForItem(position);
-        int defaultColor = defaultColorForItem(position);
-        ColorStateList colorStateList = new ColorStateList(
-                new int[][]{
-                        new int[]{android.R.attr.state_pressed},
-                        new int[]{android.R.attr.state_activated},
-                        new int[]{0},
-                },
-                new int[]{
-                        pressedColor, //use when state is pressed
-                        checkedColor, //use when state is checked, but not pressed
-                        defaultColor}); //used when state is not pressed, nor checked
 
-        return colorStateList;
-    }
-
-    private int pressedColorForItem(int position){
-        switch(position) {
-            case 0: return context.getResources().getColor(R.color.inbox);
-            case 1: return context.getResources().getColor(R.color.upcoming);
-            case 2: return context.getResources().getColor(R.color.alltasks);
-            case 3: return context.getResources().getColor(R.color.completed);
-            case 4: return context.getResources().getColor(R.color.unassigned);
-        }
-
-        return context.getResources().getColor(R.color.primaryTextDark);
-    }
-
-    private int checkedColorForItem(int position){
-        switch(position) {
-            case 0: return context.getResources().getColor(R.color.inbox);
-            case 1: return context.getResources().getColor(R.color.upcoming);
-            case 2: return context.getResources().getColor(R.color.alltasks);
-            case 3: return context.getResources().getColor(R.color.completed);
-            case 4: return context.getResources().getColor(R.color.unassigned);
-        }
-
-        return context.getResources().getColor(R.color.primaryTextDark);
-    }
-
-    private int defaultColorForItem(int position){
-        return context.getResources().getColor(R.color.primaryTextDark);
-    }
 
 
 

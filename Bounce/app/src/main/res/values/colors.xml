@@ -7,7 +7,7 @@
     <color name="primaryColorDark">@color/light_blue_800</color>
     <color name="accentColor">@color/pink_A200</color>
     <color name="windowBackground">@color/grey_white_1000</color>
-    <color name="dividerColor">#B6B6B6</color>
+    <color name="dividerColor">@color/grey_300</color>
 
     <!-- Text Colors -->
     <color name="primaryTextLight">@color/abc_primary_text_material_dark</color>

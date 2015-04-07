@@ -29,7 +29,7 @@
     </style>
 
     <!-- Status bar override for edit activity -->
-    <style name="AppTheme.EditActivity" parent="AppTheme.ItemView">
+    <style name="AppTheme.EditActivity" parent="AppTheme">
         <item name="colorPrimary">@color/grey_white_1000</item>
         <item name="colorPrimaryDark">@color/grey_400</item>
     </style>
@@ -43,6 +43,12 @@
         <item name="colorAccent">@color/accentColor</item>
         <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
 
+    </style>
+
+    <!-- Style for login activity -->
+    <style name="AppTheme.Login" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Window stuff -->
+        <item name="android:statusBarColor">@color/primaryColor</item>
     </style>
 
     <style name="menu_labels_style">

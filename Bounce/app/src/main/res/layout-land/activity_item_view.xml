@@ -6,12 +6,11 @@
     android:layout_height="match_parent"
     tools:context="com.andrewsosa.bounce.TaskViewActivity">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <View
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:background="@color/primaryColor"
-        android:id="@+id/color_panel"></LinearLayout>
+        android:id="@+id/color_panel"></View>
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"

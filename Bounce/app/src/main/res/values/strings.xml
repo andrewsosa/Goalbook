@@ -12,5 +12,8 @@
     <string name="action_complete">Complete</string>
     <string name="action_edit">Edit</string>
     <string name="title_activity_task_edit">TaskEditActivity</string>
+    <string name="title_activity_dispatch">Bounce</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_sign_up">SignUpActivity</string>
 
 </resources>
