@@ -51,19 +51,20 @@
                 android:fontFamily="sans-serif-regular"
                 android:textColor="@color/secondaryTextLight"
                 android:layout_alignParentBottom="true"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:visibility="gone" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Username"
                 android:id="@+id/header_name"
-                android:layout_above="@+id/header_email"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:textColor="@color/primaryTextLight"
-                android:layout_marginBottom="2dp"
-                android:fontFamily="sans-serif-medium" />
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_alignParentBottom="true" />
 
 
         </RelativeLayout>

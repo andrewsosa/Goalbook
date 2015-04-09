@@ -34,23 +34,24 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/textView6"
-        android:paddingLeft="72dp"
-        android:paddingRight="72dp"
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp"
         android:layout_marginTop="32dp"
-        android:animateLayoutChanges="true">
+        android:animateLayoutChanges="true"
+        android:gravity="center_horizontal">
 
         <EditText
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
             android:ems="10"
             android:id="@+id/username_edit_text"
             android:maxLines="1"
             android:singleLine="true"
-            android:hint="Username" />
+            android:hint="Email address"
+            android:inputType="textEmailAddress" />
 
         <EditText
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
             android:ems="10"
@@ -61,18 +62,13 @@
             android:maxLines="1"
             android:singleLine="true"/>
 
-        <EditText
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:ems="10"
-            android:id="@+id/password_again_edit_text"
-            android:hint="Confirm password"
-            android:fontFamily="sans-serif"
-            android:maxLines="1"
-            android:singleLine="true"
-            android:layout_marginTop="16dp"
-            android:visibility="gone" />
+            android:text="Forgot password?"
+            android:id="@+id/textView"
+            android:layout_marginTop="24dp"
+            android:textColor="@color/primaryColor" />
 
     </LinearLayout>
 
@@ -94,19 +90,22 @@
             android:id="@+id/new_user"
             android:background="#0000"
             android:textColor="@color/secondaryTextDark"
-            android:visibility="visible" />
+            android:visibility="visible"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:text="Sign In"
             android:id="@+id/sign_in"
-            android:background="#0000"
+            android:background="@drawable/blue_button"
             android:layout_marginBottom="16dp"
             android:layout_marginLeft="32dp"
-            android:textColor="@color/primaryColor"
+            android:textColor="@color/primaryTextLight"
             android:paddingLeft="26dp"
-            android:paddingRight="26dp" />
+            android:paddingRight="26dp"
+            android:layout_marginRight="32dp" />
 
     </LinearLayout>
 

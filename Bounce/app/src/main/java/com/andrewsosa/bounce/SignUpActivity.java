@@ -54,17 +54,17 @@ public class SignUpActivity extends ActionBarActivity {
     }
 
     private void signup() {
-        String username = usernameEditText.getText().toString().trim();
+        //String username = usernameEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
         String passwordAgain = passwordAgainEditText.getText().toString().trim();
         String email = emailEditText.getText().toString().trim();
 
         boolean validationError = false;
         StringBuilder validationErrorMessage = new StringBuilder(getString(R.string.error_intro));
-        if (username.length() == 0) {
+        /*if (username.length() == 0) {
             validationError = true;
             validationErrorMessage.append(getString(R.string.error_blank_username));
-        }
+        }*/
         if ((email.length() == 0) || !email.contains("@")) {
             if (validationError) {
                 validationErrorMessage.append(getString(R.string.error_join));
@@ -98,11 +98,15 @@ public class SignUpActivity extends ActionBarActivity {
         dialog.setMessage(getString(R.string.progress_signup));
         dialog.show();
 
+        // Set username as the email
+        String username = email;
+
         // Set up a new Parse user
         ParseUser user = new ParseUser();
         user.setUsername(username);
         user.setPassword(password);
         user.setEmail(email);
+
 
         // Call the Parse signup method
         user.signUpInBackground(new SignUpCallback() {

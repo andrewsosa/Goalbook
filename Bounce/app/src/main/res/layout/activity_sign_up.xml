@@ -35,8 +35,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/imageView3"
-        android:paddingLeft="64dp"
-        android:paddingRight="64dp"
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp"
         android:layout_marginTop="32dp"
         android:animateLayoutChanges="true">
 
@@ -48,18 +48,19 @@
             android:id="@+id/username_edit_text"
             android:maxLines="1"
             android:singleLine="true"
-            android:hint="Name" />
+            android:hint="Username (unique)"
+            android:visibility="gone" />
 
         <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
             android:ems="10"
             android:id="@+id/email_edit_text"
             android:maxLines="1"
             android:singleLine="true"
             android:hint="Email Address"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:inputType="textEmailAddress" />
 
         <EditText
             android:layout_width="fill_parent"
@@ -107,19 +108,19 @@
             android:background="#0000"
             android:textColor="@color/secondaryTextDark"
             android:visibility="visible"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp" />
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:text="Create"
             android:id="@+id/create"
-            android:background="#0000"
-            android:textColor="@color/primaryColor"
+            android:background="@drawable/blue_button"
+            android:textColor="@color/primaryTextLight"
             android:visibility="visible"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp" />
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp" />
 
     </LinearLayout>
 

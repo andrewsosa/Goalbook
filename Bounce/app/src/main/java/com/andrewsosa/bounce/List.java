@@ -22,4 +22,5 @@ public class List implements Serializable {
     public String getName() {
         return name;
     }
+
 }

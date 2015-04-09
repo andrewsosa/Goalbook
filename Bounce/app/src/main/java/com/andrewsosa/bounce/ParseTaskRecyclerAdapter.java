@@ -7,27 +7,32 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.parse.DeleteCallback;
+import com.parse.ParseException;
 
-public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapter.ViewHolder> {
+import java.util.*;
+import java.util.List;
+
+public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecyclerAdapter.ViewHolder> {
 
     // The Dataset
-    private static ArrayList<Task> mDataset;
+    private static List<ParseTask> mDataset;
     private static Dashboard activity;
     private int activeItemNumber = -1;
 
     // Constructor for setting up the dataset
-    public TaskRecyclerAdapter(ArrayList<Task> myDataset, Dashboard c) {
-        mDataset = new ArrayList<Task>(myDataset);
+    public ParseTaskRecyclerAdapter(ArrayList<ParseTask> myDataset, Dashboard c) {
+        mDataset = new ArrayList<>(myDataset);
         activity = c;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public TaskRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ParseTaskRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         // This is our view
         View v = LayoutInflater.from(parent.getContext())
@@ -38,15 +43,20 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
     }
 
+    public void replaceData(java.util.List<ParseTask> tasks) {
+        mDataset = tasks;
+        notifyDataSetChanged();
+    }
+
     // Add new items to the dataset
-    public void addElement(Task e) {
+    public void addElement(ParseTask e) {
         mDataset.add(e);
         notifyItemInserted(mDataset.size()-1);
         Log.d("Bounce", "Adding Task called ");
 
     }
 
-    public void changeElement(int i, Task e){
+    public void changeElement(int i, ParseTask e){
         mDataset.set(i, e);
     }
 
@@ -54,6 +64,11 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         mDataset.remove(mDataset.get(i));
         notifyItemRemoved(i);
 
+    }
+
+    public void removeElement(ParseTask t){
+        notifyItemRemoved(mDataset.indexOf(t));
+        mDataset.remove(t);
     }
 
     public void setActiveElement(int i) {
@@ -72,52 +87,40 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         return activeItemNumber;
     }
 
-
-    public Task getActiveItem() {
+    public ParseTask getActiveItem() {
         return mDataset.get(activeItemNumber);
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        final Task task = mDataset.get(position);
+        final ParseTask task = mDataset.get(position);
 
-        // Handle name overflow
         String taskName = task.getName();
         /*if(taskName.length() > 16) {
             taskName = taskName.substring(0, 15);
         } */
         holder.titleText.setText(taskName);
+        holder.checkbox.setChecked(task.isDone());
+        holder.task = task;
 
         // Hide date text if there is not one set
-        if(task.getDate() == null) {
+        if(task.getDeadline() == null) {
             holder.subtitleText.setVisibility(View.GONE);
 
             // Fix header text now
-
             RelativeLayout.LayoutParams layoutParams =
                     (RelativeLayout.LayoutParams)holder.titleText.getLayoutParams();
             layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
             holder.titleText.setLayoutParams(layoutParams);
 
         } else {
-            holder.subtitleText.setText(TaskDataSource.toDisplayFormat(task.getDate()));
+            holder.subtitleText.setText(task.getDeadlineAsString());
         }
 
 
-        // Handle checkbox clicks
-        holder.checkbox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("Bounce", "Checkbox onClick!");
-            }
-        });
-
-        // Store task for click listening and stuff
-        holder.task = task;
 
     }
 
@@ -128,7 +131,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     }
 
 
-    public Task getItem(int i) {
+    public ParseTask getItem(int i) {
         return mDataset.get(i);
     }
 
@@ -138,8 +141,8 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         // Reference for the Event that needs to be opened on the click listener
-        Task task;
-        TaskRecyclerAdapter t;
+        ParseTask task;
+        ParseTaskRecyclerAdapter t;
 
         // each data item is just a string in this case
         public TextView titleText;
@@ -147,7 +150,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         public CheckBox checkbox;
 
         // Constructor
-        public ViewHolder(View v, TaskRecyclerAdapter t) {
+        public ViewHolder(View v, ParseTaskRecyclerAdapter t) {
             super(v);
             titleText = (TextView) v.findViewById(R.id.tile_header);
             subtitleText = (TextView) v.findViewById(R.id.tile_subheader);
@@ -155,6 +158,20 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
             this.t = t;
 
             v.setOnClickListener(this);
+
+
+            checkbox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (checkbox.isChecked()) {
+                        task.setDone(true);
+                    } else {
+                        task.setDone(false);
+                    }
+                    ViewHolder.this.t.removeElement(task);
+                }
+            });
+
         }
 
         @Override
@@ -162,7 +179,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
             Log.d("Bounce", "Tile onClick!");
             Intent intent = new Intent(activity, TaskViewActivity.class);
-            intent.putExtra("Task", task);
+            intent.putExtra("TaskID", task.getId());
             intent.putExtra("ToolbarColor", activity.getCurrentToolbarColor());
             intent.putExtra("StatusbarColor", activity.getCurrentStatusbarColor());
 

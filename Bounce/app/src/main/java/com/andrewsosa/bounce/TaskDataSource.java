@@ -121,7 +121,7 @@ public class TaskDataSource {
     }
 
     public ArrayList<Task> getAllTasks() {
-        ArrayList<Task> tasks = new ArrayList<Task>();
+        ArrayList<Task> tasks = new ArrayList<>();
 
         Cursor cursor = database.query(TaskOpenHelper.TABLE_TASKS,
                 allColumns, null, null, null, null, null);
@@ -162,7 +162,6 @@ public class TaskDataSource {
         Date newDate = date.getTime();
 
         String formattedDate = dateFormat.format(newDate);
-        Log.d("Bounce", formattedDate);
         return formattedDate;
     }
 

@@ -1,16 +1,11 @@
 package com.andrewsosa.bounce;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.database.MergeCursor;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
-import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,8 +20,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -36,20 +31,28 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import com.getbase.floatingactionbutton.AddFloatingActionButton;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.melnykov.fab.FloatingActionButton;
+import com.parse.DeleteCallback;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.GregorianCalendar;
+import java.util.Date;
+import java.util.List;
 
 
 public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListener,
         DatePickerReceiver {
 
+    String TASKS_LABEL = "tasks";
+    String LISTS_LABEL = "lists";
 
     // Actionbar and Navdrawer nonsense
     ActionBarDrawerToggle mDrawerToggle;
@@ -57,29 +60,27 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     // Recyclerview things
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
-    private static TaskRecyclerAdapter mAdapter;
+    //private static TaskRecyclerAdapter mAdapter;
+    private static ParseTaskRecyclerAdapter mParseAdapter;
     static EditText editText;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     // Data sources
-    private static TaskDataSource taskDataSource;
-    private static ListDataSource listDataSource;
-
-    // Temp holder for a picked date
-    private int tempDay;
-    private int tempMonth;
-    private int tempYear;
+    //private static TaskDataSource taskDataSource;
+    //private static ListDataSource listDataSource;
 
     // Toggle view for the add menu
     private boolean showingInput = false;
 
     // UI Components
     ListView drawerList;
+    ArrayAdapter<ParseList> drawerListAdapter;
     Toolbar toolbar;
     DrawerLayout drawerLayout;
     FloatingActionButton actionButton;
 
     // Data for menu navigation
-    Integer selectedPosition;
+    Integer selectedPosition = 1;
     ArrayList<String> titles;
     String[] presetTitles = {
             "Inbox",
@@ -102,9 +103,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         toolbar.setOnMenuItemClickListener(this);
         toolbar.setTitleTextColor(getResources().getColor(R.color.abc_primary_text_material_dark));
 
-        // Open datasources
-        initDatasources();
-
         // Drawer craziness
         drawerLayout = (DrawerLayout) findViewById(R.id.my_drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
@@ -125,30 +123,51 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter 
-        mAdapter = new TaskRecyclerAdapter(taskDataSource.getAllTasks(), this);
-        mRecyclerView.setAdapter(mAdapter);
+        mParseAdapter = new ParseTaskRecyclerAdapter(new ArrayList<ParseTask>(), this);
+        mRecyclerView.setAdapter(mParseAdapter);
+
+        // Refresher view
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeListener());
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.primaryColor);
 
         // Assemble Cursor for ListView
-        Cursor cursor = listDataSource.getListCursor();
-        titles = buildTitleList(cursor);
+        //Cursor cursor = listDataSource.getListCursor();
         // Load the lists
         drawerList = (ListView) findViewById(R.id.drawer_list);
-        drawerList.setAdapter(new SimpleCursorAdapter(this,
+
+        drawerListAdapter = new ArrayAdapter<>(this,
                 R.layout.drawer_item_view,
-                cursor,
-                new String[]{ListOpenHelper.COLUMN_NAME},
-                new int[]{R.id.list_name},
-                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER));
+                R.id.list_name,
+                new ArrayList<ParseList>());
+        drawerList.setAdapter(drawerListAdapter);
+        buildTitleList();
+        ParseQuery<ParseList> listQuery = ParseList.getQuery();
+        listQuery.fromLocalDatastore();
+        listQuery.findInBackground(new FindCallback<ParseList>() {
+            @Override
+            public void done(List<ParseList> list, ParseException e) {
+                if(e == null) {
+                    drawerListAdapter.clear();
+                    drawerListAdapter.addAll(list);
+                    addListTitles(list);
+                    drawerListAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
         drawerList.setOnItemClickListener(new DrawerListListener());
 
         // Add Extra views to ListView
         addExtraViews();
 
+        // Recover from rotates
         if (savedInstanceState != null && selectedPosition !=null) {
             selectPosition(selectedPosition);
         } else {
             // Select either the default item (0) or the last selected item.
-            selectPosition(0);
+            selectPosition(1);
+            drawerList.setItemChecked(1, true);
         }
 
         // For logout
@@ -185,12 +204,19 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             Log.d("Bounce", "Result Ok");
             if((data.getStringExtra("Action") != null) && (data.getStringExtra("Action").equals("delete"))) {
                 Log.d("Bounce", "Action == Delete");
-                mAdapter.removeActiveElement();
+                mParseAdapter.removeActiveElement();
             }
             else {
-                Task temp = taskDataSource.getTask(mAdapter.getActiveItem().getId());
-                mAdapter.changeElement(mAdapter.getActiveItemNumber(), temp);
-                mAdapter.notifyItemChanged(mAdapter.getActiveItemNumber());
+                ParseQuery<ParseTask> query = ParseQuery.getQuery("Task");
+                query.fromLocalDatastore();
+                query.whereEqualTo("uuid", mParseAdapter.getActiveItem().getId());
+                try {
+                    ParseTask temp = query.getFirst();
+                    mParseAdapter.changeElement(mParseAdapter.getActiveItemNumber(), temp);
+                    mParseAdapter.notifyItemChanged(mParseAdapter.getActiveItemNumber());
+                } catch (Exception e) {
+                    Log.e("onActivityResult", e.getMessage());
+                }
             }
         }
     }
@@ -199,6 +225,13 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         mDrawerToggle.syncState();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //saveAllPinsToParse();
+        loadFromParse();
     }
 
     @Override
@@ -222,17 +255,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         return super.onOptionsItemSelected(item);
     }
 
-    public void receiveDate(int year, int month, int day) {
-
-        GregorianCalendar temp = new GregorianCalendar(year, month, day);
-        Log.d("Bounce", "The date created was: " + TaskDataSource.dateToString(temp));
-
-        if (editText.getText() != null) {
-            mAdapter.addElement(taskDataSource.createTask(editText.getText().toString(),
-                    TaskDataSource.dateToString(temp)));
-        }
-    }
-
     private EditText nameInput;
     private View positiveAction;
     private void createNewListDialog() {
@@ -246,9 +268,8 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         if (nameInput != null) {
-                            //Toast.makeText(getApplicationContext(), "Password: " + nameInput.getText().toString(), Toast.LENGTH_SHORT).show();
-                            listDataSource.createList(nameInput.getText().toString());
-                            ((DrawerListAdapter)drawerList.getAdapter()).notifyDataSetChanged();
+                            ParseList parseList = new ParseList(nameInput.getText().toString());
+                            saveList(parseList);
                         }
                     }
 
@@ -295,22 +316,12 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 .show();
     }
 
-    private Cursor assembleCursor(Cursor cursorFromDatabase) {
-
-        String[] columns = new String[] {
-                ListOpenHelper.COLUMN_ID,
-                ListOpenHelper.COLUMN_NAME
-        };
-        MatrixCursor matrixCursor= new MatrixCursor(columns);
-        matrixCursor.addRow(new Object[]{-1, "Inbox"});
-        matrixCursor.addRow(new Object[]{-1, "Upcoming"});
-        matrixCursor.addRow(new Object[]{-1, "Completed"});
-        matrixCursor.addRow(new Object[]{-1, "All Tasks"});
-        matrixCursor.addRow(new Object[]{-1, "Unassigned"});
-        matrixCursor.addRow(new Object[]{-1, "Divider"});
-
-        return new MergeCursor(new Cursor[]{matrixCursor, cursorFromDatabase});
-
+    private int getMenu(int position) {
+        if(position <= 5){
+            return R.menu.menu_dashboard;
+        } else {
+            return R.menu.menu_list;
+        }
     }
 
     private int[] prepareListIcons() {
@@ -338,34 +349,31 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     }
 
     private int getToolbarColor(int position){
-        int i = position;
-        switch(i) {
-            case 0: return getResources().getColor(R.color.inbox);
-            case 1: return getResources().getColor(R.color.upcoming);
-            case 3: return getResources().getColor(R.color.alltasks);
-            case 2: return getResources().getColor(R.color.completed);
-            case 4: return getResources().getColor(R.color.unassigned);
+        switch(position) {
+            case 1: return getResources().getColor(R.color.inbox);
+            case 2: return getResources().getColor(R.color.upcoming);
+            case 3: return getResources().getColor(R.color.completed);
+            case 4  : return getResources().getColor(R.color.alltasks);
+            case 5: return getResources().getColor(R.color.unassigned);
         }
 
         return getResources().getColor(R.color.unassigned);
     }
 
     private int getStatusbarColor(int position){
-        int i = position;
-        switch(i) {
-            case 0: return getResources().getColor(R.color.inboxDark);
-            case 1: return getResources().getColor(R.color.upcomingDark);
-            case 3: return getResources().getColor(R.color.alltasksDark);
-            case 2: return getResources().getColor(R.color.completedDark);
-            case 4: return getResources().getColor(R.color.unassignedDark);
+        switch(position) {
+            case 1: return getResources().getColor(R.color.inboxDark);
+            case 2: return getResources().getColor(R.color.upcomingDark);
+            case 3: return getResources().getColor(R.color.completedDark);
+            case 4: return getResources().getColor(R.color.alltasksDark);
+            case 5: return getResources().getColor(R.color.unassignedDark);
         }
 
         return getResources().getColor(R.color.unassignedDark);
     }
 
     private void updateActionButton(int position){
-        int i = position;
-        if(i == 0) {
+        if(position == 1) {
             actionButton.setBackgroundColor(getResources().getColor(R.color.accentColor));
             actionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_white_24dp));
         } else {
@@ -379,49 +387,49 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         toolbar.setTitle(title);
     }
 
-    private void initDatasources() {
-        taskDataSource = new TaskDataSource(this);
-        taskDataSource.open();
-        listDataSource = new ListDataSource(this);
-        listDataSource.open();
-    }
-
-    private ArrayList<String> buildTitleList(Cursor cursor) {
-        ArrayList<String> titles = new ArrayList<String>();
-
+    private ArrayList<String> buildTitleList() {
+        titles = new ArrayList<>();
         titles.addAll(Arrays.asList(presetTitles));
-
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            String title = cursor.getString(1);
-            titles.add(title);
-            cursor.moveToNext();
-        }
-
-        // don't close, needs to be used by adapter
-        //cursor.close();
         return titles;
     }
 
+    private void addListTitles(List<ParseList> lists) {
+        for(ParseList l : lists){
+            titles.add(l.getName());
+        }
+    }
+
     private void selectPosition(int position) {
-        selectedPosition = position;
-        setTitle(titles.get(position));
+
+        // Update dataset
+        loadFromLocal(updateDataSet(position));
+
+        // UI Stuff
+        setTitle(titles.get(position - 1));
         updateUIcolors(position);
         drawerLayout.closeDrawer(findViewById(R.id.scrimInsetsFrameLayout));
     }
 
-    private void updateDataSet(int position) {
-        switch(position) {
-            case 1:
+    private ParseQuery<ParseTask> updateDataSet(int position) {
+        ParseQuery<ParseTask> query = ParseTask.getQuery();
+        query.whereEqualTo("done", false);
 
-                break;
+        Log.d("updateDataSet", "Building query for position: " + position);
+
+        switch(position) {
+            case 1: return query.whereLessThanOrEqualTo("deadline", new Date());
+            case 2: return query.whereGreaterThan("deadline", new Date());
+            case 3: return query.whereEqualTo("done", true);
+            case 4: return query;
+            case 5: return query.whereEqualTo("parent", null);
+            default: return query;
+            //default: return query.whereEqualTo("parent", );
         }
     }
 
     private void addExtraViews() {
 
         int[] icons = prepareListIcons();
-
 
         // Header view
         LayoutInflater inflater = getLayoutInflater();
@@ -462,20 +470,22 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     private void displayUserData(ViewGroup header) {
         try {
             TextView name = (TextView) header.findViewById(R.id.header_name);
-            TextView email = (TextView) header.findViewById(R.id.header_email);
+            //TextView email = (TextView) header.findViewById(R.id.header_email);
 
             name.setText(ParseUser.getCurrentUser().getUsername());
-            email.setText(ParseUser.getCurrentUser().getEmail());
+            //email.setText(ParseUser.getCurrentUser().getEmail());
         } catch (Exception e) {
             Log.e("displayUserData", "Had issue displaying User data, skipped.");
         }
     }
 
     private ColorStateList makeColorStateListForItem(int position){
+        ++position; // Handles header off-by-one
         int pressedColor = pressedColorForItem(position);
         int checkedColor = checkedColorForItem(position);
-        int defaultColor = defaultColorForItem(position);
-        ColorStateList colorStateList = new ColorStateList(
+        int defaultColor = defaultColorForItem();
+        //ColorStateList colorStateList =
+        return  new ColorStateList(
                 new int[][]{
                         new int[]{android.R.attr.state_pressed},
                         new int[]{android.R.attr.state_activated},
@@ -484,18 +494,16 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 new int[]{
                         pressedColor, //use when state is pressed
                         checkedColor, //use when state is checked, but not pressed
-                        defaultColor}); //used when state is not pressed, nor checked
-
-        return colorStateList;
+                        defaultColor}); //used when state is not pressed, nor checked;
     }
 
     private int pressedColorForItem(int position){
         switch(position) {
-            case 0: return getResources().getColor(R.color.inbox);
-            case 1: return getResources().getColor(R.color.upcoming);
-            case 3: return getResources().getColor(R.color.alltasks);
-            case 2: return getResources().getColor(R.color.completed);
-            case 4: return getResources().getColor(R.color.unassigned);
+            case 1: return getResources().getColor(R.color.inbox);
+            case 2: return getResources().getColor(R.color.upcoming);
+            case 3: return getResources().getColor(R.color.completed);
+            case 4: return getResources().getColor(R.color.alltasks);
+            case 5: return getResources().getColor(R.color.unassigned);
         }
 
         return getResources().getColor(R.color.primaryTextDark);
@@ -503,17 +511,17 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     private int checkedColorForItem(int position){
         switch(position) {
-            case 0: return getResources().getColor(R.color.inbox);
-            case 1: return getResources().getColor(R.color.upcoming);
-            case 3: return getResources().getColor(R.color.alltasks);
-            case 2: return getResources().getColor(R.color.completed);
-            case 4: return getResources().getColor(R.color.unassigned);
+            case 1: return getResources().getColor(R.color.inbox);
+            case 2: return getResources().getColor(R.color.upcoming);
+            case 3: return getResources().getColor(R.color.completed);
+            case 4: return getResources().getColor(R.color.alltasks);
+            case 5: return getResources().getColor(R.color.unassigned);
         }
 
         return getResources().getColor(R.color.primaryTextDark);
     }
 
-    private int defaultColorForItem(int position){
+    private int defaultColorForItem(){
         return getResources().getColor(R.color.primaryTextDark);
     }
 
@@ -558,13 +566,18 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     private class DrawerListListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Toast.makeText(Dashboard.this, "Clicked position " + position, Toast.LENGTH_SHORT)
-                    .show();
+            selectedPosition = position;
+            selectPosition(position);
+        }
+    }
 
-            // Handles off-by-one error because header view counts as 0
-            selectPosition(position - 1);
-
-
+    /**
+     *  SwipeListener for refresh layout
+     */
+    private class SwipeListener implements SwipeRefreshLayout.OnRefreshListener {
+        @Override
+        public void onRefresh() {
+            loadFromParse();
         }
     }
 
@@ -577,21 +590,13 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
             if(actionId == EditorInfo.IME_ACTION_DONE) {
                 if(v.getText().toString().length() > 0) {
-                    mAdapter.addElement(taskDataSource.createTask(v.getText().toString()));
+                    ParseTask task = new ParseTask(v.getText().toString());
+                    saveTask(task);
+
                     v.setText("");
-
-                    InputMethodManager imm = (InputMethodManager)getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-
-                    LinearLayout addBox = (LinearLayout) findViewById(R.id.add_box);
-                    addBox.setVisibility(View.GONE);
 
                     LinearLayout decoy  = (LinearLayout) findViewById(R.id.decoy);
                     decoy.requestFocus();
-
-                    actionButton.show();
-                    //actionButton.setVisibility(View.VISIBLE);
 
                     return true;
                 }
@@ -601,4 +606,214 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         }
     }
 
+    private void saveTask(ParseTask task) {
+        task.pinInBackground(TASKS_LABEL, new TaskSaveListener(task));
+    }
+
+    private void saveList(ParseList list) {
+        list.pinInBackground(LISTS_LABEL, new ListSaveListener(list));
+    }
+
+    public class TaskSaveListener implements SaveCallback {
+
+        ParseTask task;
+        public TaskSaveListener(ParseTask task) {
+            this.task = task;
+        }
+
+        @Override
+        public void done(ParseException e) {
+            if (isFinishing()) {
+                return;
+            }
+            if (e == null) {
+                //Toast.makeText(Dashboard.this, "Task saved.", Toast.LENGTH_SHORT).show();
+                mParseAdapter.addElement(task);
+
+                task.setHasUpdate(false);
+                task.saveEventually(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            task.setHasUpdate(true);
+                        } else {
+                            Log.d("saveAllPinstoParse", "Uploaded " + task.toString());
+                        }
+                    }
+                });
+            } else {
+                Toast.makeText(getApplicationContext(),
+                        "Error saving: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private class ListSaveListener implements SaveCallback {
+
+        ParseList list;
+        public ListSaveListener(ParseList list) {
+            this.list = list;
+        }
+
+        @Override
+        public void done(ParseException e) {
+            if (isFinishing()) {
+                return;
+            }
+            if(e == null) {
+                drawerListAdapter.add(list);
+                drawerListAdapter.notifyDataSetChanged();
+                titles.add(list.toString());
+                list.saveEventually(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e == null) {
+                            Log.d("saveAllPinstoParse", "Uploaded " + list.toString());
+                        }
+                    }
+                });
+            } else {
+                Toast.makeText(getApplicationContext(),
+                        "Error saving: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    public void receiveDate(int year, int month, int day) {
+
+        if(editText == null) {
+            return;
+        }
+
+        String name = editText.getText().toString();
+        if (name.length() > 0) {
+            /*mAdapter.addElement(taskDataSource.createTask(editText.getText().toString(),
+                    TaskDataSource.dateToString(temp)));*/
+            ParseTask task = new ParseTask(editText.getText().toString());
+            task.setDeadline(year, month, day);
+            saveTask(task);
+            editText.setText("");
+        } else {
+            Toast.makeText(this, "Please provide a name before choosing a date.", Toast.LENGTH_SHORT)
+                    .show();
+        }
+    }
+
+    private void loadFromParse() {
+
+        // query tasks
+        ParseQuery<ParseTask> query = ParseTask.getQuery();
+        query.whereEqualTo("user", ParseUser.getCurrentUser());
+        query.orderByAscending("createdAt");
+
+        // Find our tasks from the server
+        query.findInBackground(new FindCallback<ParseTask>() {
+            public void done(final List<ParseTask> ParseTasks, ParseException e) {
+
+                // If no error
+                if (e == null) {
+                    // Remove all the previosuly pinned tasks before adding the new ones
+                    ParseObject.unpinAllInBackground(TASKS_LABEL, new DeleteCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e != null) {
+                                endRefresh();
+                                return;
+                            }
+
+                            // Add all the new tasks we brought down from the server
+                            ParseObject.pinAllInBackground(TASKS_LABEL, ParseTasks,
+                                    new SaveCallback() {
+                                        public void done(ParseException e) {
+                                            if (e != null) {
+                                                Log.i("ParseTaskListActivity",
+                                                        "Error pinning ParseTasks: "
+                                                                + e.getMessage());
+                                                endRefresh();
+                                            }
+                                            // Do lists next
+                                            loadListsFromParse();
+                                        }
+                                    });
+                        }
+                    });
+                } else {
+                    Log.i("ParseTaskListActivity",
+                            "loadFromParse: Error finding pinned ParseTasks: "
+                                    + e.getMessage());
+
+                    endRefresh();
+                }
+            }
+        });
+    }
+
+    private void loadListsFromParse() {
+        // query lists
+        ParseQuery<ParseList> query = ParseList.getQuery();
+        query.whereEqualTo("user", ParseUser.getCurrentUser());
+        query.orderByAscending("createdAt");
+        query.findInBackground(new FindCallback<ParseList>() {
+            @Override
+            public void done(final List<ParseList> list, ParseException e) {
+                // If no error
+                if (e == null) {
+                    // Remove all the previosuly pinned tasks before adding the new ones
+                    ParseObject.unpinAllInBackground(LISTS_LABEL, new DeleteCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e != null) {
+                                endRefresh();
+                                return;
+                            }
+
+                            // Add all the new tasks we brought down from the server
+                            ParseObject.pinAllInBackground(LISTS_LABEL, list,
+                                    new SaveCallback() {
+                                        public void done(ParseException e) {
+                                            if (e != null) {
+                                                Log.i("ParseList Query",
+                                                        "Error pinning ParseLists: "
+                                                                + e.getMessage());
+                                            }
+
+                                            endRefresh();
+                                        }
+                                    });
+                        }
+                    });
+                } else {
+                    Log.i("ParseList",
+                            "loadFromParse: Error finding pinned ParseTasks: "
+                                    + e.getMessage());
+                    endRefresh();
+                }
+            }
+        });
+    }
+
+    private void endRefresh() {
+        // Finally done
+        mSwipeRefreshLayout.setRefreshing(false);
+        selectPosition(selectedPosition);
+    }
+
+    private void loadFromLocal(ParseQuery<ParseTask> query) {
+        //ParseQuery<ParseTask> query = ParseQuery.getQuery("Task");
+        query.fromLocalDatastore();
+        query.orderByAscending("createdAt");
+        query.whereEqualTo("user", ParseUser.getCurrentUser());
+        query.findInBackground(new FindCallback<ParseTask>() {
+            @Override
+            public void done(List<ParseTask> list, ParseException e) {
+                if(e == null) {
+                    mParseAdapter.replaceData(list);
+                } else {
+                    Log.e("ParseQuery", "Error:" + e.getMessage());
+                }
+            }
+        });
+    }
 }

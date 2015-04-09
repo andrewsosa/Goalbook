@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -12,28 +11,31 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.melnykov.fab.FloatingActionButton;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 
 
 public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClickListener {
 
-    Task task;
-    TaskDataSource dataSource;
+    ParseTask task;
+    String taskID;
+    //TaskDataSource dataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_view);
 
-        // Extract Task
-        Task intentTask = (Task) getIntent().getSerializableExtra("Task");
+        // Extract Task and retrieve
+        taskID = getIntent().getStringExtra("TaskID");
+        queryTask(taskID);
 
         // Set color
         int toolbarColor = getIntent().getIntExtra("ToolbarColor",
@@ -58,22 +60,11 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent data = new Intent();
                 setResult(RESULT_OK, data);
                 TaskViewActivity.this.finish();
             }
         });
-
-        // Get a datasource
-        dataSource = new TaskDataSource(this);
-        dataSource.open();
-
-        // Retrieve the actual task
-        long taskID = intentTask.getId();
-        task = dataSource.getTask(taskID);
-
-        updateFields();
 
 
         // buh
@@ -104,23 +95,44 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
 
     }
 
+    private void queryTask(String id) {
+        ParseQuery<ParseTask> query = ParseQuery.getQuery("Task");
+        query.fromLocalDatastore();
+        query.whereEqualTo("uuid", id);
+        try {
+            query.getFirstInBackground(new GetCallback<ParseTask>() {
+                @Override
+                public void done(ParseTask parseTask, ParseException e) {
+                    task = parseTask;
+                    updateFields();
+                }
+            });
+        } catch (Exception e) {
+            Log.e("query.getFirst()", e.getMessage());
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
 
-        task = dataSource.getTask(task.getId());
-        updateFields();
+        if (task != null) queryTask(task.getId());
 
     }
 
     private void updateFields() {
-        // Set up actual task stuff
-        TextView taskName = (TextView) findViewById(R.id.task_name);
-        taskName.setText(task.getName());
-        TextView deadlineText = (TextView) findViewById(R.id.deadlineText);
-        deadlineText.setText(task.getDateAsString());
-        TextView listText = (TextView) findViewById(R.id.listText);
-        listText.setText(task.getParentList());
+        try {
+            // Set up actual task stuff
+            TextView taskName = (TextView) findViewById(R.id.task_name);
+            taskName.setText(task.getName());
+            TextView deadlineText = (TextView) findViewById(R.id.deadlineText);
+            deadlineText.setText(task.getDeadlineAsString());
+            TextView listText = (TextView) findViewById(R.id.listText);
+            listText.setText(task.getParentListAsString());
+        } catch (Exception e) {
+            Toast.makeText(this, "An error has occured; task not found.", Toast.LENGTH_SHORT).show();
+            Log.e("updateFields()", e.getMessage());
+        }
     }
 
     @Override
@@ -161,12 +173,12 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
                     @Override
                     public void onPositive(MaterialDialog dialog) {
 
-                        dataSource.deleteTask(task);
+                        task.deleteEventually();
 
-                        Intent data = new Intent();
-                        data.putExtra("Task", task);
-                        data.putExtra("Action", "delete");
-                        setResult(RESULT_OK, data);
+                        //Intent data = new Intent();
+                        //data.putExtra("Task", task);
+                        //data.putExtra("Action", "delete");
+                        //setResult(RESULT_OK, data);
                         TaskViewActivity.this.finish();
                     }
 

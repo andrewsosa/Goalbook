@@ -4,18 +4,14 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
-import com.parse.SignUpCallback;
 
 
 public class LoginActivity extends ActionBarActivity {
@@ -23,7 +19,6 @@ public class LoginActivity extends ActionBarActivity {
     // User fields
     EditText usernameEditText;
     EditText passwordEditText;
-    EditText passwordAgainEditText;
 
 
     @Override
@@ -33,7 +28,6 @@ public class LoginActivity extends ActionBarActivity {
 
         usernameEditText = (EditText) findViewById(R.id.username_edit_text);
         passwordEditText = (EditText) findViewById(R.id.password_edit_text);
-        passwordAgainEditText = (EditText) findViewById(R.id.password_again_edit_text);
 
 
         // Set up the submit button click handler
@@ -86,6 +80,9 @@ public class LoginActivity extends ActionBarActivity {
         final ProgressDialog dialog = new ProgressDialog(LoginActivity.this);
         dialog.setMessage(getString(R.string.progress_login));
         dialog.show();
+
+
+
         // Call the Parse login method
         ParseUser.logInInBackground(username, password, new LogInCallback() {
             @Override

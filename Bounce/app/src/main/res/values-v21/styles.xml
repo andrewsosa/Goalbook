@@ -32,6 +32,7 @@
     <style name="AppTheme.EditActivity" parent="AppTheme">
         <item name="colorPrimary">@color/grey_white_1000</item>
         <item name="colorPrimaryDark">@color/grey_400</item>
+        <item name="android:statusBarColor">@color/grey_400</item>
     </style>
 
 
@@ -48,6 +49,7 @@
     <!-- Style for login activity -->
     <style name="AppTheme.Login" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Window stuff -->
+        <item name="android:colorPrimary">@color/primaryColor</item>
         <item name="android:statusBarColor">@color/primaryColor</item>
     </style>
 
