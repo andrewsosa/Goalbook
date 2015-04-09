@@ -106,17 +106,20 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
         holder.checkbox.setChecked(task.isDone());
         holder.task = task;
 
-        // Hide date text if there is not one set
+        // Hide date text if there is not one set, else show it again
         if(task.getDeadline() == null) {
             holder.subtitleText.setVisibility(View.GONE);
-
-            // Fix header text now
             RelativeLayout.LayoutParams layoutParams =
                     (RelativeLayout.LayoutParams)holder.titleText.getLayoutParams();
             layoutParams.addRule(RelativeLayout.CENTER_VERTICAL);
             holder.titleText.setLayoutParams(layoutParams);
 
         } else {
+            RelativeLayout.LayoutParams layoutParams =
+                    (RelativeLayout.LayoutParams)holder.titleText.getLayoutParams();
+            layoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
+            holder.titleText.setLayoutParams(layoutParams);
+            holder.subtitleText.setVisibility(View.VISIBLE);
             holder.subtitleText.setText(task.getDeadlineAsString());
         }
 

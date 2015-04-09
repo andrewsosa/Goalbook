@@ -44,7 +44,9 @@ import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 
@@ -407,7 +409,28 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         // UI Stuff
         setTitle(titles.get(position - 1));
         updateUIcolors(position);
+        updateDateButton(position);
+        updateToolbarMenu(position);
         drawerLayout.closeDrawer(findViewById(R.id.scrimInsetsFrameLayout));
+
+    }
+
+    private void updateDateButton(int position) {
+        ImageButton dateButton = (ImageButton) findViewById(R.id.calendar_button);
+        if(position <= 2) {
+            dateButton.setVisibility(View.GONE);
+        } else {
+            dateButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateToolbarMenu(int position) {
+        toolbar.getMenu().clear();
+        if(position < 6) {
+            toolbar.inflateMenu(R.menu.menu_dashboard);
+        } else if (position > 6) {
+            toolbar.inflateMenu(R.menu.menu_list);
+        }
     }
 
     private ParseQuery<ParseTask> updateDataSet(int position) {
@@ -607,6 +630,19 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     }
 
     private void saveTask(ParseTask task) {
+
+        // Special task circumstances
+        if(selectedPosition == 1) {
+            task.setDeadline(new GregorianCalendar());
+        } else if (selectedPosition == 2) {
+            GregorianCalendar c = new GregorianCalendar();
+            c.add(Calendar.DATE, 1);
+            task.setDeadline(c);
+        }
+        if(selectedPosition == 3) {
+            task.setDone(true);
+        }
+
         task.pinInBackground(TASKS_LABEL, new TaskSaveListener(task));
     }
 

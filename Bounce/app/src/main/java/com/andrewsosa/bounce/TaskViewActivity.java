@@ -56,7 +56,7 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         toolbar.inflateMenu(R.menu.menu_item_view);
         toolbar.setOnMenuItemClickListener(this);
         toolbar.setTitleTextColor(getResources().getColor(R.color.abc_primary_text_material_dark));
-        toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        toolbar.setNavigationIcon(R.drawable.abc_ic_clear_mtrl_alpha);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
