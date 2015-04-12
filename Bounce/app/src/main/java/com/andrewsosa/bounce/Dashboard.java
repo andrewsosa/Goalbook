@@ -159,11 +159,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         }
 
         // For logout
-        RelativeLayout logout = (RelativeLayout) findViewById(R.id.logout_layout);
-        logout.setOnClickListener(new View.OnClickListener() {
+        RelativeLayout settings = (RelativeLayout) findViewById(R.id.logout_layout);
+        settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                displayLogoutDialog();
+                startActivity(new Intent(Dashboard.this, SettingsActivity.class));
             }
         });
 
@@ -392,23 +392,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         deleteList(selectedPosition);
-                    }
-                })
-                .show();
-    }
-
-    private void displayLogoutDialog() {
-        new MaterialDialog.Builder(this)
-                .content("Would you like to sign out of Bounce?")
-                .positiveText("Sign out")
-                .negativeText("Cancel")
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        ParseUser.logOut();
-                        Intent intent = new Intent(Dashboard.this, DispatchActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
                     }
                 })
                 .show();

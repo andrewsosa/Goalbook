@@ -58,7 +58,8 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".Dashboard" >
+            android:parentActivityName=".Dashboard"
+            android:theme="@style/AppTheme.SettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.andrewsosa.bounce.Dashboard" />

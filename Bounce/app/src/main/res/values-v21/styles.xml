@@ -55,6 +55,7 @@
         <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
         <item name="android:actionMenuTextAppearance">@style/AppTheme.EditActivity.MenuTextAppearance</item>
         <item name="android:actionMenuTextColor">@color/grey_600</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
 
@@ -65,8 +66,11 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="AppTheme.SettingsActivity" parent="AppTheme">
-        <item name="android:fontFamily">sans-serif-condensed</item>
+    <style name="AppTheme.SettingsActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryColorDark</item>
+        <item name="colorAccent">@color/accentColor</item>
+        <item name="android:windowBackground">@color/windowBackground</item>
         <item name="android:textColor">@color/primaryTextDark</item>
     </style>
 
