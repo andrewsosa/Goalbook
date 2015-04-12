@@ -2,6 +2,13 @@
 <items version="2" >
 
     <item
+        jar="/Applications/Android Eclipse Bundle/sdk/extras/android/m2repository/com/android/support/support-annotations/22.0.0/support-annotations-22.0.0.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="685d0b2c590447e85284ed84712cb363ba04eff8">
+        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/support-annotations-22.0.0-71806ced19cf2e27de9d8a7661f849cca1a005bc.jar" />
+    </item>
+    <item
         jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/libs/ParseFacebookUtilsV4-1.9.0.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -9,11 +16,11 @@
         <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/ParseFacebookUtilsV4-1.9.0-5abbed9b16eb1f0a0ea855cb3d6a56d828878b09.jar" />
     </item>
     <item
-        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/21.0.3/classes.jar"
+        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/22.0.0/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="4b8945fc23a7461c6fdde15753456d64b0a9358b">
-        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/classes-25951482f80b65efddfbc83d86185e8c8a7976b0.jar" />
+        sha1="c6d79137693d494dee16372d3921f919eb724ced">
+        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/classes-47fb5629ef7fbb61286b870d7232d59bd9e8c5ce.jar" />
     </item>
     <item
         jar="/Users/andrewsosa/.gradle/caches/modules-2/files-2.1/com.nineoldandroids/library/2.4.0/e9b63380f3a242dbdbf103a2355ad7e43bad17cb/library-2.4.0.jar"
@@ -23,11 +30,11 @@
         <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/library-2.4.0-69a9f19f4c7e6e2383dcc42ac6e9feca181efabc.jar" />
     </item>
     <item
-        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/classes.jar"
+        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.android.support/cardview-v7/22.0.0/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
-        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/classes-1d625ae6a60f3ca9e7ff649b05db5b7ad9652fca.jar" />
+        sha1="11842de6a309c447b3a3d60d73ad637a87c58994">
+        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/classes-739fff6b6e5b0bfdbe8f987cbc5f1d8256cd4417.jar" />
     </item>
     <item
         jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/libs/ParseCrashReporting-1.9.0.jar"
@@ -37,18 +44,11 @@
         <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/ParseCrashReporting-1.9.0-a93cec5f8ac513229361d29788a923718ceb5c21.jar" />
     </item>
     <item
-        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.3/libs/internal_impl-21.0.3.jar"
+        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.0.0/classes.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
-        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.3-a961b92465cbf692fe0eccf292bbd7f9d37b1749.jar" />
-    </item>
-    <item
-        jar="/Applications/Android Eclipse Bundle/sdk/extras/android/m2repository/com/android/support/support-annotations/21.0.3/support-annotations-21.0.3.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
-        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.3-fbdb3336bb81851e70c6a5f826ec5c322faf0b52.jar" />
+        sha1="4e86306289ace4aa0cfec44a05ed2b410d36989d">
+        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/classes-4310fa04c063fdda9a4110074c38b792db49ab5c.jar" />
     </item>
     <item
         jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.melnykov/floatingactionbutton/1.1.0/classes.jar"
@@ -58,25 +58,11 @@
         <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/classes-91268bf842db75a8466ee60fef1cbefbc39bdb99.jar" />
     </item>
     <item
-        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.android.support/cardview-v7/21.0.3/classes.jar"
+        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.0.0/libs/internal_impl-22.0.0.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="00b0b7233e1ec64acebfac40d4983d32d4712426">
-        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/classes-8639bb74bf065785c29de8a974c1a4eee3986cbd.jar" />
-    </item>
-    <item
-        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/libs/bolts-android-1.1.4.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="129874135e6081269ace2312092031558865de12">
-        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/bolts-android-1.1.4-3efca997fca88e9cf065dc94e83c7d0ec55969e6.jar" />
-    </item>
-    <item
-        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/libs/Parse-1.9.0.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="5811138d4e6cb9d45030e133ef1a61b935154c3a">
-        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/Parse-1.9.0-ba94c14ddb0aea1bf947f8eedcaa1ffc4ac05d82.jar" />
+        sha1="b5b92f469d515a13d778900f6d50c03d12f35504">
+        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/internal_impl-22.0.0-cfb04dc80e80db8f10ba27b1b2b9654d57f81472.jar" />
     </item>
     <item
         jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/libs/bolts-android-1.1.4-javadoc.jar"
@@ -86,11 +72,25 @@
         <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/bolts-android-1.1.4-javadoc-0d0d752c73bcd593ecb1c1e8e80ca03bfbdc6ae7.jar" />
     </item>
     <item
-        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/21.0.3/classes.jar"
+        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/libs/Parse-1.9.0.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
-        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/classes-0a41196472bc5375c99fa6b37cf3cb29880d9b2b.jar" />
+        sha1="5811138d4e6cb9d45030e133ef1a61b935154c3a">
+        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/Parse-1.9.0-ba94c14ddb0aea1bf947f8eedcaa1ffc4ac05d82.jar" />
+    </item>
+    <item
+        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/libs/bolts-android-1.1.4.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="129874135e6081269ace2312092031558865de12">
+        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/bolts-android-1.1.4-3efca997fca88e9cf065dc94e83c7d0ec55969e6.jar" />
+    </item>
+    <item
+        jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.0.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="d84409890828e07d344a3b9b1da545dba9897b51">
+        <dex dex="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/pre-dexed/debug/classes-7798b709476e158ddfc61f021e8bca790fc2e16f.jar" />
     </item>
     <item
         jar="/Users/andrewsosa/Documents/Bounce-Repository/Bounce/app/build/intermediates/exploded-aar/com.afollestad/material-dialogs/0.6.0/classes.jar"

@@ -171,6 +171,7 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
                     } else {
                         task.setDone(false);
                     }
+                    activity.saveTask(task);
                     ViewHolder.this.t.removeElement(task);
                 }
             });

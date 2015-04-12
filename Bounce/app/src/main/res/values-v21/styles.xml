@@ -28,13 +28,12 @@
 
     </style>
 
-    <!-- Status bar override for edit activity -->
-    <style name="AppTheme.EditActivity" parent="AppTheme">
-        <item name="colorPrimary">@color/grey_white_1000</item>
-        <item name="colorPrimaryDark">@color/grey_400</item>
-        <item name="android:statusBarColor">@color/grey_400</item>
+    <!-- Style for login activity -->
+    <style name="AppTheme.Login" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Window stuff -->
+        <item name="android:colorPrimary">@color/primaryColor</item>
+        <item name="android:statusBarColor">@color/primaryColor</item>
     </style>
-
 
     <!-- Style for the Item View children activities -->
     <style name="AppTheme.ItemView" parent="Theme.AppCompat.Light.DialogWhenLarge">
@@ -46,12 +45,31 @@
 
     </style>
 
-    <!-- Style for login activity -->
-    <style name="AppTheme.Login" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Window stuff -->
-        <item name="android:colorPrimary">@color/primaryColor</item>
-        <item name="android:statusBarColor">@color/primaryColor</item>
+    <!-- Status bar override for edit activity -->
+    <style name="AppTheme.EditActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/grey_white_1000</item>
+        <item name="colorPrimaryDark">@color/grey_400</item>
+        <item name="colorAccent">@color/accentColor</item>
+        <item name="android:textColorPrimary">@color/primaryTextDark</item>
+        <item name="android:statusBarColor">@color/grey_400</item>
+        <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
+        <item name="android:actionMenuTextAppearance">@style/AppTheme.EditActivity.MenuTextAppearance</item>
+        <item name="android:actionMenuTextColor">@color/grey_600</item>
     </style>
+
+
+    <style name="AppTheme.EditActivity.MenuTextAppearance" parent="AppTheme">
+        <item name="android:textColor">@color/grey_500</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AppTheme.SettingsActivity" parent="AppTheme">
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:textColor">@color/primaryTextDark</item>
+    </style>
+
 
     <style name="menu_labels_style">
         <item name="android:background">@drawable/fab_label_background</item>

@@ -49,7 +49,8 @@ public class ParseList extends ParseObject {
     }
 
     public static ParseQuery<ParseList> getQuery() {
-        return ParseQuery.getQuery(ParseList.class);
+        return ParseQuery.getQuery(ParseList.class)
+                .whereEqualTo("user", ParseUser.getCurrentUser());
 
     }
 }

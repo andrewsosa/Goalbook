@@ -7,20 +7,26 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import java.util.GregorianCalendar;
+import java.util.List;
 
 
 public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClickListener, DatePickerReceiver {
 
     ParseTask task;
+    ArrayAdapter<ParseList> adapter;
+    ParseList activeList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +40,7 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
         // Toolbar stuff
         Toolbar toolbar = (Toolbar) findViewById(R.id.taskEditToolbar);
         toolbar.setTitle("Edit Task");
-        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_close_black_24dp));
+        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_close_grey600_24dp));
         toolbar.inflateMenu(R.menu.menu_task_edit);
         toolbar.setOnMenuItemClickListener(this);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -88,7 +94,7 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
     public void receiveDate(int y, int m, int d) {
         TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
         task.setDeadline(new GregorianCalendar(y, m, d));
-        deadlineText.setText(TaskDataSource.toDisplayFormat(new GregorianCalendar(y,m,d)));
+        deadlineText.setText(task.getDeadlineAsString());
     }
 
     private void queryTask(String id) {
@@ -114,8 +120,31 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
             taskName.setText(task.getName());
             TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
             deadlineText.setText(task.getDeadlineAsString());
-            TextView listText = (TextView) findViewById(R.id.listDisplay );
-            listText.setText(task.getParentListAsString());
+            //TextView listText = (TextView) findViewById(R.id.listDisplay);
+            //listText.setText(task.getParentListAsString());
+            final Spinner listSpinner = (Spinner) findViewById(R.id.spinner);
+            adapter = new ArrayAdapter<ParseList>(this,
+                    android.R.layout.simple_spinner_item);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+
+
+
+            ParseQuery<ParseList> query = ParseList.getQuery();
+            query.fromLocalDatastore();
+            query.orderByAscending("createdAt");
+            query.findInBackground(new FindCallback<ParseList>() {
+                @Override
+                public void done(List<ParseList> list, ParseException e) {
+                    adapter.add(new ParseList("Unassigned"));
+                    adapter.addAll(list);
+                    adapter.notifyDataSetChanged();
+                    //listSpinner.setSelection(list.indexOf(task.getParentList()));
+                }
+            });
+
+
+            listSpinner.setAdapter(adapter);
         } catch (Exception e) {
             Toast.makeText(this, "An error has occured; task not found.", Toast.LENGTH_SHORT).show();
             Log.e("updateFields()", e.getMessage());
@@ -131,16 +160,12 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
 
         @Override
         public void done(ParseException e) {
-            if (isFinishing()) {
-                return;
-            }
             if (e == null) {
-                task.setHasUpdate(false);
                 task.saveEventually(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
                         if (e != null) {
-                            task.setHasUpdate(true);
+                            Log.e("TaskSaveListener", e.getMessage());
                         } else {
                             Log.d("TaskSaveListener", "Uploaded " + task.toString());
                         }

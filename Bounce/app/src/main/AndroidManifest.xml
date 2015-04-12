@@ -48,12 +48,20 @@
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Login">
+            android:theme="@style/AppTheme.Login" >
         </activity>
         <activity
             android:name=".SignUpActivity"
             android:label="@string/title_activity_sign_up"
-            android:theme="@style/AppTheme.Login">
+            android:theme="@style/AppTheme.Login" >
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".Dashboard" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.andrewsosa.bounce.Dashboard" />
         </activity>
     </application>
 

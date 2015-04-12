@@ -8039,13 +8039,14 @@ ul.side-nav.fixed {
   margin-bottom: 32px; }
 
 nav.top-nav {
-  height: 122px;
+  //height: 112px;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none; }
   nav.top-nav a.page-title {
-    line-height: 122px;
-    font-size: 48px; }
+    //line-height: 122px;
+	  margin-left: 72px;
+    font-size: 28px; }
 
 a.button-collapse.top-nav {
   position: absolute;

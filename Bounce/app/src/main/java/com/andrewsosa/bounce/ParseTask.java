@@ -30,7 +30,6 @@ public class ParseTask extends ParseObject implements Serializable {
 
         setDone(false);
         setName(name);
-        setHasUpdate(true);
 
     }
 
@@ -101,20 +100,13 @@ public class ParseTask extends ParseObject implements Serializable {
         put("done", done);
     }
 
-    public boolean hasUpdate() {
-        return getBoolean("hasUpdate");
-    }
-
-    public void setHasUpdate(boolean hasUpdate) {
-        put("hasUpdate", hasUpdate);
-    }
-
     @Override
     public String toString() {
         return getName();
     }
 
     public static ParseQuery<ParseTask> getQuery() {
-        return ParseQuery.getQuery(ParseTask.class);
+        return ParseQuery.getQuery(ParseTask.class)
+                .whereEqualTo("user", ParseUser.getCurrentUser());
     }
 }

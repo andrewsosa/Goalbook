@@ -20,6 +20,7 @@
         android:contentInsetRight="16dp"
         app:contentInsetEnd="16dp"
         app:contentInsetRight="16dp"
+        android:paddingEnd="16dp"
         android:elevation="1dp"
         android:navigationIcon="@drawable/ic_clear_grey600_24dp">
 
@@ -64,7 +65,7 @@
                         android:lines="1"
                         android:maxLines="1"
                         android:singleLine="true"
-                        android:textSize="16sp"
+                        android:textSize="18sp"
                         android:textColor="@color/primary_text_default_material_light"
                         android:layout_centerInParent="true"
                         android:background="@android:color/transparent"
@@ -100,15 +101,17 @@
                             android:layout_centerVertical="true" />
 
                         <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
                             android:text="Jan 1, 2016"
                             android:id="@+id/dateDisplay"
                             android:textSize="16sp"
                             android:textColor="@color/abc_primary_text_material_light"
                             android:layout_marginLeft="56dp"
                             android:layout_marginTop="20dp"
-                            android:layout_centerVertical="true" />
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="16dp"
+                            android:gravity="center_vertical" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -132,9 +135,7 @@
                     <RelativeLayout
                         android:orientation="horizontal"
                         android:layout_width="fill_parent"
-                        android:layout_height="56dp"
-                        android:paddingTop="16dp"
-                        android:paddingBottom="16dp" >
+                        android:layout_height="56dp">
 
                         <ImageView
                             android:layout_width="wrap_content"
@@ -146,15 +147,14 @@
                             android:layout_alignParentStart="true"
                             android:layout_marginLeft="2dp" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Unassigned"
-                            android:id="@+id/listDisplay"
-                            android:textSize="16sp"
-                            android:textColor="@color/abc_primary_text_material_light"
-                            android:layout_centerVertical="true"
-                            android:layout_marginLeft="56dp" />
+                        <Spinner
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:id="@+id/spinner"
+                            android:layout_marginLeft="56dp"
+                            android:layout_marginRight="16dp"
+                            android:gravity="center_vertical" />
+
                     </RelativeLayout>
 
                 </LinearLayout>

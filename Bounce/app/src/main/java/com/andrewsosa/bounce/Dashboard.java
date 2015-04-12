@@ -93,6 +93,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             "Divider"
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,30 +134,15 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeListener());
         mSwipeRefreshLayout.setColorSchemeResources(R.color.primaryColor);
 
-        // Assemble Cursor for ListView
-        //Cursor cursor = listDataSource.getListCursor();
-        // Load the lists
+        // Drawer List things
         drawerList = (ListView) findViewById(R.id.drawer_list);
-
         drawerListAdapter = new ArrayAdapter<>(this,
                 R.layout.drawer_item_view,
                 R.id.list_name,
                 new ArrayList<ParseList>());
         drawerList.setAdapter(drawerListAdapter);
-        buildTitleList();
-        ParseQuery<ParseList> listQuery = ParseList.getQuery();
-        listQuery.fromLocalDatastore();
-        listQuery.findInBackground(new FindCallback<ParseList>() {
-            @Override
-            public void done(List<ParseList> list, ParseException e) {
-                if(e == null) {
-                    drawerListAdapter.clear();
-                    drawerListAdapter.addAll(list);
-                    addListTitles(list);
-                    drawerListAdapter.notifyDataSetChanged();
-                }
-            }
-        });
+
+        refreshListTitles();
 
         drawerList.setOnItemClickListener(new DrawerListListener());
 
@@ -169,7 +155,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         } else {
             // Select either the default item (0) or the last selected item.
             selectPosition(1);
-            drawerList.setItemChecked(1, true);
+            //drawerList.setItemChecked(1, true);
         }
 
         // For logout
@@ -243,18 +229,68 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            //Toast.makeText(this, "Hello, world!", Toast.LENGTH_SHORT).show();
-            //taskDataSource.deleteTask(mAdapter.getItem(0));
-            //mAdapter.removeElementAt(0);
-            return true;
-        }
-        if (id == R.id.action_create_list) {
-            createNewListDialog();
+        switch(id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_search_list:
+                return true;
+            case R.id.action_rename_list:
+                renameListDialog();
+                return true;
+            case R.id.action_delete_list:
+                deleteListDialog();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void deleteList(int position) {
+
+        // Locate list
+        String name = getTitle(position);
+        ParseList list = localListQueryByName(name);
+
+        // Remove tasks on list
+        ParseQuery<ParseTask> query = ParseTask.getQuery();
+        query.whereEqualTo("parent", list);
+        query.findInBackground(new FindCallback<ParseTask>() {
+            @Override
+            public void done(List<ParseTask> list, ParseException e) {
+                if (e == null) {
+                    for (ParseTask t : list) {
+                        t.deleteEventually();
+                    }
+                } else {
+                    Log.e("deleteList", e.getMessage());
+                }
+            }
+        });
+
+        // Finish delete
+        list.deleteEventually();
+
+        // Handle UI changes
+        refreshListTitles();
+        selectPosition(1);
+
+
+        Toast.makeText(this, "Removed list " + name + ".", Toast.LENGTH_SHORT).show();
+    }
+
+    public static ParseList localListQueryByName(String name) {
+        ParseQuery<ParseList> query = ParseList.getQuery();
+        query.fromLocalDatastore();
+        query.whereEqualTo("user", ParseUser.getCurrentUser());
+        query.whereEqualTo("name", name);
+        ParseList list = null;
+        try {
+            list = query.getFirst();
+        } catch (Exception e) {
+            Log.e("localListQueryByName", e.getMessage() + "" + name);
+        }
+
+        return list;
     }
 
     private EditText nameInput;
@@ -266,11 +302,55 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 .title("List Name")
                 .positiveText("Create")
                 .negativeText(android.R.string.cancel)
+                .negativeColor(R.color.secondaryTextDark)
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         if (nameInput != null) {
                             ParseList parseList = new ParseList(nameInput.getText().toString());
+                            saveNewList(parseList);
+                        }
+                    }
+
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                    }
+                }).build();
+
+        positiveAction = dialog.getActionButton(DialogAction.POSITIVE);
+        nameInput = (EditText) dialog.getCustomView().findViewById(R.id.list_name_input);
+        nameInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                positiveAction.setEnabled(s.toString().trim().length() > 0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        dialog.show();
+        positiveAction.setEnabled(false); // disabled by default
+    }
+
+    private void renameListDialog() {
+        MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .customView(R.layout.create_dialog_view, true)
+                .title("List Name")
+                .positiveText("Rename")
+                .negativeText(android.R.string.cancel)
+                .negativeColor(R.color.secondaryTextDark)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        if (nameInput != null) {
+                            ParseList parseList = localListQueryByName(getTitle(selectedPosition));
+                            parseList.setName(nameInput.getText().toString());
                             saveList(parseList);
                         }
                     }
@@ -301,6 +381,22 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         positiveAction.setEnabled(false); // disabled by default
     }
 
+    private void deleteListDialog() {
+        new MaterialDialog.Builder(this)
+                .content("Are you sure you want to delete list " + getTitle(selectedPosition) +
+                "? This will delete all items on the list, and can not be undone.")
+                .positiveText("Delete")
+                .negativeText("Cancel")
+                .negativeColor(R.color.secondaryTextDark)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        deleteList(selectedPosition);
+                    }
+                })
+                .show();
+    }
+
     private void displayLogoutDialog() {
         new MaterialDialog.Builder(this)
                 .content("Would you like to sign out of Bounce?")
@@ -318,11 +414,88 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 .show();
     }
 
-    private int getMenu(int position) {
-        if(position <= 5){
-            return R.menu.menu_dashboard;
+    private void setTitle(String title) {
+        toolbar.setTitle(title);
+    }
+
+    private void refreshListTitles() {
+        initTitleList();
+        addParseListTitles();
+    }
+
+    private ArrayList<String> initTitleList() {
+        titles = new ArrayList<>();
+        titles.addAll(Arrays.asList(presetTitles));
+        return titles;
+    }
+
+    private void addParseListTitles() {
+
+        ParseQuery<ParseList> listQuery = ParseList.getQuery();
+        listQuery.fromLocalDatastore();
+        listQuery.orderByAscending("createdAt");
+        listQuery.findInBackground(new FindCallback<ParseList>() {
+            @Override
+            public void done(List<ParseList> parseLists, ParseException e) {
+                if (e == null) {
+
+                    for (ParseList l : parseLists) {
+                        titles.add(l.getName());
+                        //Log.d("addParseListTitles", "Added " + l.getName() + " to titles at index " +
+                        //titles.indexOf(l.getName()));
+                    }
+
+                    drawerListAdapter.clear();
+                    drawerListAdapter.addAll(parseLists);
+                    drawerListAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+    }
+
+
+
+    private void selectPosition(int position) {
+        selectedPosition = position;
+
+        drawerList.setItemChecked(position, true);
+
+        // Update dataset
+        loadFromLocal(updateDataSet(position));
+
+        // UI Stuff
+        setTitle(getTitle(position)); // header off-by-one issue
+        updateUIcolors(position);
+        updateDateButton(position);
+        updateToolbarMenu(position);
+        drawerLayout.closeDrawer(findViewById(R.id.scrimInsetsFrameLayout));
+
+    }
+
+    private String getTitle(int position) {
+        try {
+            return titles.get(position - 1);
+        } catch (IndexOutOfBoundsException e) {
+            Log.e("getTitle", e.getMessage());
+            return null;
+        }
+    }
+
+    private void updateDateButton(int position) {
+        ImageButton dateButton = (ImageButton) findViewById(R.id.calendar_button);
+        if(position <= 2) {
+            dateButton.setVisibility(View.GONE);
         } else {
-            return R.menu.menu_list;
+            dateButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateToolbarMenu(int position) {
+        toolbar.getMenu().clear();
+        if(position < 6) {
+            toolbar.inflateMenu(R.menu.menu_dashboard);
+        } else if (position > 6) {
+            toolbar.inflateMenu(R.menu.menu_list);
         }
     }
 
@@ -340,6 +513,12 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         toolbar.setBackgroundColor(getToolbarColor(position));
         drawerLayout.setStatusBarBackgroundColor(getStatusbarColor(position));
         updateActionButton(position);
+
+        // For tablets
+        LinearLayout v = (LinearLayout) findViewById(R.id.tablet_bar);
+        if(v != null) {
+            v.setBackgroundColor(getToolbarColor(position));
+        }
     }
 
     public int getCurrentToolbarColor() {
@@ -385,59 +564,13 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     }
 
-    private void setTitle(String title) {
-        toolbar.setTitle(title);
-    }
-
-    private ArrayList<String> buildTitleList() {
-        titles = new ArrayList<>();
-        titles.addAll(Arrays.asList(presetTitles));
-        return titles;
-    }
-
-    private void addListTitles(List<ParseList> lists) {
-        for(ParseList l : lists){
-            titles.add(l.getName());
-        }
-    }
-
-    private void selectPosition(int position) {
-
-        // Update dataset
-        loadFromLocal(updateDataSet(position));
-
-        // UI Stuff
-        setTitle(titles.get(position - 1));
-        updateUIcolors(position);
-        updateDateButton(position);
-        updateToolbarMenu(position);
-        drawerLayout.closeDrawer(findViewById(R.id.scrimInsetsFrameLayout));
-
-    }
-
-    private void updateDateButton(int position) {
-        ImageButton dateButton = (ImageButton) findViewById(R.id.calendar_button);
-        if(position <= 2) {
-            dateButton.setVisibility(View.GONE);
-        } else {
-            dateButton.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void updateToolbarMenu(int position) {
-        toolbar.getMenu().clear();
-        if(position < 6) {
-            toolbar.inflateMenu(R.menu.menu_dashboard);
-        } else if (position > 6) {
-            toolbar.inflateMenu(R.menu.menu_list);
-        }
-    }
-
     private ParseQuery<ParseTask> updateDataSet(int position) {
         ParseQuery<ParseTask> query = ParseTask.getQuery();
         query.whereEqualTo("done", false);
 
-        Log.d("updateDataSet", "Building query for position: " + position);
+        ParseList parseList = localListQueryByName(getTitle(position));
+
+        //Log.d("updateDataSet", "Building query for position: " + position);
 
         switch(position) {
             case 1: return query.whereLessThanOrEqualTo("deadline", new Date());
@@ -445,7 +578,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             case 3: return query.whereEqualTo("done", true);
             case 4: return query;
             case 5: return query.whereEqualTo("parent", null);
-            default: return query;
+            default: return query.whereEqualTo("parent", parseList);
             //default: return query.whereEqualTo("parent", );
         }
     }
@@ -589,7 +722,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     private class DrawerListListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            selectedPosition = position;
             selectPosition(position);
         }
     }
@@ -614,7 +746,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             if(actionId == EditorInfo.IME_ACTION_DONE) {
                 if(v.getText().toString().length() > 0) {
                     ParseTask task = new ParseTask(v.getText().toString());
-                    saveTask(task);
+                    saveNewTask(task);
 
                     v.setText("");
 
@@ -629,7 +761,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         }
     }
 
-    private void saveTask(ParseTask task) {
+    public void saveTask(ParseTask task) {
+        task.pinInBackground(TASKS_LABEL, new TaskSaveListener(task));
+    }
+
+    private void saveNewTask(ParseTask task) {
 
         // Special task circumstances
         if(selectedPosition == 1) {
@@ -644,10 +780,23 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         }
 
         task.pinInBackground(TASKS_LABEL, new TaskSaveListener(task));
+        mParseAdapter.addElement(task);
+
     }
 
-    private void saveList(ParseList list) {
+    public void saveList(ParseList list) {
         list.pinInBackground(LISTS_LABEL, new ListSaveListener(list));
+        setTitle(list.toString());
+    }
+
+    private void saveNewList(ParseList list) {
+        ParseList parseList = localListQueryByName(list.getName());
+        if(parseList == null) {
+            list.pinInBackground(LISTS_LABEL, new ListSaveListener(list));
+        } else {
+            Toast.makeText(this, "List " + list.getName() + " already exists.", Toast.LENGTH_SHORT)
+                    .show();
+        }
     }
 
     public class TaskSaveListener implements SaveCallback {
@@ -664,14 +813,12 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             }
             if (e == null) {
                 //Toast.makeText(Dashboard.this, "Task saved.", Toast.LENGTH_SHORT).show();
-                mParseAdapter.addElement(task);
 
-                task.setHasUpdate(false);
                 task.saveEventually(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
                         if (e != null) {
-                            task.setHasUpdate(true);
+                            Log.d("TaskSaveListener", e.getMessage());
                         } else {
                             Log.d("saveAllPinstoParse", "Uploaded " + task.toString());
                         }
@@ -694,13 +841,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
         @Override
         public void done(ParseException e) {
+            refreshListTitles();
             if (isFinishing()) {
                 return;
             }
             if(e == null) {
-                drawerListAdapter.add(list);
-                drawerListAdapter.notifyDataSetChanged();
-                titles.add(list.toString());
                 list.saveEventually(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
@@ -729,7 +874,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                     TaskDataSource.dateToString(temp)));*/
             ParseTask task = new ParseTask(editText.getText().toString());
             task.setDeadline(year, month, day);
-            saveTask(task);
+            saveNewTask(task);
             editText.setText("");
         } else {
             Toast.makeText(this, "Please provide a name before choosing a date.", Toast.LENGTH_SHORT)
@@ -816,6 +961,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                                             }
 
                                             endRefresh();
+                                            refreshListTitles();
                                         }
                                     });
                         }
@@ -835,6 +981,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         mSwipeRefreshLayout.setRefreshing(false);
         selectPosition(selectedPosition);
     }
+
 
     private void loadFromLocal(ParseQuery<ParseTask> query) {
         //ParseQuery<ParseTask> query = ParseQuery.getQuery("Task");
