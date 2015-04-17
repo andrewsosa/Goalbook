@@ -77,7 +77,8 @@ public class ParseTask extends ParseObject implements Serializable {
     }
 
     public void setParentList(ParseList parentList) {
-        put("parent", parentList);
+        if(parentList != null) put("parent", parentList);
+        else this.remove("parent");
     }
 
     public ParseList getParentList() {

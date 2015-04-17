@@ -12,12 +12,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -25,7 +27,7 @@ import java.util.List;
 public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClickListener, DatePickerReceiver {
 
     ParseTask task;
-    ArrayAdapter<ParseList> adapter;
+    //ArrayAdapter<ParseList> adapter;
     ParseList activeList;
 
     @Override
@@ -120,14 +122,8 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
             taskName.setText(task.getName());
             TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
             deadlineText.setText(task.getDeadlineAsString());
-            //TextView listText = (TextView) findViewById(R.id.listDisplay);
-            //listText.setText(task.getParentListAsString());
-            final Spinner listSpinner = (Spinner) findViewById(R.id.spinner);
-            adapter = new ArrayAdapter<ParseList>(this,
-                    android.R.layout.simple_spinner_item);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-
+            final TextView listText = (TextView) findViewById(R.id.listDisplay);
+            listText.setText(task.getParentListAsString());
 
 
             ParseQuery<ParseList> query = ParseList.getQuery();
@@ -136,19 +132,54 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
             query.findInBackground(new FindCallback<ParseList>() {
                 @Override
                 public void done(List<ParseList> list, ParseException e) {
-                    adapter.add(new ParseList("Unassigned"));
-                    adapter.addAll(list);
-                    adapter.notifyDataSetChanged();
-                    //listSpinner.setSelection(list.indexOf(task.getParentList()));
+                    prepareListener(listText, list);
                 }
             });
 
-
-            listSpinner.setAdapter(adapter);
         } catch (Exception e) {
             Toast.makeText(this, "An error has occured; task not found.", Toast.LENGTH_SHORT).show();
             Log.e("updateFields()", e.getMessage());
         }
+    }
+
+    private void prepareListener(final TextView listText, final List<ParseList> list) {
+
+        String[] items = new String[list.size() + 1];
+
+        int i = 1;
+        items[0] = "Unassigned";
+        for(ParseList p : list) {
+            items[i] = p.toString();
+            ++i;
+        }
+
+        final String[] notItems = items.clone();
+
+        listText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new MaterialDialog.Builder(TaskEditActivity.this)
+                        .title("Assign list")
+                        .items(notItems)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                                if (which != 0) {
+                                    assignList(list.get(which - 1));
+                                } else {
+                                    assignList(null);
+
+                                }
+                                listText.setText(text);
+                            }
+                        })
+                        .show();
+            }
+        });
+    }
+
+    private void assignList(ParseList list) {
+        task.setParentList(list);
     }
 
     public class TaskSaveListener implements SaveCallback {

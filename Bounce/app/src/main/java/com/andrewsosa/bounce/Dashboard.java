@@ -80,6 +80,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     Toolbar toolbar;
     DrawerLayout drawerLayout;
     FloatingActionButton actionButton;
+    View emptyView;
 
     // Data for menu navigation
     Integer selectedPosition = 1;
@@ -157,6 +158,9 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             selectPosition(1);
             //drawerList.setItemChecked(1, true);
         }
+
+        // For empty lists
+        emptyView = findViewById(R.id.empty_view);
 
         // For logout
         RelativeLayout settings = (RelativeLayout) findViewById(R.id.logout_layout);
@@ -553,16 +557,13 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
         ParseList parseList = localListQueryByName(getTitle(position));
 
-        //Log.d("updateDataSet", "Building query for position: " + position);
-
         switch(position) {
             case 1: return query.whereLessThanOrEqualTo("deadline", new Date());
-            case 2: return query.whereGreaterThan("deadline", new Date());
+            case 2: return query.whereGreaterThan("deadline", new Date()); // TODO check out 4oclock thing
             case 3: return query.whereEqualTo("done", true);
             case 4: return query;
             case 5: return query.whereEqualTo("parent", null);
             default: return query.whereEqualTo("parent", parseList);
-            //default: return query.whereEqualTo("parent", );
         }
     }
 
@@ -664,6 +665,15 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         return getResources().getColor(R.color.primaryTextDark);
     }
 
+    private void updateEmptyView(boolean isEmpty) {
+        if (emptyView == null) return;
+        if(isEmpty) {
+            emptyView.setVisibility(View.VISIBLE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+        }
+    }
+
 
     /**
      *  onClickListener class for FloatingActionButton
@@ -730,6 +740,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 if(v.getText().toString().length() > 0) {
                     ParseTask task = new ParseTask(v.getText().toString());
                     saveNewTask(task);
+                    if(emptyView != null) emptyView.setVisibility(View.GONE);
 
                     v.setText("");
 
@@ -976,6 +987,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             public void done(List<ParseTask> list, ParseException e) {
                 if(e == null) {
                     mParseAdapter.replaceData(list);
+                    updateEmptyView(list.isEmpty());
                 } else {
                     Log.e("ParseQuery", "Error:" + e.getMessage());
                 }

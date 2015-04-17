@@ -20,6 +20,9 @@ import com.melnykov.fab.FloatingActionButton;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
+
+import java.util.Calendar;
 
 
 public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClickListener {
@@ -146,12 +149,15 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
 
         switch(id) {
             case R.id.action_complete:
-                Toast.makeText(TaskViewActivity.this, "Action Complete", Toast.LENGTH_SHORT).show();
+                Toast.makeText(TaskViewActivity.this, "Task marked complete.", Toast.LENGTH_SHORT).show();
+                task.setDone(true);
+                finish();
                 return true;
             case R.id.action_delete:
                 launchDeleteDialog();
                 return true;
             case R.id.action_postpone:
+                launchBounceDialog();
                 return true;
         }
 
@@ -184,5 +190,61 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
                 })
                 .show();
 
+    }
+
+    private void launchBounceDialog() {
+        new MaterialDialog.Builder(this)
+                .title("Postpone?")
+                .negativeText("Cancel")
+                .items(new String[]{
+                        "One Day",
+                        "Next Week",
+                        "Next Month"
+                })
+                .itemsCallback(new MaterialDialog.ListCallback() {
+                    @Override
+                    public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                        switch (which) {
+                            case 0:
+                                task.getDeadline().add(Calendar.DAY_OF_MONTH, 1);
+                                break;
+                            case 1:
+                                task.getDeadline().add(Calendar.DAY_OF_WEEK, 7);
+                                break;
+                            case 2:
+                                task.getDeadline().add(Calendar.MONTH, 1);
+                        }
+                        task.pinInBackground(new TaskSaveListener(task));
+                    }
+                })
+                .show();
+    }
+
+    public class TaskSaveListener implements SaveCallback {
+
+        ParseTask task;
+        public TaskSaveListener(ParseTask task) {
+            this.task = task;
+        }
+
+        @Override
+        public void done(ParseException e) {
+            if (e == null) {
+                task.saveEventually(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            Log.e("TaskSaveListener", e.getMessage());
+                        } else {
+                            Log.d("TaskSaveListener", "Uploaded " + task.toString());
+                        }
+                    }
+                });
+            } else {
+                Toast.makeText(getApplicationContext(),
+                        "Error saving: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }

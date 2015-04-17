@@ -11,8 +11,43 @@
     <!-- Your normal content view -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/windowBackground">
 
+        <!-- Backgroudn content -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/empty_view">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/transparent_check"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_margin="56dp"
+                android:layout_centerInParent="true"
+                android:id="@+id/giant_check" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No tasks here!"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="32sp"
+                android:gravity="center_horizontal"
+                android:textColor="@color/dividerColor"
+                android:layout_alignParentLeft="false"
+                android:layout_alignParentTop="false"
+                android:layout_centerHorizontal="true"
+                android:layout_alignBottom="@id/giant_check"
+                android:layout_alignParentBottom="false"
+                android:layout_marginBottom="56dp" />
+
+        </RelativeLayout>
+
+        <!-- Content, including Toolbar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -38,6 +73,7 @@
                 android:focusableInTouchMode="true"
                 android:id="@+id/decoy"></LinearLayout>
 
+            <!-- Add box here-->
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
@@ -69,18 +105,14 @@
                     android:id="@+id/calendar_button"
                     android:src="@drawable/ic_event_grey600_24dp"
                     android:background="@android:color/transparent" />
-
             </LinearLayout>
 
 
-
-            <!-- A RecyclerView with some commonly used attributes -->
-
+            <!-- RecyclerView wrappers -->
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="@color/windowBackground"
                 android:elevation="4dp">
 
                 <android.support.v4.widget.SwipeRefreshLayout
@@ -93,9 +125,10 @@
                         android:scrollbars="vertical"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@color/windowBackground" />
+                        android:visibility="visible"/>
 
                 </android.support.v4.widget.SwipeRefreshLayout>
+
             </LinearLayout>
 
 
@@ -112,6 +145,9 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_margin="@dimen/fab_margin" />
+
+
+
 
     </RelativeLayout>
 
