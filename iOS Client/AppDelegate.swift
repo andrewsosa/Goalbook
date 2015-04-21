@@ -7,15 +7,35 @@
 //
 
 import UIKit
+import Parse
+import Bolts
+
+var passObj:ContainerViewController?
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+      
+        Parse.enableLocalDatastore()
+        
+        Parse.setApplicationId("tdorw6A41hVhwXtMn1Pe07jfPXQOZyJEP6ztLNAX",
+            clientKey: "5eNVvRRhSJUaQ895fhN4vy2C3SjuPBQ4wv5KzAMl")
+        
+        PFAnalytics.trackAppOpenedWithLaunchOptions(launchOptions)
+
+        
+        window = UIWindow(frame: UIScreen.mainScreen().bounds)            // tutorial had something different after launchOptions
+        
+        let containerViewController = ContainerViewController()
+        
+        window!.rootViewController = containerViewController
+        window!.makeKeyAndVisible()
+        
+        passObj = containerViewController.getObj()
+        
         return true
     }
 
