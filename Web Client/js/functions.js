@@ -159,6 +159,7 @@ var LoginUser = function () {
 	var form = document.getElementById("loginForm");
 	var user = form[0].value;
 	var pass = form[1].value;
+	console.log("User = " + user + ", Pass = " + pass);
 	Parse.User.logIn(user, pass, {
 		success: function() {
 			console.log("Successful login!");
@@ -166,18 +167,48 @@ var LoginUser = function () {
 			mainContainer.removeChild(mainContainer.children[0]);
 			Dashboard();
 		},
-		error: function() {
+		error: function(error) {
+			console.log("Error: " + error);
 			console.log("Unsuccessful login!");
 		}
 	});
 }
 
 var SignupUser = function (f) {
+	Parse.initialize("tdorw6A41hVhwXtMn1Pe07jfPXQOZyJEP6ztLNAX",
+						  "nitkBWLYXc8TLdmMxLxU65z4ZBObt6xOguFoSe7x");
+	var form = document.getElementById("signupForm");
+	var user = form[0].value;
+	var pass = form[1].value;
+	console.log("User = " + user + ", Pass = " + pass);
+
+	var person = new Parse.User();
+	person.set("username", user);
+	person.set("email", user);
+	person.set("password", pass);
+
+	person.signUp(user, pass, {
+		success: function() {
+			console.log("Successful signup!");
+			var mainContainer = document.getElementById("mainContainer");
+			mainContainer.removeChild(mainContainer.children[0]);
+			Dashboard();
+		},
+		error: function(error) {
+			console.log("Error: " + error);
+			console.log("Unsuccessful login!");
+			display("Email address already used.");
+		}
+	});
 }
 
 var Dashboard = function () {
 
 	MakeBody();
+	ContentInbox("item_inbox");
+
+	var inbox = document.getElementById("item_inbox");
+	Highlight(inbox.getAttribute('id'));
 
 }
 
@@ -193,6 +224,7 @@ var LogoutUser = function () {
 var MakeBody = function () {
 
 	var mainContainer = document.getElementById("mainContainer");
+	mainContainer.setAttribute("style", "padding-top: 10px");
 
 	// Remove everything from main.
 	while (mainContainer.firstChild) {
@@ -204,19 +236,17 @@ var MakeBody = function () {
 
 	var sidebar = document.createElement("div");
 		sidebar.setAttribute("id", "sidebar");
-		sidebar.setAttribute("class", "col s12 m4 l3 purple lighten-4");
+		sidebar.setAttribute("class", "col s3 grey lighten-5");
 
 	var content = document.createElement("div");
 		content.setAttribute("id", "content");
-		content.setAttribute("class", "col m8 l9 purple accent-1");
-
-	MakeSidebar(sidebar);
-	MakeContent(content);
+		content.setAttribute("class", "col s9 grey lighten-5");
 
 	mainContainer.appendChild(wrapper);
 	wrapper.appendChild(sidebar);
 	wrapper.appendChild(content);
 
+	MakeSidebar(sidebar);
 }
 
 var MakeSidebar = function ( sidebar ) {
@@ -234,11 +264,11 @@ var MakeSidebar = function ( sidebar ) {
 	SInfo(sideuserinfo);
 	sidebar.appendChild(sideuserinfo);
 
-	ViewInbox(sideviews);
-	ViewUpcoming(sideviews);
-	ViewComplete(sideviews);
-	ViewAllTasks(sideviews);
-	ViewUnassigned(sideviews);
+	ViewInbox(sideviews);	// mdi-content-inbox
+	ViewUpcoming(sideviews);  // mdi-action-input
+	ViewComplete(sideviews);  // mdi-action-done-all
+	ViewAllTasks(sideviews);  // mdi-action-list
+	ViewUnassigned(sideviews);  // mdi-action-label-outline
 	sidebar.appendChild(sideviews);
 
 	ActiveLists(sidelists);
@@ -269,14 +299,39 @@ var ViewInbox = function ( list ) {
 		item_inbox.setAttribute("id", "item_inbox");
 		item_inbox.setAttribute("href", "#!");
 		item_inbox.setAttribute("class", "collection-item left-align");
-		item_inbox.addEventListener('click', function() {ContentInbox()}, false);
+		item_inbox.addEventListener('click', function() {ContentInbox("item_inbox")}, false);
+		item_inbox.addEventListener('click', function() {Highlight(this.getAttribute('id'))}, false);
 		item_inbox.innerHTML = "Inbox";
 
 	list.appendChild(item_inbox);
 
 }
 
-var ContentInbox = function () {
+function Highlight (id) {
+
+	var sidebar = document.getElementById("sidebar");
+	var lists = sidebar.childNodes;
+
+	for (var i = 0; i < lists.length - 1; ++i) {
+		console.log("lists.length = " + lists.length);
+		var items = lists[i].childNodes;
+		for (var j = 0; j < items.length; ++j) {
+			console.log("items.length = " + items.length);
+			if (items[j].getAttribute('id') != id) {
+				console.log("REMOVING CLASS");
+				console.log("items[" + j + "] = " + items[j].getAttribute('id'));
+				items[j].removeAttribute("class");
+				items[j].setAttribute("class", "collection-item left-align");
+			}
+		}
+	}
+	var hlist = document.getElementById(id);
+	console.log("KLJASLDKJASLKDS = " + hlist.getAttribute('id'));
+	hlist.setAttribute("class", "collection-item active left-align");
+
+}
+
+var ContentInbox = function (lid) {
 
 	// Variables
 	var Task = Parse.Object.extend("Task");
@@ -286,7 +341,8 @@ var ContentInbox = function () {
 	//		and display them.
 	// * Need to figure out how to compare dates.
 	query.equalTo("user", Parse.User.current());
-	DisplayTaskQuery(query);
+	console.log("lid = " + lid);
+	DisplayTaskQuery(query, lid);
 }
 
 var ViewUpcoming = function ( list ) {
@@ -294,13 +350,14 @@ var ViewUpcoming = function ( list ) {
 	item_upcoming.setAttribute("id", "item_upcoming");
 	item_upcoming.setAttribute("href", "#!");
 	item_upcoming.setAttribute("class", "collection-item left-align");
-	item_upcoming.addEventListener('click', function() {ContentUpcoming()}, false);
+	item_upcoming.addEventListener('click', function() {ContentUpcoming("item_upcoming")}, false);
+	item_upcoming.addEventListener('click', function() {Highlight(this.getAttribute('id'))}, false);
 	item_upcoming.innerHTML = "Upcoming";
 
 	list.appendChild(item_upcoming);
 }
 
-var ContentUpcoming = function () {
+var ContentUpcoming = function (lid) {
 
 	// Variables
 	var Task = Parse.Object.extend("Task");
@@ -310,7 +367,7 @@ var ContentUpcoming = function () {
 	//		and display them.
 	// * Need to figure out how to compare dates.
 	query.equalTo("user", Parse.User.current());
-	DisplayTaskQuery(query);
+	DisplayTaskQuery(query, lid);
 }
 
 var ViewComplete = function ( list ) {
@@ -320,6 +377,7 @@ var ViewComplete = function ( list ) {
 	item_complete.setAttribute("href", "#!");
 	item_complete.setAttribute("class", "collection-item left-align");
 	item_complete.addEventListener('click', function() {ContentComplete()}, false);
+	item_complete.addEventListener('click', function() {Highlight(this.getAttribute('id'))}, false);
 	item_complete.innerHTML = "Complete";
 
 	list.appendChild(item_complete);
@@ -344,6 +402,7 @@ var ViewAllTasks = function ( list ) {
 	item_alltasks.setAttribute("href", "#!");
 	item_alltasks.setAttribute("class", "collection-item left-align");
 	item_alltasks.addEventListener('click', function() {ContentAllTasks()}, false);
+	item_alltasks.addEventListener('click', function() {Highlight(this.getAttribute('id'))}, false);
 	item_alltasks.innerHTML = "All Tasks";
 
 	list.appendChild(item_alltasks);
@@ -365,6 +424,7 @@ var ViewUnassigned = function ( list ) {
 	item_unassigned.setAttribute("href", "#!");
 	item_unassigned.setAttribute("class", "collection-item left-align");
 	item_unassigned.addEventListener('click', function() {ContentUnassigned()}, false);
+	item_unassigned.addEventListener('click', function() {Highlight(this.getAttribute('id'))}, false);
 	item_unassigned.innerHTML = "Unassigned";
 
 	list.appendChild(item_unassigned);
@@ -396,6 +456,7 @@ var ActiveLists = function ( list ) {
 				list_item.setAttribute("href", "#!");
 				list_item.setAttribute("class", "collection-item left-align");
 				list_item.addEventListener('click', function() {DisplayList(this.id)}, false);
+				list_item.addEventListener('click', function() {Highlight(this.getAttribute('id'))}, false);
 				list_item.innerHTML = parse_list_item.get('name');
 				list.appendChild(list_item);
 			}
@@ -447,7 +508,7 @@ var OptionCreateNew = function ( list ) {
 	item_create_new.setAttribute("href", "#!");
 	item_create_new.setAttribute("class", "collection-item left-align");
 	item_create_new.setAttribute("onclick", "javascript:ListPrompt()");
-	item_create_new.innerHTML = "Create New...";
+	item_create_new.innerHTML = "Add a new list...";
 
 	list.appendChild(item_create_new);
 
@@ -542,10 +603,6 @@ var OptionLogout = function ( list ) {
 
 }
 
-var MakeContent = function ( div ) {
-	div.innerHTML = "THE CONTENT GOES HERE.";
-}
-
 var DisplayTaskQuery = function ( query , list_id ) {
 
 	var content = document.getElementById("content");
@@ -560,6 +617,45 @@ var DisplayTaskQuery = function ( query , list_id ) {
 	if (content.parentNode.lastChild.getAttribute("id") == "task_button")
 		content.parentNode.removeChild(content.parentNode.lastChild);
 
+	var wrapper = document.createElement("div");
+		wrapper.setAttribute("class", "row");
+	var addTask = document.createElement("form");
+		addTask.setAttribute("class", "col s12");
+	var form_wrapper = document.createElement("div");
+		form_wrapper.setAttribute("class", "row");
+		var form_wrapper1 = document.createElement("div");
+		var form_wrapper2 = document.createElement("div");
+		var form_wrapper3 = document.createElement("div");
+		form_wrapper1.setAttribute("class", "col s4");
+		form_wrapper2.setAttribute("class", "col s4");
+		form_wrapper3.setAttribute("class", "col s4 valign-wrapper");
+			var addTask_name = document.createElement("input");
+			var addTask_date = document.createElement("input");
+			var addTask_submit = document.createElement("a");
+			addTask_submit.setAttribute("class", "waves-effect waves-teal btn-flat valign");
+			addTask_submit.setAttribute("style", "margin-top: 10px");
+			//addTask_submit.setAttribute("type", "submit");
+			//addTask_submit.setAttribute("name", "action");
+			addTask_submit.innerHTML = "Add Task";
+			addTask_name.setAttribute("placeholder", "Name");
+			addTask_name.setAttribute("id", "addTask_name");
+			addTask_name.setAttribute("type", "text");
+			addTask_name.setAttribute("class", "validate");
+			addTask_date.setAttribute("placeholder", "Deadline");
+			addTask_date.setAttribute("id", "addTask_date");
+			addTask_date.setAttribute("type", "date");
+			addTask_date.setAttribute("class", "datepicker");
+
+	form_wrapper1.appendChild(addTask_name);
+	form_wrapper2.appendChild(addTask_date);
+	form_wrapper3.appendChild(addTask_submit);
+
+	form_wrapper.appendChild(form_wrapper1);
+	form_wrapper.appendChild(form_wrapper2);
+	form_wrapper.appendChild(form_wrapper3);
+	addTask.appendChild(form_wrapper);
+	wrapper.appendChild(addTask);
+	content.appendChild(wrapper);
 
 	query.find({
 		success: function (tasks) {
@@ -567,8 +663,76 @@ var DisplayTaskQuery = function ( query , list_id ) {
 			for (var i = 0; i < tasks.length; ++i) {
 				var task = tasks[i];
 				var item_task = document.createElement("li");
+				var date = ParseDeadline(task.get("deadline"));
+				if (list_id == "item_inbox" || list_id == "item_upcoming") {
+					var today = new Date();
+						var parts = date.split("-");
+						var parse_year = parseInt(parts[0]);
+						var parse_month = Number(parts[1]);
+							parse_month = parseInt(parse_month);
+						var parse_day = Number(parts[2]);
+							parse_day = parseInt(parts[2]);
+						var today_year = today.getFullYear();
+						var today_month = today.getMonth() + 1;
+						var today_day = today.getUTCDate();
+
+						console.log(parse_month + "        " + today_month);
+						console.log(parse_day + "         " + today_day);
+
+						if (parse_year >= today_year) {
+							console.log("p_y >= t_y");
+							if (parse_month == today_month) {
+								console.log("p_m == t_m");
+								if (parse_day >= today_day) {
+									console.log("p_d >= t_d");
+								}
+								else continue;
+							}
+							else if (parse_month > today_month) {
+								console.log("p_m > t_m");
+							}
+							else continue;
+						}
+						else continue;
+
+						if (list_id == "item_inbox") {
+							if (parse_year == today_year &&
+								 parse_month == today_month &&
+								 parse_day == today_day) {
+							}
+							else continue;
+						}
+				}
+
+				console.log("List id = " + list_id);
+				console.log("Date = " + date);
 				item_task.setAttribute("class", "collection-item left-align");
-				item_task.innerHTML = task.get("name");
+				item_task.innerHTML = task.get("name") + "<br>" + date;
+				var status = document.createElement("form");
+					var status_p = document.createElement("p");
+						var status_p_checkbox = document.createElement("input");
+						var status_p_label = document.createElement("label");
+						var status_p2_checkbox = document.createElement("input");
+						var status_p2_label = document.createElement("label");
+				status.setAttribute("action", "#");
+						status_p_checkbox.setAttribute("type", "checkbox");
+						status_p_checkbox.setAttribute("class", "filled-in");
+						status_p_checkbox.setAttribute("id", "filled-in-box" + i);
+						status_p_label.setAttribute("for", "filled-in-box" + i);
+						status_p_label.setAttribute("style", "padding-right: 30px");
+						status_p_label.innerHTML = "Completed";
+						status_p2_checkbox.setAttribute("type", "checkbox");
+						status_p2_checkbox.setAttribute("class", "filled-in");
+						status_p2_checkbox.setAttribute("id", "filled-in-box2" + i);
+						status_p2_label.setAttribute("for", "filled-in-box2" + i);
+						status_p2_label.innerHTML = "Trash";
+
+				status_p.appendChild(status_p_checkbox);
+				status_p.appendChild(status_p_label);
+				status_p.appendChild(status_p2_checkbox);
+				status_p.appendChild(status_p2_label);
+				status.appendChild(status_p);
+				item_task.appendChild(status);
 				task_list.appendChild(item_task);
 			}
 		},
@@ -579,21 +743,34 @@ var DisplayTaskQuery = function ( query , list_id ) {
 
 	content.appendChild(task_list);
 
-	// Create the Add Task button to add a task to a given list.
-	var button_wrapper = document.createElement("a");
-		button_wrapper.setAttribute("id", "task_button");
-		button_wrapper.setAttribute("class", "btn-floating btn-large waves-effect waves-light red right-align");
-		button_wrapper.setAttribute("style", "position: relative; bottom: 0px; right: 0px;");
-		button_wrapper.setAttribute("onclick", "javascript:AddTaskToList()");
-		var button_image = document.createElement("i");
-			button_image.setAttribute("class", "mdi-content-add");
+}
 
-	var button_box = document.createElement("div");
-		button_box.setAttribute("style", "postition: absolute; background-color: red");
+var ParseDeadline = function (iso_utc_date) {
 
-	button_wrapper.appendChild(button_image);
-	button_box.appendChild(button_wrapper);
-	content.parentNode.appendChild(button_box);
+	console.log(iso_utc_date);
+	var date = String(iso_utc_date);
+	var part = date.split(" ");
+
+	var year = part[3];
+	var month = 0;
+	var day = part[2];
+
+	if (part[1] == "Jan") month = "01";
+	else if (part[1] == "Feb") month = "02";
+	else if (part[1] == "Mar") month = "03";
+	else if (part[1] == "Apr") month = "04";
+	else if (part[1] == "May") month = "05";
+	else if (part[1] == "Jun") month = "06";
+	else if (part[1] == "Jul") month = "07";
+	else if (part[1] == "Aug") month = "08";
+	else if (part[1] == "Sep") month = "09";
+	else if (part[1] == "Oct") month = "10";
+	else if (part[1] == "Nov") month = "11";
+	else if (part[1] == "Dec") month = "12";
+
+	var bounce_date = year + "-" + month + "-" + day;
+
+	return (bounce_date);
 }
 
 var AddTaskToList = function () {
