@@ -11,6 +11,7 @@ var LoginScreen = function () {
 	var wrapper_complete = document.createElement("div");
 		var form_login = document.createElement("form");
 			var wrapper_login = document.createElement("div");
+				var emblem = document.createElement("img");
 				var wrapper_login_input_email = document.createElement("div");
 					var icon_login_email = document.createElement("i");
 					var input_login_email = document.createElement("input");
@@ -22,8 +23,12 @@ var LoginScreen = function () {
 				var wrapper_login_input_submit = document.createElement("div");
 					var button_login_submit = document.createElement("button");
 						var icon_login_submit = document.createElement("i");
+				var wrapper_show_signup = document.createElement("div");			// andrew's additions
+					var button_show_signup = document.createElement("button");		// 
+					
 		var form_signup = document.createElement("form");
 			var wrapper_signup = document.createElement("div");
+				var signup_prompt = document.createElement("p");
 				var wrapper_signup_input_email = document.createElement("div");
 					var icon_signup_email = document.createElement("i");
 					var input_signup_email = document.createElement("input");
@@ -34,38 +39,47 @@ var LoginScreen = function () {
 					var label_signup_password = document.createElement("label");
 				var wrapper_signup_input_submit = document.createElement("div");
 					var button_signup_submit = document.createElement("button");
-						var icon_signup_submit = document.createElement("i");
+						//var icon_signup_submit = document.createElement("i");
 
 
 	wrapper_complete.setAttribute("class", "row");
-		form_login.setAttribute("class", "col s12");
+		form_login.setAttribute("class", "login");
 		form_login.setAttribute("id", "loginForm");
 			wrapper_login.setAttribute("class", "row");
+				emblem.setAttribute("class", "emblem");
+				emblem.setAttribute("src", "assets/web_hi_res_512.png");
 				wrapper_login_input_email.setAttribute("class", "input-field col s12");
-					icon_login_email.setAttribute("class", "mdi-content-mail prefix");
+					//icon_login_email.setAttribute("class", "mdi-content-mail prefix");
 					input_login_email.setAttribute("placeholder", "Email");
 					input_login_email.setAttribute("id", "login_email");
 					input_login_email.setAttribute("type", "text");
 					input_login_email.setAttribute("class", "validate");
 					label_login_email.setAttribute("for", "login_email");
 				wrapper_login_input_password.setAttribute("class", "input-field col s12");
-					icon_login_password.setAttribute("class", "mdi-communication-vpn-key prefix");
+					//icon_login_password.setAttribute("class", "mdi-communication-vpn-key prefix");
 					input_login_password.setAttribute("placeholder", "Password");
 					input_login_password.setAttribute("id", "login_password");
 					input_login_password.setAttribute("type", "password");
 					input_login_password.setAttribute("class", "validate");
 					label_login_password.setAttribute("for", "login_password");
 				wrapper_login_input_submit.setAttribute("class", "row");
-					button_login_submit.setAttribute("class", "btn waves-effect waves-light");
+					button_login_submit.setAttribute("class", "btn waves-effect waves-light light-blue darken-1 login-button");
 					button_login_submit.setAttribute("type", "submit");
 					button_login_submit.setAttribute("name", "action");
 					button_login_submit.setAttribute("onclick", "javascript:LoginUser()");
 					button_login_submit.innerHTML = "Login";
-						icon_login_submit.setAttribute("class", "mdi-content-send right");
-		form_signup.setAttribute("class", "col s12");
+						//icon_login_submit.setAttribute("class", "mdi-content-send right");
+				wrapper_show_signup.setAttribute("class", "row");														//
+					button_show_signup.setAttribute("class", "btn waves-effect waves-light white btn-flat grey-text login-button");	// andrew's stuff
+					button_show_signup.innerHTML = "New User"															//
+					button_show_signup.setAttribute("onclick", "javascript:ShowSignUp()")
+		form_signup.setAttribute("class", "signup");
+		form_signup.setAttribute("id", "signupForm");
 			wrapper_signup.setAttribute("class", "row");
+				signup_prompt.innerHTML = "New user?";
+				signup_prompt.setAttribute("class", "center signup-prompt");
 				wrapper_signup_input_email.setAttribute("class", "input-field col s12");
-					icon_signup_email.setAttribute("class", "mdi-content-mail prefix");
+					icon_signup_email.setAttribute("class", "mdi-content-mail prefix ");
 					input_signup_email.setAttribute("placeholder", "Email");
 					input_signup_email.setAttribute("id", "login_email");
 					input_signup_email.setAttribute("type", "text");
@@ -79,18 +93,19 @@ var LoginScreen = function () {
 					input_signup_password.setAttribute("class", "validate");
 					label_signup_password.setAttribute("for", "signup_password");
 				wrapper_signup_input_submit.setAttribute("class", "row");
-					button_signup_submit.setAttribute("class", "btn waves-effect waves-light");
+					button_signup_submit.setAttribute("class", "btn waves-effect waves-light light-blue darken-1 login-button");
 					button_signup_submit.setAttribute("type", "submit");
 					button_signup_submit.setAttribute("name", "action");
 					button_signup_submit.setAttribute("onclick", "javascript:SignupUser()");
 					button_signup_submit.innerHTML = "Signup";
-						icon_signup_submit.setAttribute("class", "mdi-content-send right");
+						//icon_signup_submit.setAttribute("class", "mdi-content-send right");
 
 	var mainContainer = document.getElementById("mainContainer");
 
 	mainContainer.appendChild(wrapper_complete);
 	wrapper_complete.appendChild(form_login);
 		form_login.appendChild(wrapper_login);
+			wrapper_login.appendChild(emblem);
 			wrapper_login.appendChild(wrapper_login_input_email);
 				wrapper_login_input_email.appendChild(icon_login_email);
 				wrapper_login_input_email.appendChild(input_login_email);
@@ -100,23 +115,27 @@ var LoginScreen = function () {
 				wrapper_login_input_password.appendChild(input_login_password);
 				wrapper_login_input_password.appendChild(label_login_password);
 			wrapper_login.appendChild(wrapper_login_input_submit);
+				//wrapper_login_input_submit.appendChild(button_show_signup);
 				wrapper_login_input_submit.appendChild(button_login_submit);
 					button_login_submit.appendChild(icon_login_submit);
+			//wrapper_login.appendChild(wrapper_show_signup);
+	
 	wrapper_complete.appendChild(form_signup);
 		form_signup.appendChild(wrapper_signup);
+			wrapper_signup.appendChild(signup_prompt);
 			wrapper_signup.appendChild(wrapper_signup_input_email);
-				wrapper_signup_input_email.appendChild(icon_signup_email);
+				//wrapper_signup_input_email.appendChild(icon_signup_email);
 				wrapper_signup_input_email.appendChild(input_signup_email);
 				wrapper_signup_input_email.appendChild(label_signup_email);
 			wrapper_signup.appendChild(wrapper_signup_input_password);
-				wrapper_signup_input_password.appendChild(icon_signup_password);
+				//wrapper_signup_input_password.appendChild(icon_signup_password);
 				wrapper_signup_input_password.appendChild(input_signup_password);
 				wrapper_signup_input_password.appendChild(label_signup_password);
 			wrapper_signup.appendChild(wrapper_signup_input_submit);
 				wrapper_signup_input_submit.appendChild(button_signup_submit);
-					button_signup_submit.appendChild(icon_signup_submit);
+					//button_signup_submit.appendChild(icon_signup_submit);
 
-	mainContainer.setAttribute("class", "indigo lighten-5");
+	//mainContainer.setAttribute("class", "indigo lighten-5");
 
 }
 

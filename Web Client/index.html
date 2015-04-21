@@ -7,29 +7,41 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" href="css/styles.css">
+	<link rel="stylesheet" href="css/andrew.css">
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 	<script type="text/javascript" src="https://www.parsecdn.com/js/parse-1.4.0.min.js"></script>
 	<!-- <script type="text/javascript" src="js/underscore.js></script> -->
 	<script type="text/javascript" src="js/my_parse_app.js"></script>
 	<script type="text/javascript" src="js/functions.js"></script>
+	
+	<script type="text/javascript">
+	
+		function ShowSignUp() {
+			var loginWrapper = document.getElementById("loginForm");
+			loginWrapper.setAttribute("class", "gone");
+			
+			var signupWrapper = document.getElementById("signupForm");
+			signupWrapper.setAttribute("class", "visible");
+		}
+	
+	
+	</script>
 </head>
 
 
 
 <!-- ###################################################################################### -->
 
-<body id="thePage" class="teal lighten-3">
-
-
+<body id="thePage" class="grey lighten-5">
 
 
 
 	<header> <!-- ////////////////////////////////////////////////////////////// -->
 
 	<nav>
-		<div class="nav-wrapper light-blue lighten-1">
-			<a href="#" class="brand-logo" style="color:inherit;text-decoration:none;">
-					<span class="flow-text">Bounce Todo</span></a>
+		<div class="nav-wrapper light-blue darken-1 z-depth-2">
+			<a href="#" class="brand-logo left">
+					<span class="flow-text">Bounce</span></a>
 		</div>
 	</nav>
 
@@ -39,7 +51,7 @@
 
 
 
-	<main id="mainContainer" class="idigo lighten-5"> <!-- \\\\\\\\\\\\\\\\\\\\\ -->
+	<main id="mainContainer" class="container"> <!-- \\\\\\\\\\\\\\\\\\\\\ -->
 
 
 	</main> <!-- \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ -->
@@ -48,22 +60,13 @@
 
 
 
-	<footer class="page-footer indigo lighten-2"> <!-- 0000000000000000000000000 -->
+	<footer class="page-footer grey lighten-5"> <!-- 0000000000000000000000000 -->
 
-	<div class="container">
-		<div class="row">
-			<div class="col l6 s12">
-				<h5 class="white-text">Footer Content</h5>
-				<p class="grey-text text-lighten-4">You can use rows and columns here to organize your footer content.</p>
+		<div class="footer-copyright light-blue darken-2">
+			<div class="container">
+				© 2015 Bounce Dev Team
 			</div>
 		</div>
-	</div>
-	<div class="footer-copyright indigo">
-		<div class="container">
-			© 2015 Bounce Dev Team
-			<a class="grey-text text-lighten-4 right" href="#!">More Links</a>
-		</div>
-	</div>
 
 	</footer> <!-- 0000000000000000000000000000000000000000000000000000000000000 -->
 

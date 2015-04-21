@@ -1,0 +1,66 @@
+.login {
+	//position: absolute;
+	margin-left:24px;
+	margin-top:24px;
+	padding: 10px;
+	left: calc(50% - 200px);
+	//top: calc(50% - 13em);
+	width: 400px;
+	height: 460px;
+	border-radius: 3px;
+	background: white;
+	box-shadow: 0 1px 5px 0 rgba(0,0,0,0.26);
+	overflow: hidden;
+	float: left;
+}
+
+.signup {
+	//position: relative;
+	margin-left:24px;
+	margin-top:24px;
+	padding: 10px;
+	left: calc(50% - 200px);
+	//top: calc(50% - 13em);
+	width: 400px;
+	height: 460px;
+	border-radius: 3px;
+	background: white;
+	box-shadow: 0 1px 5px 0 rgba(0,0,0,0.26);
+	overflow: hidden;
+	float: left;
+}
+
+.signup-prompt {
+	margin-left:8px;
+	height: 101px;
+}
+
+.hide-signup {
+	visibility: hidden;
+}
+
+.page-footer {
+	margin-top: 0;
+	padding: 0;
+}
+
+.emblem {
+	height: 128px;
+	width: 128px;
+}
+
+.brand-logo {
+	left:24px;
+}
+
+.login-button{
+	margin-top: 12px;
+}
+
+.visible{
+	visibility: visible
+}
+
+.gone {
+	visibility: hidden
+}
