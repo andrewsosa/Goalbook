@@ -1,18 +1,18 @@
 //
-//  CustomCell.swift
+//  CustomListCellTableViewCell.swift
 //  Bounce 1.1
 //
-//  Created by TJ Littlejohn on 1/19/15.
+//  Created by TJ Littlejohn on 4/17/15.
 //  Copyright (c) 2015 TJ Littlejohn. All rights reserved.
 //
 
 import UIKit
 
-class CustomCell: UITableViewCell {
+class CustomListCellTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var mainLabel: UILabel!
+    @IBOutlet weak var listImage: UIImageView!
     
-    @IBOutlet weak var taskDate: UILabel!
+    @IBOutlet weak var listName: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -23,12 +23,6 @@ class CustomCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
-    }
-    
-    func setCell(taskName: String){
-    
-        self.mainLabel.text = taskName
-    
     }
 
 }
