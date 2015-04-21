@@ -376,14 +376,14 @@ var ViewComplete = function ( list ) {
 	item_complete.setAttribute("id", "item_complete");
 	item_complete.setAttribute("href", "#!");
 	item_complete.setAttribute("class", "collection-item left-align");
-	item_complete.addEventListener('click', function() {ContentComplete()}, false);
+	item_complete.addEventListener('click', function() {ContentComplete("item_complete")}, false);
 	item_complete.addEventListener('click', function() {Highlight(this.getAttribute('id'))}, false);
 	item_complete.innerHTML = "Complete";
 
 	list.appendChild(item_complete);
 }
 
-var ContentComplete = function () {
+var ContentComplete = function (lid) {
 
 	// Variables
 	var Task = Parse.Object.extend("Task");
@@ -393,7 +393,7 @@ var ContentComplete = function () {
 	//		are not completed.
 	query.equalTo("user", Parse.User.current());
 	query.equalTo("done", true);
-	DisplayTaskQuery(query);
+	DisplayTaskQuery(query, lid);
 }
 
 var ViewAllTasks = function ( list ) {
@@ -663,6 +663,8 @@ var DisplayTaskQuery = function ( query , list_id ) {
 			for (var i = 0; i < tasks.length; ++i) {
 				var task = tasks[i];
 				var item_task = document.createElement("li");
+				if (task.get("deadline") !== undefined) {
+
 				var date = ParseDeadline(task.get("deadline"));
 				if (list_id == "item_inbox" || list_id == "item_upcoming") {
 					var today = new Date();
@@ -703,11 +705,14 @@ var DisplayTaskQuery = function ( query , list_id ) {
 							else continue;
 						}
 				}
+				}
 
 				console.log("List id = " + list_id);
 				console.log("Date = " + date);
 				item_task.setAttribute("class", "collection-item left-align");
-				item_task.innerHTML = task.get("name") + "<br>" + date;
+				if (date != null)
+					item_task.innerHTML = task.get("name") + "<br>" + date;
+				else item_task.innerHTML = task.get("name") + "<br>No deadline.";
 				var status = document.createElement("form");
 					var status_p = document.createElement("p");
 						var status_p_checkbox = document.createElement("input");
@@ -718,6 +723,9 @@ var DisplayTaskQuery = function ( query , list_id ) {
 						status_p_checkbox.setAttribute("type", "checkbox");
 						status_p_checkbox.setAttribute("class", "filled-in");
 						status_p_checkbox.setAttribute("id", "filled-in-box" + i);
+						if (list_id == "item_complete") {
+							status_p_checkbox.setAttribute("checked", "checked");
+						}
 						status_p_label.setAttribute("for", "filled-in-box" + i);
 						status_p_label.setAttribute("style", "padding-right: 30px");
 						status_p_label.innerHTML = "Completed";
