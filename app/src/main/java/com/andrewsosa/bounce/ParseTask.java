@@ -12,10 +12,6 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.UUID;
 
-/**
- * Created by andrewsosa on 4/7/15.
- */
-
 @ParseClassName("Task")
 public class ParseTask extends ParseObject implements Serializable {
 
@@ -67,6 +63,19 @@ public class ParseTask extends ParseObject implements Serializable {
         Date d = getDate("deadline");
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 "MMM dd, yyyy", Locale.getDefault());
+
+        if (d != null) {
+            return dateFormat.format(d);
+        } else {
+            return "No Deadline";
+        }
+
+    }
+
+    public String getDeadlineAsLongString() {
+        Date d = getDate("deadline");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "MMMM dd, yyyy", Locale.getDefault());
 
         if (d != null) {
             return dateFormat.format(d);

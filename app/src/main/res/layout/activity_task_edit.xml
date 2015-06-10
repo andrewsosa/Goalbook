@@ -11,7 +11,7 @@
         android:id="@+id/taskEditToolbar"
         android:layout_height="?android:attr/actionBarSize"
         android:layout_width="match_parent"
-        android:background="@color/windowBackground"
+        android:background="@color/background"
         android:contentInsetStart="72dp"
         android:contentInsetLeft="72dp"
         app:contentInsetLeft="72dp"
@@ -36,7 +36,7 @@
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/windowBackground">
+        android:background="@color/background">
 
         <ScrollView
             android:layout_width="fill_parent"
@@ -170,7 +170,7 @@
             android:layout_width="fill_parent"
             android:layout_height="@dimen/abc_action_bar_default_height_material"
             android:elevation="4dp"
-            android:background="@color/windowBackground"
+            android:background="@color/background"
             android:layout_alignParentEnd="false"
             android:layout_alignParentBottom="true">
 

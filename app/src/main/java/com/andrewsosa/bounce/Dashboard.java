@@ -3,7 +3,9 @@ package com.andrewsosa.bounce;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -33,7 +36,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.melnykov.fab.FloatingActionButton;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -67,10 +69,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     static EditText editText;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    // Data sources
-    //private static TaskDataSource taskDataSource;
-    //private static ListDataSource listDataSource;
-
     // Toggle view for the add menu
     private boolean showingInput = false;
 
@@ -94,6 +92,21 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             "Divider"
     };
 
+    // State list for FAB
+    int[][] states = new int[][] {
+            new int[] { android.R.attr.state_enabled}, // enabled
+            new int[] {-android.R.attr.state_enabled}, // disabled
+            new int[] {-android.R.attr.state_checked}, // unchecked
+            new int[] { android.R.attr.state_pressed}  // pressed
+    };
+    int[] colors = new int[] {
+            Color.WHITE,
+            Color.WHITE,
+            Color.WHITE,
+            Color.WHITE
+    };
+    ColorStateList fabStates = new ColorStateList(states, colors);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,17 +119,25 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         toolbar.inflateMenu(R.menu.menu_dashboard);
         toolbar.setOnMenuItemClickListener(this);
         toolbar.setTitleTextColor(getResources().getColor(R.color.abc_primary_text_material_dark));
+        toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerLayout.openDrawer(Gravity.LEFT);
+            }
+        });
 
         // Drawer craziness
         drawerLayout = (DrawerLayout) findViewById(R.id.my_drawer_layout);
-        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
-        drawerLayout.setDrawerListener(mDrawerToggle);
+        //mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
+        //drawerLayout.setDrawerListener(mDrawerToggle);
         drawerLayout.setStatusBarBackgroundColor(
-                getResources().getColor(R.color.primaryColorDark));
+                getResources().getColor(R.color.primaryDark));
 
         // Add button stuff
         actionButton = (FloatingActionButton) findViewById(R.id.add_button);
         actionButton.setOnClickListener(new FloatingActionButtonListener());
+        actionButton.setBackgroundTintList(fabStates);
 
         // Things for recyclerviews
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
@@ -133,7 +154,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         // Refresher view
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeListener());
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.primaryColor);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.primary);
 
         // Drawer List things
         drawerList = (ListView) findViewById(R.id.drawer_list);
@@ -216,7 +237,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
+        //mDrawerToggle.syncState();
     }
 
     @Override
@@ -306,7 +327,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 .title("List Name")
                 .positiveText("Create")
                 .negativeText(android.R.string.cancel)
-                .negativeColor(R.color.secondaryTextDark)
+                .negativeColor(getResources().getColor(R.color.secondaryTextDark))
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
@@ -348,7 +369,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 .title("List Name")
                 .positiveText("Rename")
                 .negativeText(android.R.string.cancel)
-                .negativeColor(R.color.secondaryTextDark)
+                .negativeColor(getResources().getColor(R.color.secondaryTextDark))
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
@@ -391,7 +412,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 "? This will delete all items on the list, and can not be undone.")
                 .positiveText("Delete")
                 .negativeText("Cancel")
-                .negativeColor(R.color.secondaryTextDark)
+                .negativeColor(getResources().getColor(R.color.secondaryTextDark))
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
@@ -440,23 +461,26 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         });
     }
 
-
-
     private void selectPosition(int position) {
         selectedPosition = position;
 
         drawerList.setItemChecked(position, true);
 
         // Update dataset
-        loadFromLocal(updateDataSet(position));
+        loadFromLocal(updateDataSet(position), useSmallTiles(position));
 
         // UI Stuff
         setTitle(getTitle(position)); // header off-by-one issue
-        updateUIcolors(position);
+        //updateUIcolors(position);
         updateDateButton(position);
         updateToolbarMenu(position);
         drawerLayout.closeDrawer(findViewById(R.id.scrimInsetsFrameLayout));
 
+    }
+
+    private boolean useSmallTiles(int i) {
+        if(false) return true; // TODO REPLACE WHEN TILES ARE READY
+        else return false;
     }
 
     private String getTitle(int position) {
@@ -487,12 +511,20 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     }
 
     private int[] prepareListIcons() {
-        return new int[] {
+        /*return new int[] {
                 R.drawable.ic_drawer_inbox,
                 R.drawable.ic_drawer_upcoming,
                 R.drawable.ic_drawer_completed,
                 R.drawable.ic_drawer_alltasks,
                 R.drawable.ic_drawer_unassigned
+        };*/
+
+        return new int[] {
+                R.drawable.ic_drawer_inbox,
+                R.drawable.ic_drawer_upcoming,
+                R.drawable.ic_done_all_grey600_24dp,
+                R.drawable.ic_view_headline_grey600_24dp,
+                R.drawable.ic_label_outline_grey600_24dp
         };
     }
 
@@ -509,11 +541,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     }
 
     public int getCurrentToolbarColor() {
-        return getToolbarColor(selectedPosition);
+        return getToolbarColor(1);
     }
 
     public int getCurrentStatusbarColor() {
-        return getStatusbarColor(selectedPosition);
+        return getStatusbarColor(1);
     }
 
     private int getToolbarColor(int position){
@@ -521,7 +553,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             case 1: return getResources().getColor(R.color.inbox);
             case 2: return getResources().getColor(R.color.upcoming);
             case 3: return getResources().getColor(R.color.completed);
-            case 4  : return getResources().getColor(R.color.alltasks);
+            case 4: return getResources().getColor(R.color.alltasks);
             case 5: return getResources().getColor(R.color.unassigned);
         }
 
@@ -542,10 +574,10 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     private void updateActionButton(int position){
         if(position == 1) {
-            actionButton.setBackgroundColor(getResources().getColor(R.color.accentColor));
+            actionButton.setBackgroundColor(getResources().getColor(R.color.accent));
             actionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_white_24dp));
         } else {
-            actionButton.setBackgroundColor(getResources().getColor(R.color.windowBackground));
+            actionButton.setBackgroundColor(getResources().getColor(R.color.background));
             actionButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_grey600_24dp));
         }
 
@@ -588,13 +620,14 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             drawerList.addHeaderView(preset, null, true);
         }
 
+
         // Add header divider
         ViewGroup divider = (ViewGroup) inflater.inflate(R.layout.drawer_divider, drawerList, false);
         drawerList.addHeaderView(divider, null, false);
 
         // Add footer divider
-        ViewGroup divider2 = (ViewGroup) inflater.inflate(R.layout.drawer_divider, drawerList, false);
-        drawerList.addFooterView(divider2, null, false);
+        //ViewGroup divider2 = (ViewGroup) inflater.inflate(R.layout.drawer_divider, drawerList, false);
+        //drawerList.addFooterView(divider2, null, false);
 
         // Footer view
         ViewGroup footer = (ViewGroup) inflater.inflate(R.layout.drawer_footer, drawerList, false);
@@ -688,10 +721,10 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             if(toolbar.getTitle().toString().equals("Inbox")) {
                 if(showingInput) {
                     addBox.setVisibility(View.GONE);
-                    actionButton.setImageResource(R.drawable.ic_add_white_24dp);
+                    actionButton.setImageResource(R.drawable.ic_add_grey600_24dp);
                 } else {
                     addBox.setVisibility(View.VISIBLE);
-                    actionButton.setImageResource(R.drawable.ic_close_white_24dp);
+                    actionButton.setImageResource(R.drawable.ic_close_grey600_24dp);
                     editText.requestFocus();
                 }
             } else {
@@ -744,8 +777,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
                     v.setText("");
 
-                    LinearLayout decoy  = (LinearLayout) findViewById(R.id.decoy);
-                    decoy.requestFocus();
+                    toolbar.requestFocus();
 
                     return true;
                 }
@@ -977,7 +1009,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     }
 
 
-    private void loadFromLocal(ParseQuery<ParseTask> query) {
+    private void loadFromLocal(ParseQuery<ParseTask> query, final boolean smallTiles) {
         //ParseQuery<ParseTask> query = ParseQuery.getQuery("Task");
         query.fromLocalDatastore();
         query.orderByAscending("createdAt");
@@ -986,6 +1018,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             @Override
             public void done(List<ParseTask> list, ParseException e) {
                 if(e == null) {
+                    mParseAdapter.setUseSmallTiles(smallTiles);
                     mParseAdapter.replaceData(list);
                     updateEmptyView(list.isEmpty());
                 } else {

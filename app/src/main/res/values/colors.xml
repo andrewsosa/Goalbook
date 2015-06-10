@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
     <!-- Background Colors -->
-    <color name="primaryColor">@color/light_blue_600</color>
-    <color name="primaryColorDark">@color/light_blue_800</color>
-    <color name="accentColor">@color/pink_A200</color>
-    <color name="windowBackground">@color/grey_white_1000</color>
+    <color name="primary">@color/indigo_500</color>
+    <color name="primaryDark">@color/indigo_700</color>
+    <color name="accent">@color/grey_500</color>
+    <color name="background">@color/grey_white_1000</color>
     <color name="dividerColor">@color/grey_300</color>
 
     <!-- Text Colors -->
@@ -17,8 +16,8 @@
     <color name="secondaryTextDark">@color/abc_secondary_text_material_light</color>
 
     <!-- List item colors -->
-    <color name="inbox">@color/primaryColor</color>
-    <color name="inboxDark">@color/primaryColorDark</color>
+    <color name="inbox">@color/primary</color>
+    <color name="inboxDark">@color/primaryDark</color>
     <color name="upcoming">@color/amber_500</color>
     <color name="upcomingDark">@color/amber_700</color>
     <color name="alltasks">@color/purple_500</color>
@@ -30,7 +29,7 @@
 
     <!-- Menu stuff color -->
     <color name="black_semi_transparent">#B2000000</color>
-    <color name="background">#e5e5e5</color>
+    <color name="menu_background">#e5e5e5</color>
     <color name="half_black">#808080</color>
     <color name="white">#fafafa</color>
     <color name="white_pressed">#f1f1f1</color>

@@ -2,6 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".Dashboard">
     <item android:id="@+id/action_search" android:title="Search"
-        android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
+        android:icon="@drawable/ic_search_white_24dp"
         android:orderInCategory="100" app:showAsAction="ifRoom" />
 </menu>

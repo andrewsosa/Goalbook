@@ -23,6 +23,7 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
     private static List<ParseTask> mDataset;
     private static Dashboard activity;
     private int activeItemNumber = -1;
+    private boolean useSmallTiles = false;
 
     // Constructor for setting up the dataset
     public ParseTaskRecyclerAdapter(ArrayList<ParseTask> myDataset, Dashboard c) {
@@ -91,6 +92,10 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
         return mDataset.get(activeItemNumber);
     }
 
+    public void setUseSmallTiles(boolean useSmallTiles) {
+        this.useSmallTiles = useSmallTiles;
+    }
+
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         // - get element from your dataset at this position
@@ -107,7 +112,7 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
         holder.task = task;
 
         // Hide date text if there is not one set, else show it again
-        if(task.getDeadline() == null) {
+        if(task.getDeadline() == null || useSmallTiles) {
             holder.subtitleText.setVisibility(View.GONE);
             RelativeLayout.LayoutParams layoutParams =
                     (RelativeLayout.LayoutParams)holder.titleText.getLayoutParams();
@@ -121,6 +126,10 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
             holder.titleText.setLayoutParams(layoutParams);
             holder.subtitleText.setVisibility(View.VISIBLE);
             holder.subtitleText.setText(task.getDeadlineAsString());
+        }
+
+        if(useSmallTiles) {
+            // TODO HANDLE SMALL TILES
         }
 
 
@@ -148,6 +157,7 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
         ParseTaskRecyclerAdapter t;
 
         // each data item is just a string in this case
+        public RelativeLayout tile;
         public TextView titleText;
         public TextView subtitleText;
         public CheckBox checkbox;
@@ -155,6 +165,7 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
         // Constructor
         public ViewHolder(View v, ParseTaskRecyclerAdapter t) {
             super(v);
+            tile = (RelativeLayout) v.findViewById(R.id.tile);
             titleText = (TextView) v.findViewById(R.id.tile_header);
             subtitleText = (TextView) v.findViewById(R.id.tile_subheader);
             checkbox = (CheckBox) v.findViewById(R.id.tile_checkbox);

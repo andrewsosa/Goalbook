@@ -13,7 +13,7 @@
         android:contentInsetLeft="72dp"
         app:contentInsetLeft="72dp"
         app:contentInsetStart="72dp"
-        android:background="@color/primaryColor"
+        android:background="@color/primary"
         android:elevation="4dp" />
 
     <ScrollView

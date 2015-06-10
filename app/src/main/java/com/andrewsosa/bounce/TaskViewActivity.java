@@ -23,9 +23,11 @@ import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 
-public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClickListener {
+public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClickListener, DatePickerReceiver {
 
     ParseTask task;
     String taskID;
@@ -42,9 +44,9 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
 
         // Set color
         int toolbarColor = getIntent().getIntExtra("ToolbarColor",
-                getResources().getColor(R.color.primaryColor));
+                getResources().getColor(R.color.primary));
         int statusbarColor = getIntent().getIntExtra("StatusbarColor",
-                getResources().getColor(R.color.primaryColorDark));
+                getResources().getColor(R.color.primaryDark));
         View colorPanel = findViewById(R.id.color_panel);
         colorPanel.setBackgroundColor(toolbarColor);
 
@@ -59,30 +61,36 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         toolbar.inflateMenu(R.menu.menu_item_view);
         toolbar.setOnMenuItemClickListener(this);
         toolbar.setTitleTextColor(getResources().getColor(R.color.abc_primary_text_material_dark));
-        toolbar.setNavigationIcon(R.drawable.abc_ic_clear_mtrl_alpha);
+        toolbar.setNavigationIcon(R.drawable.ic_clear_white_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                TextView taskName = (TextView) findViewById(R.id.task_name);
+                task.setName(taskName.getText().toString());
+                task.pinInBackground(new TaskSaveListener(task));
+
                 Intent data = new Intent();
                 setResult(RESULT_OK, data);
                 TaskViewActivity.this.finish();
             }
         });
+        toolbar.requestFocus();
 
-
-        // buh
-        RelativeLayout date_layout = (RelativeLayout) findViewById(R.id.date_layout);
-        date_layout.setOnClickListener(new View.OnClickListener() {
+        // Setup listener for selection
+        TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
+        deadlineText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-               //Toast.makeText(TaskViewActivity.this, "Hello!", Toast.LENGTH_SHORT).show();
-
+                DatePickerFragment newFragment = new DatePickerFragment();
+                newFragment.assignMethod(TaskViewActivity.this);
+                newFragment.show(getFragmentManager(), "timePicker");
             }
         });
 
         FloatingActionButton editButton = (FloatingActionButton) findViewById(R.id.edit_fab);
-        editButton.setOnClickListener(new View.OnClickListener() {
+
+        if(editButton != null) editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(TaskViewActivity.this, TaskEditActivity.class);
@@ -113,9 +121,15 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
     @Override
     protected void onResume() {
         super.onResume();
-
         if (task != null) queryTask(task.getId());
 
+    }
+
+    public void receiveDate(int y, int m, int d) {
+        TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
+        task.setDeadline(new GregorianCalendar(y, m, d));
+        task.pinInBackground(new TaskSaveListener(task));
+        deadlineText.setText(task.getDeadlineAsString());
     }
 
     private void updateFields() {
@@ -124,6 +138,8 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
             TextView taskName = (TextView) findViewById(R.id.task_name);
             taskName.setText(task.getName());
             TextView deadlineText = (TextView) findViewById(R.id.deadlineText);
+            TextView deadlineText2 = (TextView) findViewById(R.id.dateDisplay);
+            deadlineText2.setText(task.getDeadlineAsLongString());
             deadlineText.setText(task.getDeadlineAsString());
             TextView listText = (TextView) findViewById(R.id.listText);
             listText.setText(task.getParentListAsString());
@@ -218,6 +234,46 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
                     }
                 })
                 .show();
+    }
+
+    private void prepareListener(final TextView listText, final List<ParseList> list) {
+
+        String[] items = new String[list.size() + 1];
+
+        int i = 1;
+        items[0] = "Unassigned";
+        for(ParseList p : list) {
+            items[i] = p.toString();
+            ++i;
+        }
+
+        final String[] notItems = items.clone();
+
+        listText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new MaterialDialog.Builder(TaskViewActivity.this)
+                        .title("Assign list")
+                        .items(notItems)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                                if (which != 0) {
+                                    assignList(list.get(which - 1));
+                                } else {
+                                    assignList(null);
+
+                                }
+                                listText.setText(text);
+                            }
+                        })
+                        .show();
+            }
+        });
+    }
+
+    private void assignList(ParseList list) {
+        task.setParentList(list);
     }
 
     public class TaskSaveListener implements SaveCallback {

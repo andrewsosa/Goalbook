@@ -11,6 +11,7 @@
         android:id="@+id/list_icon"
         android:layout_marginLeft="16dp"
         android:src="@drawable/ic_label_grey600_24dp"
+        android:duplicateParentState="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="false"
         android:layout_marginTop="0dp"

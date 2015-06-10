@@ -115,6 +115,7 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
             Log.e("query.getFirst()", e.getMessage());
         }
     }
+
     private void updateFields() {
         try {
             // Set up actual task stuff
