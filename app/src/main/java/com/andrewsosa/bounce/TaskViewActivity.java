@@ -23,13 +23,13 @@ import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 
-public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClickListener, DatePickerReceiver {
+public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClickListener,
+        DatePickerReceiver, TimePickerReceiver {
 
-    ParseTask task;
+    Task task;
     String taskID;
     //TaskDataSource dataSource;
 
@@ -77,19 +77,32 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         });
         toolbar.requestFocus();
 
-        // Setup listener for selection
+        // Setup listener for deadline selection
         TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
         deadlineText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 DatePickerFragment newFragment = new DatePickerFragment();
                 newFragment.assignMethod(TaskViewActivity.this);
+                newFragment.passDate(task.getDeadline());
+                newFragment.show(getFragmentManager(), "datePicker");
+            }
+        });
+
+
+        // Setup listener for time selection
+        RelativeLayout timeText = (RelativeLayout) findViewById(R.id.time_layout);
+        timeText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TimePickerFragment newFragment = new TimePickerFragment();
+                newFragment.assignMethod(TaskViewActivity.this);
+                newFragment.passTime(task.getDeadline());
                 newFragment.show(getFragmentManager(), "timePicker");
             }
         });
 
         FloatingActionButton editButton = (FloatingActionButton) findViewById(R.id.edit_fab);
-
         if(editButton != null) editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,17 +112,19 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
             }
         });
 
+
+
     }
 
     private void queryTask(String id) {
-        ParseQuery<ParseTask> query = ParseQuery.getQuery("Task");
+        ParseQuery<Task> query = ParseQuery.getQuery("Task");
         query.fromLocalDatastore();
         query.whereEqualTo("uuid", id);
         try {
-            query.getFirstInBackground(new GetCallback<ParseTask>() {
+            query.getFirstInBackground(new GetCallback<Task>() {
                 @Override
-                public void done(ParseTask parseTask, ParseException e) {
-                    task = parseTask;
+                public void done(Task task, ParseException e) {
+                    TaskViewActivity.this.task = task;
                     updateFields();
                 }
             });
@@ -127,9 +142,16 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
 
     public void receiveDate(int y, int m, int d) {
         TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
-        task.setDeadline(new GregorianCalendar(y, m, d));
+        task.setDeadline(y, m ,d);
         task.pinInBackground(new TaskSaveListener(task));
-        deadlineText.setText(task.getDeadlineAsString());
+        deadlineText.setText(task.getDeadlineAsDateString());
+    }
+
+    public void receiveTime(int h, int m) {
+        TextView timeText = (TextView) findViewById(R.id.timeText);
+        task.setTime(h, m);
+        task.pinInBackground(new TaskSaveListener(task));
+        timeText.setText(task.getDeadlineAsTime());
     }
 
     private void updateFields() {
@@ -137,10 +159,10 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
             // Set up actual task stuff
             TextView taskName = (TextView) findViewById(R.id.task_name);
             taskName.setText(task.getName());
-            TextView deadlineText = (TextView) findViewById(R.id.deadlineText);
+            TextView deadlineText = (TextView) findViewById(R.id.timeText);
             TextView deadlineText2 = (TextView) findViewById(R.id.dateDisplay);
-            deadlineText2.setText(task.getDeadlineAsLongString());
-            deadlineText.setText(task.getDeadlineAsString());
+            deadlineText2.setText(task.getDeadlineAsLongDateString());
+            if(task.timeSpecified()) deadlineText.setText(task.getDeadlineAsTime());
             TextView listText = (TextView) findViewById(R.id.listText);
             listText.setText(task.getParentListAsString());
         } catch (Exception e) {
@@ -236,13 +258,13 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
                 .show();
     }
 
-    private void prepareListener(final TextView listText, final List<ParseList> list) {
+    private void prepareListener(final TextView listText, final List<TaskList> list) {
 
         String[] items = new String[list.size() + 1];
 
         int i = 1;
         items[0] = "Unassigned";
-        for(ParseList p : list) {
+        for(TaskList p : list) {
             items[i] = p.toString();
             ++i;
         }
@@ -272,14 +294,14 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         });
     }
 
-    private void assignList(ParseList list) {
+    private void assignList(TaskList list) {
         task.setParentList(list);
     }
 
     public class TaskSaveListener implements SaveCallback {
 
-        ParseTask task;
-        public TaskSaveListener(ParseTask task) {
+        Task task;
+        public TaskSaveListener(Task task) {
             this.task = task;
         }
 

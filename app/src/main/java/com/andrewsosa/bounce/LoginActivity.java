@@ -26,8 +26,8 @@ public class LoginActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        usernameEditText = (EditText) findViewById(R.id.username_edit_text);
-        passwordEditText = (EditText) findViewById(R.id.password_edit_text);
+        usernameEditText = (EditText) findViewById(R.id.username);
+        passwordEditText = (EditText) findViewById(R.id.password);
 
 
         // Set up the submit button click handler
@@ -43,9 +43,11 @@ public class LoginActivity extends ActionBarActivity {
             public void onClick(View view) {
                 //Intent i = new Intent(LoginActivity.this, SignUpActivity.class);
                 startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                //overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
+
+        findViewById(R.id.decoy).requestFocus();
 
     }
 

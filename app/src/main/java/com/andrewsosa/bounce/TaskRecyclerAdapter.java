@@ -7,33 +7,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.parse.DeleteCallback;
-import com.parse.ParseException;
 
 import java.util.*;
 import java.util.List;
 
-public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecyclerAdapter.ViewHolder> {
+public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapter.ViewHolder> {
 
     // The Dataset
-    private static List<ParseTask> mDataset;
+    private static List<Task> mDataset;
     private static Dashboard activity;
     private int activeItemNumber = -1;
     private boolean useSmallTiles = false;
 
     // Constructor for setting up the dataset
-    public ParseTaskRecyclerAdapter(ArrayList<ParseTask> myDataset, Dashboard c) {
+    public TaskRecyclerAdapter(ArrayList<Task> myDataset, Dashboard c) {
         mDataset = new ArrayList<>(myDataset);
         activity = c;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public ParseTaskRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TaskRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         // This is our view
         View v = LayoutInflater.from(parent.getContext())
@@ -44,20 +40,20 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
 
     }
 
-    public void replaceData(java.util.List<ParseTask> tasks) {
+    public void replaceData(java.util.List<Task> tasks) {
         mDataset = tasks;
         notifyDataSetChanged();
     }
 
     // Add new items to the dataset
-    public void addElement(ParseTask e) {
+    public void addElement(Task e) {
         mDataset.add(e);
         notifyItemInserted(mDataset.size()-1);
         Log.d("Bounce", "Adding Task called ");
 
     }
 
-    public void changeElement(int i, ParseTask e){
+    public void changeElement(int i, Task e){
         mDataset.set(i, e);
     }
 
@@ -67,7 +63,7 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
 
     }
 
-    public void removeElement(ParseTask t){
+    public void removeElement(Task t){
         notifyItemRemoved(mDataset.indexOf(t));
         mDataset.remove(t);
     }
@@ -88,7 +84,7 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
         return activeItemNumber;
     }
 
-    public ParseTask getActiveItem() {
+    public Task getActiveItem() {
         return mDataset.get(activeItemNumber);
     }
 
@@ -101,7 +97,7 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        final ParseTask task = mDataset.get(position);
+        final Task task = mDataset.get(position);
 
         String taskName = task.getName();
         /*if(taskName.length() > 16) {
@@ -125,7 +121,8 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
             layoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
             holder.titleText.setLayoutParams(layoutParams);
             holder.subtitleText.setVisibility(View.VISIBLE);
-            holder.subtitleText.setText(task.getDeadlineAsString());
+            holder.subtitleText.setText(task.getDeadlineAsTime());// + " on "
+                    //+ task.getDeadlineAsSimpleDateString());
         }
 
         if(useSmallTiles) {
@@ -143,7 +140,7 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
     }
 
 
-    public ParseTask getItem(int i) {
+    public Task getItem(int i) {
         return mDataset.get(i);
     }
 
@@ -153,8 +150,8 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         // Reference for the Event that needs to be opened on the click listener
-        ParseTask task;
-        ParseTaskRecyclerAdapter t;
+        Task task;
+        TaskRecyclerAdapter t;
 
         // each data item is just a string in this case
         public RelativeLayout tile;
@@ -163,7 +160,7 @@ public class ParseTaskRecyclerAdapter extends RecyclerView.Adapter<ParseTaskRecy
         public CheckBox checkbox;
 
         // Constructor
-        public ViewHolder(View v, ParseTaskRecyclerAdapter t) {
+        public ViewHolder(View v, TaskRecyclerAdapter t) {
             super(v);
             tile = (RelativeLayout) v.findViewById(R.id.tile);
             titleText = (TextView) v.findViewById(R.id.tile_header);

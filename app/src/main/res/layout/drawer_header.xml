@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="177dp"
+    android:layout_height="180dp"
     android:paddingBottom="8dp">
 
     <RelativeLayout
@@ -12,8 +12,8 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:id="@+id/imageView4"
-            android:src="@drawable/drawer_background"
-            android:scaleType="center" />
+            android:src="@drawable/nav1"
+            android:scaleType="centerCrop" />
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="horizontal"

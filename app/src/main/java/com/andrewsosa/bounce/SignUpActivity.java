@@ -4,8 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,8 +17,6 @@ import com.parse.SignUpCallback;
 
 public class SignUpActivity extends ActionBarActivity {
 
-    // User fields
-    EditText usernameEditText;
     EditText passwordEditText;
     EditText passwordAgainEditText;
     EditText emailEditText;
@@ -29,10 +26,9 @@ public class SignUpActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        usernameEditText = (EditText) findViewById(R.id.username_edit_text);
-        passwordEditText = (EditText) findViewById(R.id.password_edit_text);
-        passwordAgainEditText = (EditText) findViewById(R.id.password_again_edit_text);
-        emailEditText = (EditText) findViewById(R.id.email_edit_text);
+        passwordEditText = (EditText) findViewById(R.id.password);
+        passwordAgainEditText = (EditText) findViewById(R.id.password_again);
+        emailEditText = (EditText) findViewById(R.id.email);
 
 
         final Button create = (Button) findViewById(R.id.create);
@@ -42,8 +38,11 @@ public class SignUpActivity extends ActionBarActivity {
             }
         });
 
-        final Button cancel = (Button) findViewById(R.id.cancel);
-        cancel.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.decoy).requestFocus();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();

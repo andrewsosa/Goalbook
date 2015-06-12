@@ -11,13 +11,13 @@ import java.util.UUID;
  * Created by andrewsosa on 4/7/15.
  */
 @ParseClassName("List")
-public class ParseList extends ParseObject {
+public class TaskList extends ParseObject {
 
-    public ParseList() {
+    public TaskList() {
 
     }
 
-    public ParseList(String name) {
+    public TaskList(String name) {
         UUID uuid = UUID.randomUUID();
         put("uuid", uuid.toString());
         setUser(ParseUser.getCurrentUser());
@@ -48,8 +48,8 @@ public class ParseList extends ParseObject {
         return getName();
     }
 
-    public static ParseQuery<ParseList> getQuery() {
-        return ParseQuery.getQuery(ParseList.class)
+    public static ParseQuery<TaskList> getQuery() {
+        return ParseQuery.getQuery(TaskList.class)
                 .whereEqualTo("user", ParseUser.getCurrentUser());
 
     }

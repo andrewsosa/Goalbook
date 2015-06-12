@@ -17,8 +17,8 @@ public class Bounce extends Application {
         Parse.enableLocalDatastore(getApplicationContext());
         Parse.initialize(this, "tdorw6A41hVhwXtMn1Pe07jfPXQOZyJEP6ztLNAX", "5eNVvRRhSJUaQ895fhN4vy2C3SjuPBQ4wv5KzAMl");
 
-        ParseObject.registerSubclass(ParseTask.class);
-        ParseObject.registerSubclass(ParseList.class);
+        ParseObject.registerSubclass(Task.class);
+        ParseObject.registerSubclass(TaskList.class);
 
     }
 }

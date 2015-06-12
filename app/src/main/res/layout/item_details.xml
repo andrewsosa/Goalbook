@@ -7,13 +7,13 @@
         android:layout_width="fill_parent"
         android:layout_height="72dp"
         android:clickable="true"
-        android:id="@+id/date_layout">
+        android:id="@+id/time_layout">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No Deadline"
-            android:id="@+id/deadlineText"
+            android:text="Unspecified"
+            android:id="@+id/timeText"
             android:layout_marginLeft="72dp"
             android:layout_marginRight="72dp"
             android:layout_alignParentEnd="true"
@@ -26,18 +26,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/imageView"
-            android:src="@drawable/ic_event_grey600_24dp"
+            android:src="@drawable/ic_schedule_grey600_24dp"
             android:layout_centerVertical="true"
             android:layout_marginLeft="16dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Deadline"
+            android:text="Time"
             android:id="@+id/textView3"
             android:layout_marginLeft="72dp"
             android:textSize="14sp"
-            android:layout_below="@+id/deadlineText" />
+            android:layout_below="@+id/timeText" />
     </RelativeLayout>
 
     <RelativeLayout

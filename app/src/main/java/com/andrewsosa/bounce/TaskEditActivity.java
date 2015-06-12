@@ -7,8 +7,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,16 +17,15 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
-import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 
 public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClickListener, DatePickerReceiver {
 
-    ParseTask task;
-    //ArrayAdapter<ParseList> adapter;
-    ParseList activeList;
+    Task task;
+    //ArrayAdapter<TaskList> adapter;
+    TaskList activeList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,18 +93,18 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
     public void receiveDate(int y, int m, int d) {
         TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
         task.setDeadline(new GregorianCalendar(y, m, d));
-        deadlineText.setText(task.getDeadlineAsString());
+        deadlineText.setText(task.getDeadlineAsDateString());
     }
 
     private void queryTask(String id) {
-        ParseQuery<ParseTask> query = ParseQuery.getQuery("Task");
+        ParseQuery<Task> query = ParseQuery.getQuery("Task");
         query.fromLocalDatastore();
         query.whereEqualTo("uuid", id);
         try {
-            query.getFirstInBackground(new GetCallback<ParseTask>() {
+            query.getFirstInBackground(new GetCallback<Task>() {
                 @Override
-                public void done(ParseTask parseTask, ParseException e) {
-                    task = parseTask;
+                public void done(Task task, ParseException e) {
+                    TaskEditActivity.this.task = task;
                     updateFields();
                 }
             });
@@ -122,17 +119,17 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
             TextView taskName = (TextView) findViewById(R.id.nameEditText);
             taskName.setText(task.getName());
             TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
-            deadlineText.setText(task.getDeadlineAsString());
+            deadlineText.setText(task.getDeadlineAsDateString());
             final TextView listText = (TextView) findViewById(R.id.listDisplay);
             listText.setText(task.getParentListAsString());
 
 
-            ParseQuery<ParseList> query = ParseList.getQuery();
+            ParseQuery<TaskList> query = TaskList.getQuery();
             query.fromLocalDatastore();
             query.orderByAscending("createdAt");
-            query.findInBackground(new FindCallback<ParseList>() {
+            query.findInBackground(new FindCallback<TaskList>() {
                 @Override
-                public void done(List<ParseList> list, ParseException e) {
+                public void done(List<TaskList> list, ParseException e) {
                     prepareListener(listText, list);
                 }
             });
@@ -143,13 +140,13 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
         }
     }
 
-    private void prepareListener(final TextView listText, final List<ParseList> list) {
+    private void prepareListener(final TextView listText, final List<TaskList> list) {
 
         String[] items = new String[list.size() + 1];
 
         int i = 1;
         items[0] = "Unassigned";
-        for(ParseList p : list) {
+        for(TaskList p : list) {
             items[i] = p.toString();
             ++i;
         }
@@ -179,14 +176,14 @@ public class TaskEditActivity extends Activity implements Toolbar.OnMenuItemClic
         });
     }
 
-    private void assignList(ParseList list) {
+    private void assignList(TaskList list) {
         task.setParentList(list);
     }
 
     public class TaskSaveListener implements SaveCallback {
 
-        ParseTask task;
-        public TaskSaveListener(ParseTask task) {
+        Task task;
+        public TaskSaveListener(Task task) {
             this.task = task;
         }
 

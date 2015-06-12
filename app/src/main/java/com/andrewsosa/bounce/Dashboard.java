@@ -44,12 +44,13 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 
 
 public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListener,
@@ -58,6 +59,10 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     String TASKS_LABEL = "tasks";
     String LISTS_LABEL = "lists";
 
+    static final int TODAY = 1;
+    static final int UPCOMING = 2;
+    static final int ARCHIVE = 3;
+
     // Actionbar and Navdrawer nonsense
     ActionBarDrawerToggle mDrawerToggle;
 
@@ -65,7 +70,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     //private static TaskRecyclerAdapter mAdapter;
-    private static ParseTaskRecyclerAdapter mParseAdapter;
+    private static TaskRecyclerAdapter mParseAdapter;
     static EditText editText;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -74,17 +79,16 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     // UI Components
     ListView drawerList;
-    ArrayAdapter<ParseList> drawerListAdapter;
+    ArrayAdapter<TaskList> drawerListAdapter;
     Toolbar toolbar;
     DrawerLayout drawerLayout;
     FloatingActionButton actionButton;
-    View emptyView;
 
     // Data for menu navigation
     Integer selectedPosition = 1;
     ArrayList<String> titles;
     String[] presetTitles = {
-            "Inbox",
+            "Today",
             "Upcoming",
             "Completed",
             "All Tasks",
@@ -140,15 +144,15 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         actionButton.setBackgroundTintList(fabStates);
 
         // Things for recyclerviews
-        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, null, false, true));
+        mRecyclerView = (RecyclerView) findViewById(R.id.primary_recycler);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, null, true, true));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter 
-        mParseAdapter = new ParseTaskRecyclerAdapter(new ArrayList<ParseTask>(), this);
+        mParseAdapter = new TaskRecyclerAdapter(new ArrayList<Task>(), this);
         mRecyclerView.setAdapter(mParseAdapter);
 
         // Refresher view
@@ -161,7 +165,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         drawerListAdapter = new ArrayAdapter<>(this,
                 R.layout.drawer_item_view,
                 R.id.list_name,
-                new ArrayList<ParseList>());
+                new ArrayList<TaskList>());
         drawerList.setAdapter(drawerListAdapter);
 
         refreshListTitles();
@@ -180,9 +184,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             //drawerList.setItemChecked(1, true);
         }
 
-        // For empty lists
-        emptyView = findViewById(R.id.empty_view);
-
         // For logout
         RelativeLayout settings = (RelativeLayout) findViewById(R.id.logout_layout);
         settings.setOnClickListener(new View.OnClickListener() {
@@ -191,6 +192,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 startActivity(new Intent(Dashboard.this, SettingsActivity.class));
             }
         });
+
+        // Date display
+        TextView date = (TextView) findViewById(R.id.date_text);
+        date.setText(new SimpleDateFormat(
+                "MMMM dd", Locale.getDefault()).format(new GregorianCalendar().getTime()));
 
         // Things for adding tasks
         EditText editText = (EditText) findViewById(R.id.task_name_edittext);
@@ -220,11 +226,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                 mParseAdapter.removeActiveElement();
             }
             else {
-                ParseQuery<ParseTask> query = ParseQuery.getQuery("Task");
+                ParseQuery<Task> query = ParseQuery.getQuery("Task");
                 query.fromLocalDatastore();
                 query.whereEqualTo("uuid", mParseAdapter.getActiveItem().getId());
                 try {
-                    ParseTask temp = query.getFirst();
+                    Task temp = query.getFirst();
                     mParseAdapter.changeElement(mParseAdapter.getActiveItemNumber(), temp);
                     mParseAdapter.notifyItemChanged(mParseAdapter.getActiveItemNumber());
                 } catch (Exception e) {
@@ -274,16 +280,16 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
         // Locate list
         String name = getTitle(position);
-        ParseList list = localListQueryByName(name);
+        TaskList list = localListQueryByName(name);
 
         // Remove tasks on list
-        ParseQuery<ParseTask> query = ParseTask.getQuery();
+        ParseQuery<Task> query = Task.getQuery();
         query.whereEqualTo("parent", list);
-        query.findInBackground(new FindCallback<ParseTask>() {
+        query.findInBackground(new FindCallback<Task>() {
             @Override
-            public void done(List<ParseTask> list, ParseException e) {
+            public void done(List<Task> list, ParseException e) {
                 if (e == null) {
-                    for (ParseTask t : list) {
+                    for (Task t : list) {
                         t.deleteEventually();
                     }
                 } else {
@@ -303,12 +309,12 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         Toast.makeText(this, "Removed list " + name + ".", Toast.LENGTH_SHORT).show();
     }
 
-    public static ParseList localListQueryByName(String name) {
-        ParseQuery<ParseList> query = ParseList.getQuery();
+    public static TaskList localListQueryByName(String name) {
+        ParseQuery<TaskList> query = TaskList.getQuery();
         query.fromLocalDatastore();
         query.whereEqualTo("user", ParseUser.getCurrentUser());
         query.whereEqualTo("name", name);
-        ParseList list = null;
+        TaskList list = null;
         try {
             list = query.getFirst();
         } catch (Exception e) {
@@ -332,7 +338,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         if (nameInput != null) {
-                            ParseList parseList = new ParseList(nameInput.getText().toString());
+                            TaskList parseList = new TaskList(nameInput.getText().toString());
                             saveNewList(parseList);
                         }
                     }
@@ -374,7 +380,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         if (nameInput != null) {
-                            ParseList parseList = localListQueryByName(getTitle(selectedPosition));
+                            TaskList parseList = localListQueryByName(getTitle(selectedPosition));
                             parseList.setName(nameInput.getText().toString());
                             saveList(parseList);
                         }
@@ -439,15 +445,15 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     private void addParseListTitles() {
 
-        ParseQuery<ParseList> listQuery = ParseList.getQuery();
+        ParseQuery<TaskList> listQuery = TaskList.getQuery();
         listQuery.fromLocalDatastore();
         listQuery.orderByAscending("createdAt");
-        listQuery.findInBackground(new FindCallback<ParseList>() {
+        listQuery.findInBackground(new FindCallback<TaskList>() {
             @Override
-            public void done(List<ParseList> parseLists, ParseException e) {
+            public void done(List<TaskList> parseLists, ParseException e) {
                 if (e == null) {
 
-                    for (ParseList l : parseLists) {
+                    for (TaskList l : parseLists) {
                         titles.add(l.getName());
                         //Log.d("addParseListTitles", "Added " + l.getName() + " to titles at index " +
                         //titles.indexOf(l.getName()));
@@ -462,14 +468,15 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     }
 
     private void selectPosition(int position) {
-        selectedPosition = position;
 
+        // Mark new position as selected
+        selectedPosition = position;
         drawerList.setItemChecked(position, true);
 
-        // Update dataset
-        loadFromLocal(updateDataSet(position), useSmallTiles(position));
+        // Update Data
+        loadQueryToDisplay(prepareDataQuery(position), useSmallTiles(position));
 
-        // UI Stuff
+        // Update UI components to match selection
         setTitle(getTitle(position)); // header off-by-one issue
         //updateUIcolors(position);
         updateDateButton(position);
@@ -583,19 +590,51 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     }
 
-    private ParseQuery<ParseTask> updateDataSet(int position) {
-        ParseQuery<ParseTask> query = ParseTask.getQuery();
-        query.whereEqualTo("done", false);
+    private ParseQuery<Task> prepareDataQuery(int position) {
 
-        ParseList parseList = localListQueryByName(getTitle(position));
+        // Get the basic query
+        ParseQuery<Task> query = Task.getQuery()
+                .fromLocalDatastore()
+                .whereEqualTo("user", ParseUser.getCurrentUser());
 
+        // These handle time limits
+        GregorianCalendar midnight = new GregorianCalendar();
+        midnight.set(Calendar.HOUR_OF_DAY, 23);
+        midnight.set(Calendar.MINUTE, 59);
+
+        GregorianCalendar yesterday = new GregorianCalendar();
+        yesterday.set(Calendar.HOUR_OF_DAY, 23);
+        yesterday.set(Calendar.MINUTE, 59);
+        yesterday.add(Calendar.DAY_OF_MONTH, -1);
+
+        // Handle special case for 'Today'
+        if(position == TODAY) {
+            ParseQuery<Task> overdue = Task.getQuery()
+                    .whereLessThanOrEqualTo("deadline", midnight.getTime())
+                    .whereEqualTo("done", false);
+            ParseQuery<Task> current = Task.getQuery()
+                    .whereGreaterThan("deadline", yesterday.getTime())
+                    .whereLessThanOrEqualTo("deadline", midnight.getTime());
+            List<ParseQuery<Task>> queries = new ArrayList<>();
+            queries.add(overdue);
+            queries.add(current);
+            return ParseQuery.or(queries)
+                        .orderByAscending("done")
+                        .addAscendingOrder("comparableTime,deadline");
+        }
+
+        // Add not-done requirement
+        query.whereEqualTo("done", false)
+            .orderByDescending("updatedAt");
+
+        // Handle non-1 cases
         switch(position) {
-            case 1: return query.whereLessThanOrEqualTo("deadline", new Date());
-            case 2: return query.whereGreaterThan("deadline", new Date()); // TODO check out 4oclock thing
-            case 3: return query.whereEqualTo("done", true);
+            case UPCOMING: return query.whereGreaterThan("deadline", midnight.getTime());
+            case ARCHIVE: return query.whereEqualTo("done", true).whereLessThanOrEqualTo("deadline", yesterday);
             case 4: return query;
             case 5: return query.whereEqualTo("parent", null);
-            default: return query.whereEqualTo("parent", parseList);
+            default: TaskList parseList = localListQueryByName(getTitle(position));
+                return query.whereEqualTo("parent", parseList);
         }
     }
 
@@ -698,16 +737,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         return getResources().getColor(R.color.primaryTextDark);
     }
 
-    private void updateEmptyView(boolean isEmpty) {
-        if (emptyView == null) return;
-        if(isEmpty) {
-            emptyView.setVisibility(View.VISIBLE);
-        } else {
-            emptyView.setVisibility(View.GONE);
-        }
-    }
-
-
     /**
      *  onClickListener class for FloatingActionButton
      */
@@ -771,9 +800,8 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
             if(actionId == EditorInfo.IME_ACTION_DONE) {
                 if(v.getText().toString().length() > 0) {
-                    ParseTask task = new ParseTask(v.getText().toString());
+                    Task task = new Task(v.getText().toString());
                     saveNewTask(task);
-                    if(emptyView != null) emptyView.setVisibility(View.GONE);
 
                     v.setText("");
 
@@ -787,11 +815,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         }
     }
 
-    public void saveTask(ParseTask task) {
+    public void saveTask(Task task) {
         task.pinInBackground(TASKS_LABEL, new TaskSaveListener(task));
     }
 
-    private void saveNewTask(ParseTask task) {
+    private void saveNewTask(Task task) {
 
         // Special task circumstances
         if(selectedPosition == 1) {
@@ -805,18 +833,20 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             task.setDone(true);
         }
 
+        Log.d("saveNewTask", task.getFullDeadline());
         task.pinInBackground(TASKS_LABEL, new TaskSaveListener(task));
+
         mParseAdapter.addElement(task);
 
     }
 
-    public void saveList(ParseList list) {
+    public void saveList(TaskList list) {
         list.pinInBackground(LISTS_LABEL, new ListSaveListener(list));
         setTitle(list.toString());
     }
 
-    private void saveNewList(ParseList list) {
-        ParseList parseList = localListQueryByName(list.getName());
+    private void saveNewList(TaskList list) {
+        TaskList parseList = localListQueryByName(list.getName());
         if(parseList == null) {
             list.pinInBackground(LISTS_LABEL, new ListSaveListener(list));
         } else {
@@ -827,8 +857,8 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     public class TaskSaveListener implements SaveCallback {
 
-        ParseTask task;
-        public TaskSaveListener(ParseTask task) {
+        Task task;
+        public TaskSaveListener(Task task) {
             this.task = task;
         }
 
@@ -860,8 +890,8 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     private class ListSaveListener implements SaveCallback {
 
-        ParseList list;
-        public ListSaveListener(ParseList list) {
+        TaskList list;
+        public ListSaveListener(TaskList list) {
             this.list = list;
         }
 
@@ -898,7 +928,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         if (name.length() > 0) {
             /*mAdapter.addElement(taskDataSource.createTask(editText.getText().toString(),
                     TaskDataSource.dateToString(temp)));*/
-            ParseTask task = new ParseTask(editText.getText().toString());
+            Task task = new Task(editText.getText().toString());
             task.setDeadline(year, month, day);
             saveNewTask(task);
             editText.setText("");
@@ -911,17 +941,17 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     private void loadFromParse() {
 
         // query tasks
-        ParseQuery<ParseTask> query = ParseTask.getQuery();
+        ParseQuery<Task> query = Task.getQuery();
         query.whereEqualTo("user", ParseUser.getCurrentUser());
-        query.orderByAscending("createdAt");
+        query.orderByAscending("completed,deadline");
 
         // Find our tasks from the server
-        query.findInBackground(new FindCallback<ParseTask>() {
-            public void done(final List<ParseTask> ParseTasks, ParseException e) {
+        query.findInBackground(new FindCallback<Task>() {
+            public void done(final List<Task> tasks, ParseException e) {
 
                 // If no error
                 if (e == null) {
-                    // Remove all the previosuly pinned tasks before adding the new ones
+                    // Remove all the previously pinned tasks before adding the new ones
                     ParseObject.unpinAllInBackground(TASKS_LABEL, new DeleteCallback() {
                         @Override
                         public void done(ParseException e) {
@@ -931,12 +961,12 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                             }
 
                             // Add all the new tasks we brought down from the server
-                            ParseObject.pinAllInBackground(TASKS_LABEL, ParseTasks,
+                            ParseObject.pinAllInBackground(TASKS_LABEL, tasks,
                                     new SaveCallback() {
                                         public void done(ParseException e) {
                                             if (e != null) {
                                                 Log.i("ParseTaskListActivity",
-                                                        "Error pinning ParseTasks: "
+                                                        "Error pinning tasks: "
                                                                 + e.getMessage());
                                                 endRefresh();
                                             }
@@ -948,7 +978,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                     });
                 } else {
                     Log.i("ParseTaskListActivity",
-                            "loadFromParse: Error finding pinned ParseTasks: "
+                            "loadFromParse: Error finding pinned tasks: "
                                     + e.getMessage());
 
                     endRefresh();
@@ -959,15 +989,15 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     private void loadListsFromParse() {
         // query lists
-        ParseQuery<ParseList> query = ParseList.getQuery();
+        ParseQuery<TaskList> query = TaskList.getQuery();
         query.whereEqualTo("user", ParseUser.getCurrentUser());
         query.orderByAscending("createdAt");
-        query.findInBackground(new FindCallback<ParseList>() {
+        query.findInBackground(new FindCallback<TaskList>() {
             @Override
-            public void done(final List<ParseList> list, ParseException e) {
+            public void done(final List<TaskList> list, ParseException e) {
                 // If no error
                 if (e == null) {
-                    // Remove all the previosuly pinned tasks before adding the new ones
+                    // Remove all the previously pinned tasks before adding the new ones
                     ParseObject.unpinAllInBackground(LISTS_LABEL, new DeleteCallback() {
                         @Override
                         public void done(ParseException e) {
@@ -981,7 +1011,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                                     new SaveCallback() {
                                         public void done(ParseException e) {
                                             if (e != null) {
-                                                Log.i("ParseList Query",
+                                                Log.i("TaskList Query",
                                                         "Error pinning ParseLists: "
                                                                 + e.getMessage());
                                             }
@@ -993,7 +1023,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
                         }
                     });
                 } else {
-                    Log.i("ParseList",
+                    Log.i("TaskList",
                             "loadFromParse: Error finding pinned ParseTasks: "
                                     + e.getMessage());
                     endRefresh();
@@ -1009,18 +1039,13 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     }
 
 
-    private void loadFromLocal(ParseQuery<ParseTask> query, final boolean smallTiles) {
-        //ParseQuery<ParseTask> query = ParseQuery.getQuery("Task");
-        query.fromLocalDatastore();
-        query.orderByAscending("createdAt");
-        query.whereEqualTo("user", ParseUser.getCurrentUser());
-        query.findInBackground(new FindCallback<ParseTask>() {
+    private void loadQueryToDisplay(ParseQuery<Task> query, final boolean smallTiles) {
+        query.findInBackground(new FindCallback<Task>() {
             @Override
-            public void done(List<ParseTask> list, ParseException e) {
+            public void done(List<Task> list, ParseException e) {
                 if(e == null) {
                     mParseAdapter.setUseSmallTiles(smallTiles);
                     mParseAdapter.replaceData(list);
-                    updateEmptyView(list.isEmpty());
                 } else {
                     Log.e("ParseQuery", "Error:" + e.getMessage());
                 }

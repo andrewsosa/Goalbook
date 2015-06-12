@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /**
  * Created by andrewsosa on 2/18/15.
@@ -18,8 +19,18 @@ public class DatePickerFragment extends DialogFragment
 
     DatePickerReceiver method;
 
+    int year = -1;
+    int month = -1;
+    int day = -1;
+
     public void assignMethod(DatePickerReceiver d) {
         method = d;
+    }
+
+    public void passDate(GregorianCalendar c) {
+        year = c.get(Calendar.YEAR);
+        month = c.get(Calendar.MONTH);
+        day = c.get(Calendar.DAY_OF_MONTH);
     }
 
     @Override
@@ -29,6 +40,12 @@ public class DatePickerFragment extends DialogFragment
         int year = c.get(Calendar.YEAR);
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
+
+        if(this.year != -1 && this.month != -1 && this.day != -1) {
+            year = this.year;
+            month = this.month;
+            day = this.day;
+        }
 
         // Create a new instance of DatePickerDialog and return it
         return new DatePickerDialog(getActivity(), this, year, month, day);
