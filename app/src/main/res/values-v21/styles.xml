@@ -45,26 +45,6 @@
 
     </style>
 
-    <!-- Status bar override for edit activity -->
-    <style name="AppTheme.EditActivity" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/grey_white_1000</item>
-        <item name="colorPrimaryDark">@color/grey_400</item>
-        <item name="colorAccent">@color/accent</item>
-        <item name="android:textColorPrimary">@color/primaryTextDark</item>
-        <item name="android:statusBarColor">@color/grey_400</item>
-        <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
-        <item name="android:actionMenuTextAppearance">@style/AppTheme.EditActivity.MenuTextAppearance</item>
-        <item name="android:actionMenuTextColor">@color/grey_600</item>
-        <item name="android:textSize">16sp</item>
-    </style>
-
-
-    <style name="AppTheme.EditActivity.MenuTextAppearance" parent="AppTheme">
-        <item name="android:textColor">@color/grey_500</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textStyle">bold</item>
-    </style>
 
     <style name="AppTheme.SettingsActivity" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>

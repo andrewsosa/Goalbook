@@ -85,7 +85,8 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
     }
 
     public Task getActiveItem() {
-        return mDataset.get(activeItemNumber);
+        if(activeItemNumber!= -1) return mDataset.get(activeItemNumber);
+        else return null;
     }
 
     public void setUseSmallTiles(boolean useSmallTiles) {

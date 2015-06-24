@@ -95,6 +95,13 @@ public class Task extends ParseObject implements Serializable {
 
     // TODO SUPPORT TASKS WITH TIME BUT NO DATE
 
+    public void setTime(int hour, int minute) {
+        GregorianCalendar deadline = getDeadline();
+        deadline.set(Calendar.HOUR_OF_DAY, hour);
+        deadline.set(Calendar.MINUTE, minute);
+        setDeadline(deadline, true, false);
+    }
+
     /*
      * Following getDeadline[...]() functions retrieve date in various formats, mostly strings.
      */
@@ -196,13 +203,6 @@ public class Task extends ParseObject implements Serializable {
 
     public void setTimeSpecified(boolean timeSpecified) {
         put("timeSpecified", timeSpecified);
-    }
-
-    public void setTime(int hour, int minute) {
-        GregorianCalendar deadline = getDeadline();
-        deadline.set(Calendar.HOUR_OF_DAY, hour);
-        deadline.set(Calendar.MINUTE, minute);
-        setDeadline(deadline, true, false);
     }
 
     public void setComparableTime(String s) {

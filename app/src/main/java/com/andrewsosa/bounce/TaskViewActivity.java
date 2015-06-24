@@ -1,14 +1,19 @@
 package com.andrewsosa.bounce;
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
@@ -16,7 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.melnykov.fab.FloatingActionButton;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -31,12 +35,26 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
 
     Task task;
     String taskID;
-    //TaskDataSource dataSource;
+
+    // State list for FAB
+    int[][] states = new int[][] {
+            new int[] { android.R.attr.state_enabled}, // enabled
+            new int[] {-android.R.attr.state_enabled}, // disabled
+            new int[] {-android.R.attr.state_checked}, // unchecked
+            new int[] { android.R.attr.state_pressed}  // pressed
+    };
+    int[] colors = new int[] {
+            Color.WHITE,
+            Color.WHITE,
+            Color.WHITE,
+            Color.WHITE
+    };
+    ColorStateList fabStates = new ColorStateList(states, colors);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_item_view);
+        setContentView(R.layout.activity_task_view);
 
         // Extract Task and retrieve
         taskID = getIntent().getStringExtra("TaskID");
@@ -102,13 +120,53 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
             }
         });
 
+        // Floating Action butt
         FloatingActionButton editButton = (FloatingActionButton) findViewById(R.id.edit_fab);
-        if(editButton != null) editButton.setOnClickListener(new View.OnClickListener() {
+        editButton.setBackgroundTintList(fabStates);
+        editButton.setRippleColor(getResources().getColor(R.color.green_500));
+        editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(TaskViewActivity.this, TaskEditActivity.class);
-                i.putExtra("TaskID", task.getId());
-                startActivity(i);
+
+                // previously invisible view
+                View myView = findViewById(R.id.splash_done);
+
+                // get the center for the clipping circle
+                int cx = (myView.getLeft() + myView.getRight()) / 2;
+                int cy = (myView.getTop() + myView.getBottom()) / 2;
+
+                // get the final radius for the clipping circle
+                int finalRadius = Math.max(myView.getWidth(), myView.getHeight());
+
+                // create the animator for this view (the start radius is zero)
+                Animator anim =
+                        ViewAnimationUtils.createCircularReveal(myView, cx, cy, 0, finalRadius);
+
+                // make the view visible and start the animation
+                myView.setVisibility(View.VISIBLE);
+                anim.start();
+                anim.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        finish();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+
             }
         });
 
@@ -186,11 +244,11 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         int id = item.getItemId();
 
         switch(id) {
-            case R.id.action_complete:
+            /*case R.id.action_complete:
                 Toast.makeText(TaskViewActivity.this, "Task marked complete.", Toast.LENGTH_SHORT).show();
                 task.setDone(true);
                 finish();
-                return true;
+                return true;*/
             case R.id.action_delete:
                 launchDeleteDialog();
                 return true;

@@ -8,7 +8,7 @@
 
     <!-- Action Strings for Item View -->
     <string name="action_delete">Delete</string>
-    <string name="action_postpone">Bounce</string>
+    <string name="action_postpone">Postpone</string>
     <string name="action_complete">Complete</string>
     <string name="action_edit">Edit</string>
     <string name="title_activity_task_edit">TaskEditActivity</string>

@@ -214,18 +214,23 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     }
 
+    // TODO HANDLE BETTER METHOD OF THIS
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         Log.d("Bounce", "On Activity Result");
         if (resultCode == RESULT_OK) {
+
+            Task active = mParseAdapter.getActiveItem();
+
             Log.d("Bounce", "Result Ok");
             if((data.getStringExtra("Action") != null) && (data.getStringExtra("Action").equals("delete"))) {
                 Log.d("Bounce", "Action == Delete");
                 mParseAdapter.removeActiveElement();
             }
-            else {
+            else if (active != null) {
+
                 ParseQuery<Task> query = ParseQuery.getQuery("Task");
                 query.fromLocalDatastore();
                 query.whereEqualTo("uuid", mParseAdapter.getActiveItem().getId());
@@ -630,7 +635,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         // Handle non-1 cases
         switch(position) {
             case UPCOMING: return query.whereGreaterThan("deadline", midnight.getTime());
-            case ARCHIVE: return query.whereEqualTo("done", true).whereLessThanOrEqualTo("deadline", yesterday);
+            case ARCHIVE: return query.whereEqualTo("done", true).whereLessThanOrEqualTo("deadline", yesterday.getTime());
             case 4: return query;
             case 5: return query.whereEqualTo("parent", null);
             default: TaskList parseList = localListQueryByName(getTitle(position));
@@ -710,7 +715,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     }
 
     private int pressedColorForItem(int position){
-        switch(position) {
+        /*switch(position) {
             case 1: return getResources().getColor(R.color.inbox);
             case 2: return getResources().getColor(R.color.upcoming);
             case 3: return getResources().getColor(R.color.completed);
@@ -718,11 +723,12 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             case 5: return getResources().getColor(R.color.unassigned);
         }
 
-        return getResources().getColor(R.color.primaryTextDark);
+        return getResources().getColor(R.color.primaryTextDark);*/
+        return getResources().getColor(R.color.primary);
     }
 
     private int checkedColorForItem(int position){
-        switch(position) {
+        /*switch(position) {
             case 1: return getResources().getColor(R.color.inbox);
             case 2: return getResources().getColor(R.color.upcoming);
             case 3: return getResources().getColor(R.color.completed);
@@ -730,7 +736,8 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             case 5: return getResources().getColor(R.color.unassigned);
         }
 
-        return getResources().getColor(R.color.primaryTextDark);
+        return getResources().getColor(R.color.primaryTextDark);*/
+        return getResources().getColor(R.color.primary);
     }
 
     private int defaultColorForItem(){
