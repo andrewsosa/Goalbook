@@ -1,6 +1,9 @@
 package com.andrewsosa.bounce;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -54,7 +57,7 @@ import java.util.Locale;
 
 
 public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListener,
-        DatePickerReceiver {
+        DatePickerReceiver, DashboardFragment.OnTaskInteractionListener {
 
     String TASKS_LABEL = "tasks";
     String LISTS_LABEL = "lists";
@@ -64,15 +67,14 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     static final int ARCHIVE = 3;
 
     // Actionbar and Navdrawer nonsense
-    ActionBarDrawerToggle mDrawerToggle;
+    //ActionBarDrawerToggle mDrawerToggle;
 
-    // Recyclerview things
-    private RecyclerView mRecyclerView;
-    private RecyclerView.LayoutManager mLayoutManager;
+    // Recyclerview things [MOVED TO DASHBOARD FRAGMENT]
+    //private RecyclerView mRecyclerView;
+    //private RecyclerView.LayoutManager mLayoutManager;
     //private static TaskRecyclerAdapter mAdapter;
-    private static TaskRecyclerAdapter mParseAdapter;
-    static EditText editText;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    //private static TaskRecyclerAdapter mParseAdapter;
+    //private SwipeRefreshLayout mSwipeRefreshLayout;
 
     // Toggle view for the add menu
     private boolean showingInput = false;
@@ -83,6 +85,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
     Toolbar toolbar;
     DrawerLayout drawerLayout;
     FloatingActionButton actionButton;
+    static EditText editText;
+
+
+    // Reference to active fragment
+    DashboardFragment activeFragment;
 
     // Data for menu navigation
     Integer selectedPosition = 1;
@@ -133,8 +140,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
         // Drawer craziness
         drawerLayout = (DrawerLayout) findViewById(R.id.my_drawer_layout);
-        //mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
-        //drawerLayout.setDrawerListener(mDrawerToggle);
         drawerLayout.setStatusBarBackgroundColor(
                 getResources().getColor(R.color.primaryDark));
 
@@ -143,22 +148,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         actionButton.setOnClickListener(new FloatingActionButtonListener());
         actionButton.setBackgroundTintList(fabStates);
 
-        // Things for recyclerviews
-        mRecyclerView = (RecyclerView) findViewById(R.id.primary_recycler);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, null, true, true));
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-        // specify an adapter 
-        mParseAdapter = new TaskRecyclerAdapter(new ArrayList<Task>(), this);
-        mRecyclerView.setAdapter(mParseAdapter);
-
-        // Refresher view
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeListener());
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.primary);
+        // OLD RECYCLER VIEW STUFF WENT HERE
 
         // Drawer List things
         drawerList = (ListView) findViewById(R.id.drawer_list);
@@ -193,11 +183,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             }
         });
 
-        // Date display
-        TextView date = (TextView) findViewById(R.id.date_text);
-        date.setText(new SimpleDateFormat(
-                "MMMM dd", Locale.getDefault()).format(new GregorianCalendar().getTime()));
-
         // Things for adding tasks
         EditText editText = (EditText) findViewById(R.id.task_name_edittext);
         editText.setOnEditorActionListener(new EditorListener());
@@ -222,22 +207,22 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         Log.d("Bounce", "On Activity Result");
         if (resultCode == RESULT_OK) {
 
-            Task active = mParseAdapter.getActiveItem();
+            Task active = getActiveAdapter().getActiveItem();
 
             Log.d("Bounce", "Result Ok");
             if((data.getStringExtra("Action") != null) && (data.getStringExtra("Action").equals("delete"))) {
                 Log.d("Bounce", "Action == Delete");
-                mParseAdapter.removeActiveElement();
+                getActiveAdapter().removeActiveElement();
             }
             else if (active != null) {
 
                 ParseQuery<Task> query = ParseQuery.getQuery("Task");
                 query.fromLocalDatastore();
-                query.whereEqualTo("uuid", mParseAdapter.getActiveItem().getId());
+                query.whereEqualTo("uuid", getActiveAdapter().getActiveItem().getId());
                 try {
                     Task temp = query.getFirst();
-                    mParseAdapter.changeElement(mParseAdapter.getActiveItemNumber(), temp);
-                    mParseAdapter.notifyItemChanged(mParseAdapter.getActiveItemNumber());
+                    getActiveAdapter().changeElement(getActiveAdapter().getActiveItemNumber(), temp);
+                    getActiveAdapter().notifyItemChanged(getActiveAdapter().getActiveItemNumber());
                 } catch (Exception e) {
                     Log.e("onActivityResult", e.getMessage());
                 }
@@ -279,6 +264,11 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public FragmentTaskRecyclerAdapter getActiveAdapter() {
+        return activeFragment.relayAdapter();
     }
 
     public void deleteList(int position) {
@@ -479,7 +469,8 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         drawerList.setItemChecked(position, true);
 
         // Update Data
-        loadQueryToDisplay(prepareDataQuery(position), useSmallTiles(position));
+        //loadQueryToDisplay(prepareDataQuery(position), useSmallTiles(position));
+        handleFragmentTransaction(position);
 
         // Update UI components to match selection
         setTitle(getTitle(position)); // header off-by-one issue
@@ -490,10 +481,24 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     }
 
-    private boolean useSmallTiles(int i) {
-        if(false) return true; // TODO REPLACE WHEN TILES ARE READY
-        else return false;
+    private void handleFragmentTransaction(int position) {
+        FragmentManager fragmentManager = getFragmentManager();
+
+        // Check if we already have an active fragment
+        Fragment existingFragment = fragmentManager.findFragmentById(android.R.id.content);
+        if (existingFragment == null)
+        {
+            // I guess we need to add a new fragment
+            activeFragment = DashboardFragment.newInstance(prepareDataQuery(position));
+
+            // Display the fragment as the main content.
+            fragmentManager.beginTransaction()
+                    .replace(android.R.id.content, activeFragment)
+                    .commit();
+        }
+
     }
+
 
     private String getTitle(int position) {
         try {
@@ -778,6 +783,10 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         }
     }
 
+    public void onRefresh() {
+        loadFromParse();
+    }
+
     /**
      *  onItemClickListener class for Nav Drawer's ListView
      */
@@ -785,16 +794,6 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             selectPosition(position);
-        }
-    }
-
-    /**
-     *  SwipeListener for refresh layout
-     */
-    private class SwipeListener implements SwipeRefreshLayout.OnRefreshListener {
-        @Override
-        public void onRefresh() {
-            loadFromParse();
         }
     }
 
@@ -843,7 +842,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         Log.d("saveNewTask", task.getFullDeadline());
         task.pinInBackground(TASKS_LABEL, new TaskSaveListener(task));
 
-        mParseAdapter.addElement(task);
+        getActiveAdapter().addElement(task);
 
     }
 
@@ -945,6 +944,16 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
         }
     }
 
+    @Override
+    public void launchActivityFromTask(Task task) {
+
+        Intent intent = new Intent(this, TaskViewActivity.class);
+        intent.putExtra("TaskID", task.getId());
+
+        this.startActivityForResult(intent, 1);
+
+    }
+
     private void loadFromParse() {
 
         // query tasks
@@ -1041,7 +1050,7 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
 
     private void endRefresh() {
         // Finally done
-        mSwipeRefreshLayout.setRefreshing(false);
+        activeFragment.relaySwipeLayout().setRefreshing(false);
         selectPosition(selectedPosition);
     }
 
@@ -1051,8 +1060,8 @@ public class Dashboard extends Activity implements Toolbar.OnMenuItemClickListen
             @Override
             public void done(List<Task> list, ParseException e) {
                 if(e == null) {
-                    mParseAdapter.setUseSmallTiles(smallTiles);
-                    mParseAdapter.replaceData(list);
+                    getActiveAdapter().setUseSmallTiles(smallTiles);
+                    getActiveAdapter().replaceData(list);
                 } else {
                     Log.e("ParseQuery", "Error:" + e.getMessage());
                 }

@@ -68,12 +68,13 @@
 
 
             <!-- FrameLayout for fragments -->
-            <!--<FrameLayout
+            <FrameLayout
+                android:id="@+id/container"
                 android:layout_width="match_parent"
-                android:layout_height="fill_parent"/> -->
+                android:layout_height="fill_parent"/>
 
-            <!-- RecyclerView & wrappers -->
-            <include layout="@layout/content_list_single_day"/>
+            <!-- RecyclerView & wrappers
+            <include layout="@layout/content_list_single_day"/> -->
 
         </LinearLayout>
 
@@ -87,7 +88,7 @@
             android:layout_alignParentEnd="true"
             android:layout_margin="@dimen/fab_margin"
             app:elevation="12dp"
-            app:borderWidth="0dp"/>
+            app:borderWidth="1dp"/>
 
 
     </RelativeLayout>

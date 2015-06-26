@@ -60,7 +60,7 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         taskID = getIntent().getStringExtra("TaskID");
         queryTask(taskID);
 
-        // Set color
+        /*// Set color
         int toolbarColor = getIntent().getIntExtra("ToolbarColor",
                 getResources().getColor(R.color.primary));
         int statusbarColor = getIntent().getIntExtra("StatusbarColor",
@@ -72,7 +72,7 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(statusbarColor);
-        }
+        } */
 
         // Toolbar craziness
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
