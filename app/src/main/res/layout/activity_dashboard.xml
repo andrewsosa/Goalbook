@@ -24,12 +24,14 @@
             <android.support.v7.widget.Toolbar
                 android:id="@+id/my_toolbar"
                 android:layout_height="?android:attr/actionBarSize"
+                android:minHeight="56dp"
                 android:layout_width="match_parent"
                 android:contentInsetStart="72dp"
                 android:contentInsetLeft="72dp"
                 app:contentInsetLeft="72dp"
                 app:contentInsetStart="72dp"
                 android:background="@color/primary"
+                app:titleTextAppearance="@style/ToolbarTitle"
                 android:elevation="2dp" />
 
             <!-- Add box here-->
