@@ -61,7 +61,7 @@ public class Task extends ParseObject implements Serializable {
         }
 
         // Stores the actual timestamp
-        setTimeSpecified(specifyTime);
+        setTimeSpecified(specifyTime || timeSpecified());
         put("deadline", deadline.getTime());
 
         // Writes comparable time for sorting purposes
