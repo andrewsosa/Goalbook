@@ -33,7 +33,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
         // This is our view
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycler_view_tile, parent, false);
+                .inflate(R.layout.recycler_tile_normal, parent, false);
 
         // Return the new view
         return new ViewHolder(v, this);

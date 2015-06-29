@@ -3,6 +3,6 @@
     android:layout_height="match_parent" tools:context="com.andrewsosa.bounce.DashboardFragment">
 
     <!-- RecyclerView & wrappers -->
-    <include layout="@layout/content_list_single_day"/>
+    <include layout="@layout/content_recycler_wrapper"/>
 
 </FrameLayout>

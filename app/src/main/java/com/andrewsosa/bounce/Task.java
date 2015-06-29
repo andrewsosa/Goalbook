@@ -1,5 +1,8 @@
 package com.andrewsosa.bounce;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -14,10 +17,14 @@ import java.util.Locale;
 import java.util.UUID;
 
 @ParseClassName("Task")
-public class Task extends ParseObject implements Serializable {
+public class Task extends ParseObject implements Serializable, Parcelable {
 
     public Task() {
 
+    }
+
+    public Task(Parcel in) {
+        setObjectId(in.readString());
     }
 
     public Task(String name) {
@@ -78,7 +85,7 @@ public class Task extends ParseObject implements Serializable {
         setDeadline(deadline, timeSpecified(), false);
     }
 
-    // This one is used for updating.
+    // This one is used for updating date.
     public void setDeadline(int year, int month, int day) {
         setDeadline(new GregorianCalendar(year, month, day), timeSpecified(), true);
     }
@@ -225,5 +232,33 @@ public class Task extends ParseObject implements Serializable {
     public static ParseQuery<Task> getQuery() {
         return ParseQuery.getQuery(Task.class)
                 .whereEqualTo("user", ParseUser.getCurrentUser());
+    }
+    
+    
+    
+    /*
+        PARCELABLE STUFF
+     */
+
+
+    public static final Parcelable.Creator<Task> CREATOR
+            = new Parcelable.Creator<Task>() {
+        public Task createFromParcel(Parcel in) {
+            return new Task(in);
+        }
+
+        public Task[] newArray(int size) {
+            return new Task[size];
+        }
+    };
+    
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(getObjectId());
     }
 }

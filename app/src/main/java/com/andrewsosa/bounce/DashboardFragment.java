@@ -1,9 +1,9 @@
 package com.andrewsosa.bounce;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Parcelable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.parse.FindCallback;
@@ -35,7 +34,7 @@ import java.util.Locale;
  * create an instance of this fragment.
  */
 public class DashboardFragment extends Fragment implements
-        FragmentTaskRecyclerAdapter.TaskEventListener {
+        TaskRecyclerAdapterBase.TaskEventListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     //private static final String ARG_PARAM1 = "param1";
@@ -43,12 +42,12 @@ public class DashboardFragment extends Fragment implements
 
     private ParseQuery<Task> query;
     private OnTaskInteractionListener mListener;
-    private FragmentTaskRecyclerAdapter mAdapter;
+    private TaskRecyclerAdapterBase mAdapter;
 
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private TextView dateDisplay;
+    //private TextView dateDisplay;
 
     /**
      * Use this factory method to create a new instance of
@@ -87,7 +86,7 @@ public class DashboardFragment extends Fragment implements
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.primary_recycler);
         mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout);
-        dateDisplay = (TextView) v.findViewById(R.id.date_text);
+        //dateDisplay = (TextView) v.findViewById(R.id.date_text);
 
         return v;
     }
@@ -103,17 +102,59 @@ public class DashboardFragment extends Fragment implements
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        // specify an adapter
-        mAdapter = new FragmentTaskRecyclerAdapter(new ArrayList<Task>(), this);
-        mRecyclerView.setAdapter(mAdapter);
+        // Calculate today's date
+        // Date display
+        String today = new SimpleDateFormat(
+                "MMMM dd", Locale.getDefault()).format(new GregorianCalendar().getTime());
+
+        // specify my base adapter
+        mAdapter = new TaskRecyclerAdapterBase(new ArrayList<Task>(), this);
+
+        //This is the code to provide a sectioned list
+        List<SimpleSectionedRecyclerViewAdapter.Section> sections =
+                new ArrayList<SimpleSectionedRecyclerViewAdapter.Section>();
+
+        // Handle section titles and where
+        sections.add(new SimpleSectionedRecyclerViewAdapter.Section(0,today));
+
+        //Add your adapter to the sectionAdapter
+        SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
+        SimpleSectionedRecyclerViewAdapter mSectionedAdapter = new
+                SimpleSectionedRecyclerViewAdapter(getActivity(), R.layout.recycler_tile_subheader,
+                R.id.date_text,mAdapter);
+        mSectionedAdapter.setSections(sections.toArray(dummy));
+
+
+        //mRecyclerView.setAdapter(mAdapter);
+
+        //Apply this adapter to the RecyclerView
+        mRecyclerView.setAdapter(mSectionedAdapter);
+
+        if(savedInstanceState != null) {
+
+            ArrayList<? extends Parcelable> parcelables =
+                    savedInstanceState.getParcelableArrayList("tasks");
+
+            if(parcelables != null) {
+                ArrayList<Task> tasks = new ArrayList<>();
+
+                try {
+                    for (Object o : parcelables) {
+                        tasks.add((Task) o);
+                    }
+
+                    mAdapter.replaceData(tasks);
+                } catch (Exception e) {
+                    Log.e("Type Error", "Error converting Parcelables to Tasks");
+                }
+
+
+            }
+        }
 
         // Refresher view
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeListener());
         mSwipeRefreshLayout.setColorSchemeResources(R.color.primary);
-
-        // Date display
-        dateDisplay.setText(new SimpleDateFormat(
-                "MMMM dd", Locale.getDefault()).format(new GregorianCalendar().getTime()));
     }
 
     public void setQuery(ParseQuery<Task> query) {
@@ -134,7 +175,7 @@ public class DashboardFragment extends Fragment implements
         }
     }
 
-    public FragmentTaskRecyclerAdapter relayAdapter() {
+    public TaskRecyclerAdapterBase relayAdapter() {
         return mAdapter;
     }
 
@@ -177,6 +218,14 @@ public class DashboardFragment extends Fragment implements
         mListener = null;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        ArrayList<? extends Parcelable> list = mAdapter.getDataset();
+        outState.putParcelableArrayList("tasks", list);
+
+    }
 
     /**
      *  SwipeListener for refresh layout
@@ -199,9 +248,9 @@ public class DashboardFragment extends Fragment implements
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnTaskInteractionListener {
-        public void launchActivityFromTask(Task task);
-        public void saveTask(Task task);
-        public void onRefresh();
+        void launchActivityFromTask(Task task);
+        void saveTask(Task task);
+        void onRefresh();
     }
 
 }

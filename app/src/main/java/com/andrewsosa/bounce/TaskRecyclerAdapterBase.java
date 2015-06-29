@@ -1,7 +1,5 @@
 package com.andrewsosa.bounce;
 
-import android.app.Fragment;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +12,7 @@ import android.widget.TextView;
 import java.util.*;
 import java.util.List;
 
-public class FragmentTaskRecyclerAdapter extends RecyclerView.Adapter<FragmentTaskRecyclerAdapter.ViewHolder> {
+public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAdapterBase.ViewHolder> {
 
     // The Dataset
     private static List<Task> mDataset;
@@ -23,28 +21,33 @@ public class FragmentTaskRecyclerAdapter extends RecyclerView.Adapter<FragmentTa
     private boolean useSmallTiles = false;
 
     // Constructor for setting up the dataset
-    public FragmentTaskRecyclerAdapter(ArrayList<Task> myDataset, TaskEventListener listener) {
+    public TaskRecyclerAdapterBase(ArrayList<Task> myDataset, TaskEventListener listener) {
         mDataset = new ArrayList<>(myDataset);
         taskEventListener = listener;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public FragmentTaskRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TaskRecyclerAdapterBase.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         // This is our view
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycler_view_tile, parent, false);
+                .inflate(R.layout.recycler_tile_normal, parent, false);
 
         // Return the new view
         return new ViewHolder(v);
 
     }
 
-    public void replaceData(java.util.List<Task> tasks) {
+    public void replaceData(List<Task> tasks) {
         mDataset = tasks;
         notifyDataSetChanged();
     }
+
+    public ArrayList<Task> getDataset() {
+        return new ArrayList<>(mDataset);
+    }
+
 
     // Add new items to the dataset
     public void addElement(Task e) {
