@@ -27,8 +27,11 @@ public class TimePickerFragment extends DialogFragment
     }
 
     public void passTime(GregorianCalendar c) {
-        hour = c.get(Calendar.HOUR_OF_DAY);
-        minute = c.get(Calendar.MINUTE);
+
+        if(c != null) {
+            hour = c.get(Calendar.HOUR_OF_DAY);
+            minute = c.get(Calendar.MINUTE);
+        }
     }
 
     @Override

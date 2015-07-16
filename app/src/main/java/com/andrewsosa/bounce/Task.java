@@ -57,8 +57,8 @@ public class Task extends ParseObject implements Serializable, Parcelable {
 
         // Time is not specified already, use preset for new time.
         if(!specifyTime) {
-            deadline.set(Calendar.HOUR_OF_DAY, 23); // TODO CUSTOMIZE DEFAULT HOURS
-            deadline.set(Calendar.MINUTE, 59);
+            deadline.set(Calendar.HOUR_OF_DAY, 8); // TODO CUSTOMIZE DEFAULT HOURS
+            deadline.set(Calendar.MINUTE, 00);
         }
 
         // If we don't want to change the time when changing the date, use old values.
@@ -127,7 +127,9 @@ public class Task extends ParseObject implements Serializable, Parcelable {
         Date d = getDate("deadline");
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 "hh:mm aa", Locale.getDefault());
-        if (d != null) {
+        if(!timeSpecified()) {
+            return "Unspecified";
+        } else if (d != null) {
             return dateFormat.format(d);
         } else {
             return "Unspecified";

@@ -88,15 +88,16 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
                     Intent data = new Intent();
                     setResult(RESULT_MISSING_TASK, data);
                     TaskViewActivity.this.finish();
+                } else {
+
+                    TextView taskName = (TextView) findViewById(R.id.task_name);
+                    task.setName(taskName.getText().toString());
+                    task.pinInBackground(new TaskSaveListener(task));
+
+                    Intent data = new Intent();
+                    setResult(RESULT_OK, data);
+                    TaskViewActivity.this.finish();
                 }
-
-                TextView taskName = (TextView) findViewById(R.id.task_name);
-                task.setName(taskName.getText().toString());
-                task.pinInBackground(new TaskSaveListener(task));
-
-                Intent data = new Intent();
-                setResult(RESULT_OK, data);
-                TaskViewActivity.this.finish();
             }
         });
         toolbar.requestFocus();

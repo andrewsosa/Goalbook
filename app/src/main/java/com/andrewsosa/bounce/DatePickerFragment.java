@@ -28,9 +28,12 @@ public class DatePickerFragment extends DialogFragment
     }
 
     public void passDate(GregorianCalendar c) {
-        year = c.get(Calendar.YEAR);
-        month = c.get(Calendar.MONTH);
-        day = c.get(Calendar.DAY_OF_MONTH);
+
+        if(c !=null) {
+            year = c.get(Calendar.YEAR);
+            month = c.get(Calendar.MONTH);
+            day = c.get(Calendar.DAY_OF_MONTH);
+        }
     }
 
     @Override

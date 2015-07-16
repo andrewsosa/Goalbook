@@ -35,11 +35,19 @@ import java.util.Locale;
  */
 public class DashboardFragment extends Fragment implements
         TaskRecyclerAdapterBase.TaskEventListener {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    //private static final String ARG_PARAM1 = "param1";
-    //private static final String ARG_PARAM2 = "param2";
+    // the fragment initialization parameters
+    private static final String FRAGMENT_TAG = "TAG";
 
+    /** Tags for fragment types */
+    public static final String INBOX = "TAG_INBOX";
+    public static final String UPCOMING = "TAG_UPCOMING";
+    public static final String OVERDUE = "TAG_OVERDUE";
+    public static final String COMPLETED = "TAG_COMPLETED";
+    public static final String ALL_TASKS = "TAG_ALL_TASKS";
+    public static final String UNASSIGNED = "TAG_UNASSIGNED";
+    public static final String OTHER_LIST = "TAG_OTHER_LIST";
+
+    private String mTag;
     private ParseQuery<Task> query;
     private OnTaskInteractionListener mListener;
     private TaskRecyclerAdapterBase mAdapter;
@@ -57,11 +65,12 @@ public class DashboardFragment extends Fragment implements
      * @return A new instance of fragment DashboardFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static DashboardFragment newInstance(ParseQuery<Task> query) {
+    public static DashboardFragment newInstance(String tag, ParseQuery<Task> query) {
         DashboardFragment fragment = new DashboardFragment();
         fragment.setQuery(query);
-        //Bundle args = new Bundle();
-        //fragment.setArguments(args);
+        Bundle args = new Bundle();
+        args.putString(FRAGMENT_TAG, tag);
+        fragment.setArguments(args);
         return fragment;
     }
 
@@ -72,10 +81,9 @@ public class DashboardFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }*/ // TODO CHANGE THIS IF NEEDED
+        if (getArguments() != null) {
+            mTag = getArguments().getString(FRAGMENT_TAG);
+        }
     }
 
     @Override
@@ -102,15 +110,10 @@ public class DashboardFragment extends Fragment implements
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        // Calculate today's date
-        // Date display
-        String today = new SimpleDateFormat(
-                "MMMM dd", Locale.getDefault()).format(new GregorianCalendar().getTime());
-
         // specify my base adapter
         mAdapter = new TaskRecyclerAdapterBase(new ArrayList<Task>(), this);
 
-        //This is the code to provide a sectioned list
+        /*//This is the code to provide a sectioned list
         List<SimpleSectionedRecyclerViewAdapter.Section> sections =
                 new ArrayList<SimpleSectionedRecyclerViewAdapter.Section>();
 
@@ -118,43 +121,50 @@ public class DashboardFragment extends Fragment implements
         sections.add(new SimpleSectionedRecyclerViewAdapter.Section(0,today));
 
         //Add your adapter to the sectionAdapter
-        SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
         SimpleSectionedRecyclerViewAdapter mSectionedAdapter = new
                 SimpleSectionedRecyclerViewAdapter(getActivity(), R.layout.recycler_tile_subheader,
                 R.id.date_text,mAdapter);
-        mSectionedAdapter.setSections(sections.toArray(dummy));
 
+        SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
+        mSectionedAdapter.setSections(sections.toArray(dummy));*/
 
-        //mRecyclerView.setAdapter(mAdapter);
+        TaskRecyclerAdapterSectioned mSectionedAdapter =
+                new TaskRecyclerAdapterSectioned(getActivity(), R.layout.recycler_tile_subheader,
+                        R.id.date_text, mAdapter);
 
         //Apply this adapter to the RecyclerView
+        //mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setAdapter(mSectionedAdapter);
 
         if(savedInstanceState != null) {
-
             ArrayList<? extends Parcelable> parcelables =
                     savedInstanceState.getParcelableArrayList("tasks");
-
             if(parcelables != null) {
                 ArrayList<Task> tasks = new ArrayList<>();
-
                 try {
                     for (Object o : parcelables) {
                         tasks.add((Task) o);
                     }
-
                     mAdapter.replaceData(tasks);
                 } catch (Exception e) {
                     Log.e("Type Error", "Error converting Parcelables to Tasks");
                 }
-
-
             }
         }
 
         // Refresher view
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeListener());
         mSwipeRefreshLayout.setColorSchemeResources(R.color.primary);
+    }
+
+    public List<SimpleSectionedRecyclerViewAdapter.Section> detectSections(List<Task> dataset) {
+        List<SimpleSectionedRecyclerViewAdapter.Section> sections =
+                new ArrayList<SimpleSectionedRecyclerViewAdapter.Section>();
+
+
+
+
+        return sections;
     }
 
     public void setQuery(ParseQuery<Task> query) {

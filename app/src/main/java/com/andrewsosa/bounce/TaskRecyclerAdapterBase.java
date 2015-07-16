@@ -59,6 +59,7 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
 
     public void changeElement(int i, Task e){
         mDataset.set(i, e);
+        notifyItemChanged(i);
     }
 
     public void removeElementAt(int i) {
@@ -117,7 +118,7 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
         holder.task = task;
 
         // Hide date text if there is not one set, else show it again
-        if(task.getDeadline() == null || useSmallTiles) {
+        if(task.getDeadline() == null || useSmallTiles || task.getDeadlineAsTime().equals("Unspecified")) {
             holder.subtitleText.setVisibility(View.GONE);
             RelativeLayout.LayoutParams layoutParams =
                     (RelativeLayout.LayoutParams)holder.titleText.getLayoutParams();

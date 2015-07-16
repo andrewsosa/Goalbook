@@ -55,17 +55,10 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
 
     static final int TODAY = 1;
     static final int UPCOMING = 2;
+    static final int OVERDUE = 6;
     static final int ARCHIVE = 3;
-
-    // Actionbar and Navdrawer nonsense
-    //ActionBarDrawerToggle mDrawerToggle;
-
-    // Recyclerview things [MOVED TO DASHBOARD FRAGMENT]
-    //private RecyclerView mRecyclerView;
-    //private RecyclerView.LayoutManager mLayoutManager;
-    //private static TaskRecyclerAdapter mAdapter;
-    //private static TaskRecyclerAdapter mParseAdapter;
-    //private SwipeRefreshLayout mSwipeRefreshLayout;
+    static final int COMPLETED = 4;
+    static final int UNASSIGNED = 5;
 
     // Toggle view for the add menu
     private boolean showingInput = false;
@@ -493,7 +486,8 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
             Log.d("handleFragTransaction", "Replacing with new fragment");
 
             // I guess we need to add a new fragment
-            activeFragment = DashboardFragment.newInstance(prepareDataQuery(position));
+            activeFragment = DashboardFragment.newInstance(getFragmentTagByPosition(position),
+                    prepareDataQuery(position));
 
             // Display the fragment as the main content.
             fragmentManager.beginTransaction()
@@ -508,12 +502,12 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
 
     private String getFragmentTagByPosition(int position) {
         switch(position) {
-            case 1: return "TAG_INBOX";
-            case 2: return "TAG_UPCOMING";
-            case 3: return "TAG_COMPLETED";
-            case 4: return "TAG_ALL_TASKS";
-            case 5: return "TAG_UNASSIGNED";
-            default: return "TAG_OTHER_LIST";
+            case 1: return DashboardFragment.INBOX;
+            case 2: return DashboardFragment.UPCOMING;
+            case 3: return DashboardFragment.COMPLETED;
+            case 4: return DashboardFragment.ALL_TASKS;
+            case 5: return DashboardFragment.UNASSIGNED;
+            default: return DashboardFragment.OTHER_LIST;
 
         }
     }
@@ -644,21 +638,26 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
             queries.add(current);
             return ParseQuery.or(queries)
                         .orderByAscending("done")
-                        .addAscendingOrder("comparableTime,deadline");
+                        .addDescendingOrder("timeSpecified")
+                        .addDescendingOrder("comparableTime")
+                        .addAscendingOrder("deadline");
         }
 
         // Add not-done requirement
-        query.whereEqualTo("done", false)
-            .orderByDescending("updatedAt");
+        //query.whereEqualTo("done", false);
 
         // Handle non-1 cases
         switch(position) {
             case UPCOMING: return query.whereGreaterThan("deadline", midnight.getTime());
-            case ARCHIVE: return query.whereEqualTo("done", true).whereLessThanOrEqualTo("deadline", yesterday.getTime());
-            case 4: return query;
-            case 5: return query.whereEqualTo("parent", null);
+            case ARCHIVE: return query.whereEqualTo("done", true)
+                        .whereLessThanOrEqualTo("deadline", yesterday.getTime());
+            case 4: return query.orderByDescending("deadline");
+            case 5: return query.whereEqualTo("parent", null)
+                        .orderByDescending("deadline")
+                        .whereEqualTo("done", false);
             default: TaskList parseList = localListQueryByName(getTitle(position));
-                return query.whereEqualTo("parent", parseList);
+                return query.whereEqualTo("parent", parseList)
+                        .whereEqualTo("done", false);
         }
     }
 
@@ -856,7 +855,7 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
         Log.d("saveNewTask", task.getFullDeadline());
         task.pinInBackground(TASKS_LABEL, new TaskSaveListener(task));
 
-        getActiveAdapter().addElement(task);
+        if(getActiveAdapter() != null) getActiveAdapter().addElement(task);
 
     }
 
