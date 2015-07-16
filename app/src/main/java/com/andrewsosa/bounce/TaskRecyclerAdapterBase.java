@@ -1,6 +1,5 @@
 package com.andrewsosa.bounce;
 
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,37 +12,42 @@ import android.widget.TextView;
 import java.util.*;
 import java.util.List;
 
-public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapter.ViewHolder> {
+public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAdapterBase.ViewHolder> {
 
     // The Dataset
     private static List<Task> mDataset;
-    private static Dashboard activity;
+    private static TaskEventListener taskEventListener;
     private int activeItemNumber = -1;
     private boolean useSmallTiles = false;
 
     // Constructor for setting up the dataset
-    public TaskRecyclerAdapter(ArrayList<Task> myDataset, Dashboard c) {
+    public TaskRecyclerAdapterBase(ArrayList<Task> myDataset, TaskEventListener listener) {
         mDataset = new ArrayList<>(myDataset);
-        activity = c;
+        taskEventListener = listener;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public TaskRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TaskRecyclerAdapterBase.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         // This is our view
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycler_view_tile, parent, false);
+                .inflate(R.layout.recycler_tile_normal, parent, false);
 
         // Return the new view
-        return new ViewHolder(v, this);
+        return new ViewHolder(v);
 
     }
 
-    public void replaceData(java.util.List<Task> tasks) {
+    public void replaceData(List<Task> tasks) {
         mDataset = tasks;
         notifyDataSetChanged();
     }
+
+    public ArrayList<Task> getDataset() {
+        return new ArrayList<>(mDataset);
+    }
+
 
     // Add new items to the dataset
     public void addElement(Task e) {
@@ -55,6 +59,7 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
     public void changeElement(int i, Task e){
         mDataset.set(i, e);
+        notifyItemChanged(i);
     }
 
     public void removeElementAt(int i) {
@@ -70,6 +75,10 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
     public void setActiveElement(int i) {
         activeItemNumber =  i;
+    }
+
+    public void setActiveElementFromTask(Task t) {
+        this.activeItemNumber = mDataset.indexOf(t);
     }
 
     public void removeActiveElement() {
@@ -102,14 +111,14 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
         String taskName = task.getName();
         /*if(taskName.length() > 16) {
-            taskName = taskName.substring(0, 15);
+            taskName = taskName.substring(0, 15) + "...";
         } */
         holder.titleText.setText(taskName);
         holder.checkbox.setChecked(task.isDone());
         holder.task = task;
 
         // Hide date text if there is not one set, else show it again
-        if(task.getDeadline() == null || useSmallTiles) {
+        if(task.getDeadline() == null || useSmallTiles || task.getDeadlineAsTime().equals("Unspecified")) {
             holder.subtitleText.setVisibility(View.GONE);
             RelativeLayout.LayoutParams layoutParams =
                     (RelativeLayout.LayoutParams)holder.titleText.getLayoutParams();
@@ -123,18 +132,16 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
             holder.titleText.setLayoutParams(layoutParams);
             holder.subtitleText.setVisibility(View.VISIBLE);
             holder.subtitleText.setText(task.getDeadlineAsTime());// + " on "
-                    //+ task.getDeadlineAsSimpleDateString());
+            //+ task.getDeadlineAsSimpleDateString());
         }
 
-        if(useSmallTiles) {
+        /*if(useSmallTiles) {
             // TODO HANDLE SMALL TILES
-        }
-
-
+        }*/
 
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
+    // Return the size of your data set (invoked by the layout manager)
     @Override
     public int getItemCount() {
         return mDataset.size();
@@ -152,7 +159,6 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
         // Reference for the Event that needs to be opened on the click listener
         Task task;
-        TaskRecyclerAdapter t;
 
         // each data item is just a string in this case
         public RelativeLayout tile;
@@ -161,16 +167,14 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
         public CheckBox checkbox;
 
         // Constructor
-        public ViewHolder(View v, TaskRecyclerAdapter t) {
+        public ViewHolder(View v) {
             super(v);
             tile = (RelativeLayout) v.findViewById(R.id.tile);
             titleText = (TextView) v.findViewById(R.id.tile_header);
             subtitleText = (TextView) v.findViewById(R.id.tile_subheader);
             checkbox = (CheckBox) v.findViewById(R.id.tile_checkbox);
-            this.t = t;
 
             v.setOnClickListener(this);
-
 
             checkbox.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -180,8 +184,8 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
                     } else {
                         task.setDone(false);
                     }
-                    activity.saveTask(task);
-                    ViewHolder.this.t.removeElement(task);
+                    taskEventListener.onTaskCheckboxInteraction(task);
+                    //ViewHolder.this.t.removeElement(task); TODO REINTRODUCE CHECKBOX RESPONSE
                 }
             });
 
@@ -189,21 +193,14 @@ public class TaskRecyclerAdapter extends RecyclerView.Adapter<TaskRecyclerAdapte
 
         @Override
         public void onClick(View v) {
-
             Log.d("Bounce", "Tile onClick!");
-            Intent intent = new Intent(activity, TaskViewActivity.class);
-            intent.putExtra("TaskID", task.getId());
-            intent.putExtra("ToolbarColor", activity.getCurrentToolbarColor());
-            intent.putExtra("StatusbarColor", activity.getCurrentStatusbarColor());
-
-
-            t.activeItemNumber = mDataset.indexOf(task);
-
-            //activity.startActivity(intent);
-            activity.startActivityForResult(intent, 1);
-
-
+            taskEventListener.onTaskSelect(task);
         }
+    }
+
+    public interface TaskEventListener {
+        void onTaskCheckboxInteraction(Task task);
+        void onTaskSelect(Task task);
     }
 
 }

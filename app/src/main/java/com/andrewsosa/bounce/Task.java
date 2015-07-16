@@ -1,5 +1,8 @@
 package com.andrewsosa.bounce;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -14,10 +17,14 @@ import java.util.Locale;
 import java.util.UUID;
 
 @ParseClassName("Task")
-public class Task extends ParseObject implements Serializable {
+public class Task extends ParseObject implements Serializable, Parcelable {
 
     public Task() {
 
+    }
+
+    public Task(Parcel in) {
+        setObjectId(in.readString());
     }
 
     public Task(String name) {
@@ -50,8 +57,8 @@ public class Task extends ParseObject implements Serializable {
 
         // Time is not specified already, use preset for new time.
         if(!specifyTime) {
-            deadline.set(Calendar.HOUR_OF_DAY, 23); // TODO CUSTOMIZE DEFAULT HOURS
-            deadline.set(Calendar.MINUTE, 59);
+            deadline.set(Calendar.HOUR_OF_DAY, 8); // TODO CUSTOMIZE DEFAULT HOURS
+            deadline.set(Calendar.MINUTE, 00);
         }
 
         // If we don't want to change the time when changing the date, use old values.
@@ -78,7 +85,7 @@ public class Task extends ParseObject implements Serializable {
         setDeadline(deadline, timeSpecified(), false);
     }
 
-    // This one is used for updating.
+    // This one is used for updating date.
     public void setDeadline(int year, int month, int day) {
         setDeadline(new GregorianCalendar(year, month, day), timeSpecified(), true);
     }
@@ -120,7 +127,9 @@ public class Task extends ParseObject implements Serializable {
         Date d = getDate("deadline");
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 "hh:mm aa", Locale.getDefault());
-        if (d != null) {
+        if(!timeSpecified()) {
+            return "Unspecified";
+        } else if (d != null) {
             return dateFormat.format(d);
         } else {
             return "Unspecified";
@@ -225,5 +234,33 @@ public class Task extends ParseObject implements Serializable {
     public static ParseQuery<Task> getQuery() {
         return ParseQuery.getQuery(Task.class)
                 .whereEqualTo("user", ParseUser.getCurrentUser());
+    }
+    
+    
+    
+    /*
+        PARCELABLE STUFF
+     */
+
+
+    public static final Parcelable.Creator<Task> CREATOR
+            = new Parcelable.Creator<Task>() {
+        public Task createFromParcel(Parcel in) {
+            return new Task(in);
+        }
+
+        public Task[] newArray(int size) {
+            return new Task[size];
+        }
+    };
+    
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(getObjectId());
     }
 }

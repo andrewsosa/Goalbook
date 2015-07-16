@@ -16,4 +16,7 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_sign_up">SignUpActivity</string>
 
+    <string name="about_content">Bounce To-Do is a to-do list application made by Andrew
+        Sosa and T.J. Littlejohn.</string>
+
 </resources>

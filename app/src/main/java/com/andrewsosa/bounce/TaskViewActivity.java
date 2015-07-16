@@ -30,7 +30,7 @@ import java.util.Calendar;
 import java.util.List;
 
 
-public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClickListener,
+public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuItemClickListener,
         DatePickerReceiver, TimePickerReceiver {
 
     Task task;
@@ -60,7 +60,7 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         taskID = getIntent().getStringExtra("TaskID");
         queryTask(taskID);
 
-        // Set color
+        /*// Set color
         int toolbarColor = getIntent().getIntExtra("ToolbarColor",
                 getResources().getColor(R.color.primary));
         int statusbarColor = getIntent().getIntExtra("StatusbarColor",
@@ -72,7 +72,7 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(statusbarColor);
-        }
+        } */
 
         // Toolbar craziness
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -84,13 +84,20 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
             @Override
             public void onClick(View v) {
 
-                TextView taskName = (TextView) findViewById(R.id.task_name);
-                task.setName(taskName.getText().toString());
-                task.pinInBackground(new TaskSaveListener(task));
+                if(task == null){
+                    Intent data = new Intent();
+                    setResult(RESULT_MISSING_TASK, data);
+                    TaskViewActivity.this.finish();
+                } else {
 
-                Intent data = new Intent();
-                setResult(RESULT_OK, data);
-                TaskViewActivity.this.finish();
+                    TextView taskName = (TextView) findViewById(R.id.task_name);
+                    task.setName(taskName.getText().toString());
+                    task.pinInBackground(new TaskSaveListener(task));
+
+                    Intent data = new Intent();
+                    setResult(RESULT_OK, data);
+                    TaskViewActivity.this.finish();
+                }
             }
         });
         toolbar.requestFocus();
@@ -123,7 +130,7 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
         // Floating Action butt
         FloatingActionButton editButton = (FloatingActionButton) findViewById(R.id.edit_fab);
         editButton.setBackgroundTintList(fabStates);
-        editButton.setRippleColor(getResources().getColor(R.color.green_500));
+        //editButton.setRippleColor(getResources().getColor(R.color.green_500));
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -271,11 +278,8 @@ public class TaskViewActivity extends Activity implements Toolbar.OnMenuItemClic
                     public void onPositive(MaterialDialog dialog) {
 
                         task.deleteEventually();
+                        setResult(RESULT_DELETE_TASK);
 
-                        //Intent data = new Intent();
-                        //data.putExtra("Task", task);
-                        //data.putExtra("Action", "delete");
-                        //setResult(RESULT_OK, data);
                         TaskViewActivity.this.finish();
                     }
 

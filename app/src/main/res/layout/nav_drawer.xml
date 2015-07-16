@@ -49,7 +49,7 @@
             android:headerDividersEnabled="true"
             android:choiceMode="singleChoice"
             android:divider="@android:color/transparent" />
-
+        <!--
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
@@ -62,7 +62,7 @@
                 android:layout_height="48dp"
                 android:clickable="true"
                 android:background="?android:attr/selectableItemBackground"
-                android:id="@+id/logout_layout">
+                android:id="@+id/settings_layout">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -93,7 +93,8 @@
                 android:orientation="horizontal" android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:clickable="true"
-                android:background="?android:attr/selectableItemBackground">
+                android:background="?android:attr/selectableItemBackground"
+                android:id="@+id/about_layout">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -120,45 +121,13 @@
                     android:textColor="@color/primaryTextDark" />
             </RelativeLayout>
 
+
         </LinearLayout>
+        -->
+
 
     </LinearLayout>
 
-    <!-- <com.getbase.floatingactionbutton.FloatingActionsMenu
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        fab:fab_addButtonColorNormal="@color/accentColor"
-        fab:fab_addButtonColorPressed="@color/pink_pressed"
-        fab:fab_addButtonPlusIconColor="@color/white"
-        fab:fab_addButtonSize="mini"
-        fab:fab_labelStyle="@style/menu_labels_style"
-        fab:fab_labelsPosition="left"
-        fab:fab_expandDirection="down"
-
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentRight="false"
-        android:layout_marginTop="118dp"
-        android:layout_marginRight="8dp">
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/white"
-            fab:fab_title="Label on the right"
-            fab:fab_size="mini"
-            fab:fab_colorPressed="@color/white_pressed"/>
-
-        <com.getbase.floatingactionbutton.FloatingActionButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fab:fab_colorNormal="@color/white"
-            fab:fab_size="mini"
-            fab:fab_title="Another one on the right"
-            fab:fab_colorPressed="@color/white_pressed"/>
-
-    </com.getbase.floatingactionbutton.FloatingActionsMenu> -->
 
 </RelativeLayout>
 

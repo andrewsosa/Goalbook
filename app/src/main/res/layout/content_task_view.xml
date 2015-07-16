@@ -137,7 +137,7 @@
             android:layout_alignParentBottom="false"
             android:layout_alignParentEnd="true"
             app:elevation="12dp"
-            app:borderWidth="1dp"
+            app:borderWidth="0dp"
             android:layout_marginRight="@dimen/fab_margin"
             android:layout_marginBottom="-28dp"
             android:layout_alignBottom="@+id/content_header" />

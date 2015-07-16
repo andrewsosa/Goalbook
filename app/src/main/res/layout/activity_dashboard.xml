@@ -23,7 +23,7 @@
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/my_toolbar"
-                android:layout_height="?android:attr/actionBarSize"
+                android:layout_height="56dp"
                 android:minHeight="56dp"
                 android:layout_width="match_parent"
                 android:contentInsetStart="72dp"
@@ -70,12 +70,13 @@
 
 
             <!-- FrameLayout for fragments -->
-            <!--<FrameLayout
+            <FrameLayout
+                android:id="@+id/fragment_container"
                 android:layout_width="match_parent"
-                android:layout_height="fill_parent"/> -->
+                android:layout_height="fill_parent"/>
 
-            <!-- RecyclerView & wrappers -->
-            <include layout="@layout/content_list_single_day"/>
+            <!-- RecyclerView & wrappers
+            <include layout="@layout/content_recycler_wrapper"/> -->
 
         </LinearLayout>
 
