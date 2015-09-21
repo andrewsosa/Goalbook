@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.parse.FindCallback;
@@ -39,7 +40,7 @@ public class DashboardFragment extends Fragment implements
     private static final String FRAGMENT_TAG = "TAG";
 
     /** Tags for fragment types */
-    public static final String INBOX = "TAG_INBOX";
+    public static final String TODAY = "TAG_TODAY";
     public static final String UPCOMING = "TAG_UPCOMING";
     public static final String OVERDUE = "TAG_OVERDUE";
     public static final String COMPLETED = "TAG_COMPLETED";
@@ -55,6 +56,7 @@ public class DashboardFragment extends Fragment implements
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private LinearLayout mEmptyView;
     //private TextView dateDisplay;
 
     /**
@@ -94,6 +96,7 @@ public class DashboardFragment extends Fragment implements
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.primary_recycler);
         mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout);
+        mEmptyView = (LinearLayout) v.findViewById(R.id.empty_view);
         //dateDisplay = (TextView) v.findViewById(R.id.date_text);
 
         return v;
@@ -113,27 +116,17 @@ public class DashboardFragment extends Fragment implements
         // specify my base adapter
         mAdapter = new TaskRecyclerAdapterBase(new ArrayList<Task>(), this);
 
-        /*//This is the code to provide a sectioned list
-        List<SimpleSectionedRecyclerViewAdapter.Section> sections =
-                new ArrayList<SimpleSectionedRecyclerViewAdapter.Section>();
-
-        // Handle section titles and where
-        sections.add(new SimpleSectionedRecyclerViewAdapter.Section(0,today));
-
-        //Add your adapter to the sectionAdapter
-        SimpleSectionedRecyclerViewAdapter mSectionedAdapter = new
-                SimpleSectionedRecyclerViewAdapter(getActivity(), R.layout.recycler_tile_subheader,
-                R.id.date_text,mAdapter);
-
-        SimpleSectionedRecyclerViewAdapter.Section[] dummy = new SimpleSectionedRecyclerViewAdapter.Section[sections.size()];
-        mSectionedAdapter.setSections(sections.toArray(dummy));*/
-
         TaskRecyclerAdapterSectioned mSectionedAdapter =
                 new TaskRecyclerAdapterSectioned(getActivity(), R.layout.recycler_tile_subheader,
                         R.id.date_text, mAdapter);
 
         //Apply this adapter to the RecyclerView
         //mRecyclerView.setAdapter(mAdapter);
+        if(mTag.equals(DashboardFragment.TODAY)) {
+            mSectionedAdapter.isToday(true);
+        } else {
+            mSectionedAdapter.isToday(false);
+        }
         mRecyclerView.setAdapter(mSectionedAdapter);
 
         if(savedInstanceState != null) {
@@ -155,6 +148,7 @@ public class DashboardFragment extends Fragment implements
         // Refresher view
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeListener());
         mSwipeRefreshLayout.setColorSchemeResources(R.color.primary);
+
     }
 
     public List<SimpleSectionedRecyclerViewAdapter.Section> detectSections(List<Task> dataset) {
@@ -193,19 +187,45 @@ public class DashboardFragment extends Fragment implements
         return mSwipeRefreshLayout;
     }
 
+    public void showEmptyView(boolean empty) {
+
+        if(empty) {
+            mEmptyView.setVisibility(View.VISIBLE);
+            //mSwipeRefreshLayout.setVisibility(View.GONE);
+        } else {
+            mEmptyView.setVisibility(View.GONE);
+            //mSwipeRefreshLayout.setVisibility(View.VISIBLE);
+        }
+
+    }
+
     public void doQuery() {
         if(query != null) {
-            // Load the query results into list
-            query.findInBackground(new FindCallback<Task>() {
-                @Override
-                public void done(List<Task> list, ParseException e) {
-                    if (e == null) {
-                        mAdapter.replaceData(list);
-                    } else {
-                        Log.e("ParseQuery", "Error:" + e.getMessage());
+
+            try {
+                // Load the query results into list
+                query.findInBackground(new FindCallback<Task>() {
+                    @Override
+                    public void done(List<Task> list, ParseException e) {
+                        if (e == null) {
+                            if (list.size() == 0) {
+                                showEmptyView(true);
+                            } else {
+                                showEmptyView(false);
+                            }
+
+                            mAdapter.replaceData(list);
+
+                        } else {
+                            Log.e("ParseQuery", "Error:" + e.getMessage());
+                        }
                     }
-                }
-            });
+                });
+
+            } catch (Exception e) {
+                Log.e("doQuery", e.getMessage());
+            }
+
         }
     }
 

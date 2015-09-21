@@ -22,7 +22,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -32,7 +31,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -41,9 +39,9 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -55,10 +53,11 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
 
     static final int TODAY = 1;
     static final int UPCOMING = 2;
-    static final int OVERDUE = 6;
-    static final int ARCHIVE = 3;
+    static final int OVERDUE = 3;
     static final int COMPLETED = 4;
-    static final int UNASSIGNED = 5;
+    static final int ALL_TASKS = 5;
+    static final int UNASSIGNED = 6;
+    static final int DIVIDER = 7;
 
     // Toggle view for the add menu
     private boolean showingInput = false;
@@ -79,8 +78,10 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
     Integer selectedPosition = 1;
     ArrayList<String> titles;
     String[] presetTitles = {
+            "Bounce",
             "Today",
             "Upcoming",
+            "Overdue",
             "Completed",
             "All Tasks",
             "Unassigned",
@@ -130,6 +131,7 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
         // Add button stuff
         actionButton = (FloatingActionButton) findViewById(R.id.add_button);
         actionButton.setOnClickListener(new FloatingActionButtonListener());
+        actionButton.setOnLongClickListener(new FloatingActionButtonListener());
         actionButton.setBackgroundTintList(fabStates);
 
         // OLD RECYCLER VIEW STUFF WENT HERE
@@ -141,9 +143,7 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
                 R.id.list_name,
                 new ArrayList<TaskList>());
         drawerList.setAdapter(drawerListAdapter);
-
         refreshListTitles();
-
         drawerList.setOnItemClickListener(new DrawerListListener());
 
         // Add Extra views to ListView
@@ -180,16 +180,6 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
         EditText editText = (EditText) findViewById(R.id.task_name_edittext);
         editText.setOnEditorActionListener(new EditorListener());
 
-        ImageButton calendarButton = (ImageButton) findViewById(R.id.calendar_button);
-        calendarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DatePickerFragment newFragment = new DatePickerFragment();
-                newFragment.assignMethod(Dashboard.this);
-                newFragment.show(getFragmentManager(), "timePicker");
-            }
-        });
-
     }
 
     @Override
@@ -219,7 +209,7 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
     @Override
     protected void onResume() {
         super.onResume();
-        loadFromParse();
+        queryTasksFromServer();
     }
 
     @Override
@@ -232,8 +222,8 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
         switch(id) {
             case R.id.action_settings:
                 return true;
-            case R.id.action_search_list:
-                return true;
+            //case R.id.action_search_list:
+            //    return true;
             case R.id.action_rename_list:
                 renameListDialog();
                 return true;
@@ -264,6 +254,7 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
 
         // Remove tasks on list
         ParseQuery<Task> query = Task.getQuery();
+        query.whereEqualTo("user", ParseUser.getCurrentUser());
         query.whereEqualTo("parent", list);
         query.findInBackground(new FindCallback<Task>() {
             @Override
@@ -428,7 +419,16 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
 
     private ArrayList<String> initTitleList() {
         titles = new ArrayList<>();
-        titles.addAll(Arrays.asList(presetTitles));
+        boolean temp = true;
+        if(temp) titles.add(presetTitles[TODAY]);
+        if(temp) titles.add(presetTitles[UPCOMING]);
+        if(temp) titles.add(presetTitles[OVERDUE]);
+        if(temp) titles.add(presetTitles[DIVIDER]);
+        if(temp) titles.add(presetTitles[COMPLETED]);
+        if(temp) titles.add(presetTitles[ALL_TASKS]);
+        if(temp) titles.add(presetTitles[UNASSIGNED]);
+        if(temp) titles.add(presetTitles[DIVIDER]);
+
         return titles;
     }
 
@@ -456,6 +456,31 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
         });
     }
 
+    private int tagFromPosition(int position) {
+
+        try {
+            switch (titles.get(position - 1)) {
+                case "Today":
+                    return TODAY;
+                case "Upcoming":
+                    return UPCOMING;
+                case "Overdue":
+                    return OVERDUE;
+                case "Completed":
+                    return COMPLETED;
+                case "All Tasks":
+                    return ALL_TASKS;
+                case "Unassigned":
+                    return UNASSIGNED;
+                default:
+                    return 0;
+            }
+        } catch (Exception e) {
+            Log.e("tagFromPosition", e.getMessage());
+            return 0;
+        }
+    }
+
     private void selectPosition(int position) {
 
         // Mark new position as selected
@@ -464,34 +489,33 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
 
         // Update Data
         //loadQueryToDisplay(prepareDataQuery(position), useSmallTiles(position));
-        if(!handleFragmentTransaction(position)) {
+        if(!handleFragmentTransaction(tagFromPosition(position))) {
             if(activeFragment != null) activeFragment.doQuery();
         }
 
         // Update UI components to match selection
         setTitle(getTitle(position)); // header off-by-one issue
-        updateDateButton(position);
         updateToolbarMenu(position);
         drawerLayout.closeDrawer(findViewById(R.id.scrimInsetsFrameLayout));
 
     }
 
-    private boolean handleFragmentTransaction(int position) {
+    private boolean handleFragmentTransaction(int tag) {
         FragmentManager fragmentManager = getFragmentManager();
 
         // Check if we already have an active fragment
         Fragment existingFragment = fragmentManager.findFragmentById(R.id.fragment_container);
-        if (existingFragment == null || !existingFragment.getTag().equals(getFragmentTagByPosition(position)))
+        if (existingFragment == null || !existingFragment.getTag().equals(getFragmentTagByActivityTag(tag)))
         {
             Log.d("handleFragTransaction", "Replacing with new fragment");
 
             // I guess we need to add a new fragment
-            activeFragment = DashboardFragment.newInstance(getFragmentTagByPosition(position),
-                    prepareDataQuery(position));
+            activeFragment = DashboardFragment.newInstance(getFragmentTagByActivityTag(tag),
+                    prepareDataQuery(tag));
 
             // Display the fragment as the main content.
             fragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, activeFragment, getFragmentTagByPosition(position))
+                    .replace(R.id.fragment_container, activeFragment, getFragmentTagByActivityTag(tag))
                     .commit();
 
             return true;
@@ -500,62 +524,49 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
         else return false;
     }
 
-    private String getFragmentTagByPosition(int position) {
+    private String getFragmentTagByActivityTag(int position) {
         switch(position) {
-            case 1: return DashboardFragment.INBOX;
-            case 2: return DashboardFragment.UPCOMING;
-            case 3: return DashboardFragment.COMPLETED;
-            case 4: return DashboardFragment.ALL_TASKS;
-            case 5: return DashboardFragment.UNASSIGNED;
-            default: return DashboardFragment.OTHER_LIST;
+            case TODAY:         return DashboardFragment.TODAY;
+            case UPCOMING:      return DashboardFragment.UPCOMING;
+            case OVERDUE:       return DashboardFragment.OVERDUE;
+            case COMPLETED:     return DashboardFragment.COMPLETED;
+            case ALL_TASKS:     return DashboardFragment.ALL_TASKS;
+            case UNASSIGNED:    return DashboardFragment.UNASSIGNED;
+            default:            return DashboardFragment.OTHER_LIST;
 
         }
     }
-
 
     private String getTitle(int position) {
         try {
             return titles.get(position - 1);
         } catch (IndexOutOfBoundsException e) {
             Log.e("getTitle", e.getMessage());
-            return null;
-        }
-    }
-
-    private void updateDateButton(int position) {
-        ImageButton dateButton = (ImageButton) findViewById(R.id.calendar_button);
-        if(position <= 2) {
-            dateButton.setVisibility(View.GONE);
-        } else {
-            dateButton.setVisibility(View.VISIBLE);
+            return "Bounce";
         }
     }
 
     private void updateToolbarMenu(int position) {
         toolbar.getMenu().clear();
-        if(position < 6) {
+        if(position <= titles.indexOf("Unassigned")) {
             toolbar.inflateMenu(R.menu.menu_dashboard);
-        } else if (position > 6) {
+        } else {
             toolbar.inflateMenu(R.menu.menu_list);
         }
     }
 
-    private int[] prepareListIcons() {
-        /*return new int[] {
-                R.drawable.ic_drawer_inbox,
-                R.drawable.ic_drawer_upcoming,
-                R.drawable.ic_drawer_completed,
-                R.drawable.ic_drawer_alltasks,
-                R.drawable.ic_drawer_unassigned
-        };*/
+    private HashMap<String, Integer> prepareListIcons() {
+        HashMap<String, Integer> icons = new HashMap<>();
 
-        return new int[] {
-                R.drawable.ic_drawer_inbox,
-                R.drawable.ic_drawer_upcoming,
-                R.drawable.ic_done_all_grey600_24dp,
-                R.drawable.ic_view_headline_grey600_24dp,
-                R.drawable.ic_label_outline_grey600_24dp
-        };
+
+        icons.put("Today", R.drawable.ic_drawer_inbox);
+        icons.put("Upcoming", R.drawable.ic_drawer_upcoming);
+        icons.put("Overdue", R.drawable.ic_drawer_overdue);
+        icons.put("Completed", R.drawable.ic_drawer_completed);
+        icons.put("All Tasks", R.drawable.ic_drawer_all_tasks);
+        icons.put("Unassigned", R.drawable.ic_drawer_unassigned);
+        return icons;
+
     }
 
     private void updateUIcolors(int position){
@@ -608,7 +619,8 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
 
     }
 
-    private ParseQuery<Task> prepareDataQuery(int position) {
+    private ParseQuery<Task> prepareDataQuery(int tag) {
+        Log.d("prepareDataQuery", "Preparing query for tag " + tag);
 
         // Get the basic query
         ParseQuery<Task> query = Task.getQuery()
@@ -626,11 +638,15 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
         yesterday.add(Calendar.DAY_OF_MONTH, -1);
 
         // Handle special case for 'Today'
-        if(position == TODAY) {
+        if(tag == TODAY) {
             ParseQuery<Task> overdue = Task.getQuery()
+                    .fromLocalDatastore()
+                    .whereEqualTo("user", ParseUser.getCurrentUser())
                     .whereLessThanOrEqualTo("deadline", midnight.getTime())
                     .whereEqualTo("done", false);
             ParseQuery<Task> current = Task.getQuery()
+                    .fromLocalDatastore()
+                    .whereEqualTo("user", ParseUser.getCurrentUser())
                     .whereGreaterThan("deadline", yesterday.getTime())
                     .whereLessThanOrEqualTo("deadline", midnight.getTime());
             List<ParseQuery<Task>> queries = new ArrayList<>();
@@ -647,15 +663,17 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
         //query.whereEqualTo("done", false);
 
         // Handle non-1 cases
-        switch(position) {
+        switch(tag) {
             case UPCOMING: return query.whereGreaterThan("deadline", midnight.getTime());
-            case ARCHIVE: return query.whereEqualTo("done", true)
-                        .whereLessThanOrEqualTo("deadline", yesterday.getTime());
-            case 4: return query.orderByDescending("deadline");
-            case 5: return query.whereEqualTo("parent", null)
+            case OVERDUE: return query.whereLessThanOrEqualTo("deadline", yesterday.getTime())
+                    .whereEqualTo("done", false);
+            case COMPLETED: return query.whereEqualTo("done", true);
+                        //.whereLessThanOrEqualTo("deadline", yesterday.getTime());
+            case ALL_TASKS: return query.orderByDescending("deadline");
+            case UNASSIGNED: return query.whereEqualTo("parent", null)
                         .orderByDescending("deadline")
                         .whereEqualTo("done", false);
-            default: TaskList parseList = localListQueryByName(getTitle(position));
+            default: TaskList parseList = localListQueryByName(getTitle(tag));
                 return query.whereEqualTo("parent", parseList)
                         .whereEqualTo("done", false);
         }
@@ -663,7 +681,7 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
 
     private void addExtraViews() {
 
-        int[] icons = prepareListIcons();
+        HashMap<String, Integer> icons = prepareListIcons();
 
         // Header view
         LayoutInflater inflater = getLayoutInflater();
@@ -671,21 +689,22 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
         displayUserData(header);
         drawerList.addHeaderView(header, null, false);
 
-        // Add the 5 presets
-        for(int i = 0; i < 5; ++i) {
-            ViewGroup preset = (ViewGroup) inflater.inflate(R.layout.drawer_item_view, drawerList, false);
-            ImageView icon = (ImageView) preset.findViewById(R.id.list_icon);
-            TextView name = (TextView) preset.findViewById(R.id.list_name);
-            icon.setImageDrawable(getResources().getDrawable(icons[i]));
-            name.setText(presetTitles[i]);
-            name.setTextColor(makeColorStateListForItem(i));
-            drawerList.addHeaderView(preset, null, true);
+        // Add the presets
+        for(String s : titles) {
+            if(!s.equals("Divider")) {
+                ViewGroup preset = (ViewGroup) inflater.inflate(R.layout.drawer_item_view, drawerList, false);
+                ImageView icon = (ImageView) preset.findViewById(R.id.list_icon);
+                TextView name = (TextView) preset.findViewById(R.id.list_name);
+                icon.setImageDrawable(getResources().getDrawable(icons.get(s)));
+                name.setText(s);
+                name.setTextColor(makeColorStateListForItem(1));
+                drawerList.addHeaderView(preset, null, true);
+            } else {
+                ViewGroup divider = (ViewGroup) inflater.inflate(R.layout.drawer_divider, drawerList, false);
+                drawerList.addHeaderView(divider, null, false);
+            }
         }
 
-
-        // Add header divider
-        ViewGroup divider = (ViewGroup) inflater.inflate(R.layout.drawer_divider, drawerList, false);
-        drawerList.addHeaderView(divider, null, false);
 
         // Add footer divider
         //ViewGroup divider2 = (ViewGroup) inflater.inflate(R.layout.drawer_divider, drawerList, false);
@@ -765,9 +784,9 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
     /**
      *  onClickListener class for FloatingActionButton
      */
-    private class FloatingActionButtonListener implements View.OnClickListener {
+    private class FloatingActionButtonListener implements View.OnClickListener, View.OnLongClickListener {
         @Override
-        public void onClick(View v) {
+        public boolean onLongClick(View v) {
 
             LinearLayout addBox = (LinearLayout) findViewById(R.id.add_box);
             editText = (EditText) findViewById(R.id.task_name_edittext);
@@ -793,11 +812,25 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
             }
 
             showingInput = !showingInput;
+
+            return true;
+        }
+
+        @Override
+        public void onClick(View v) {
+
+            if(showingInput) {
+                onLongClick(v);
+            } else {
+                Task task = new Task("New Task");
+                saveNewTask(task);
+                launchActivityFromTask(task);
+            }
         }
     }
 
     public void onRefresh() {
-        loadFromParse();
+        queryTasksFromServer();
     }
 
     /**
@@ -841,21 +874,28 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
     private void saveNewTask(Task task) {
 
         // Special task circumstances
-        if(selectedPosition == 1) {
+        if(selectedPosition == TODAY) {
             task.setDeadline(new GregorianCalendar());
-        } else if (selectedPosition == 2) {
+        } else if (selectedPosition == UPCOMING) {
             GregorianCalendar c = new GregorianCalendar();
             c.add(Calendar.DATE, 1);
             task.setDeadline(c);
-        }
-        if(selectedPosition == 3) {
+        } else if(selectedPosition == COMPLETED) {
             task.setDone(true);
+        } else if(selectedPosition == OVERDUE) {
+            GregorianCalendar c = new GregorianCalendar();
+            c.add(Calendar.DATE, -1);
+            task.setDeadline(c);
         }
 
         Log.d("saveNewTask", task.getFullDeadline());
         task.pinInBackground(TASKS_LABEL, new TaskSaveListener(task));
 
         if(getActiveAdapter() != null) getActiveAdapter().addElement(task);
+
+        if(getActiveAdapter() != null && getActiveAdapter().getItemCount() == 1 && activeFragment != null) {
+            activeFragment.showEmptyView(false);
+        }
 
     }
 
@@ -967,12 +1007,11 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
 
     }
 
-    private void loadFromParse() {
+    private void queryTasksFromServer() {
 
         // query tasks
         ParseQuery<Task> query = Task.getQuery();
         query.whereEqualTo("user", ParseUser.getCurrentUser());
-        query.orderByAscending("completed,deadline");
 
         // Find our tasks from the server
         query.findInBackground(new FindCallback<Task>() {
@@ -980,80 +1019,58 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
 
                 // If no error
                 if (e == null) {
-                    // Remove all the previously pinned tasks before adding the new ones
-                    ParseObject.unpinAllInBackground(TASKS_LABEL, new DeleteCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (e != null) {
-                                endRefresh();
-                                return;
-                            }
 
-                            // Add all the new tasks we brought down from the server
-                            ParseObject.pinAllInBackground(TASKS_LABEL, tasks,
-                                    new SaveCallback() {
-                                        public void done(ParseException e) {
-                                            if (e != null) {
-                                                Log.i("ParseTaskListActivity",
-                                                        "Error pinning tasks: "
-                                                                + e.getMessage());
-                                                endRefresh();
-                                            }
-                                            // Do lists next
-                                            loadListsFromParse();
-                                        }
-                                    });
-                        }
-                    });
+                    // Add all the new tasks we brought down from the server
+                    ParseObject.pinAllInBackground(TASKS_LABEL, tasks,
+                            new SaveCallback() {
+                                public void done(ParseException e) {
+                                    if (e != null) {
+                                        Log.i("queryTasksFromServer()", "Error pinning tasks" + e.getMessage());
+                                    }
+
+                                    // End the visible refresh, then do lists
+                                    endRefresh();
+                                    queryListsFromServer();
+                                }
+                            });
+
                 } else {
-                    Log.i("ParseTaskListActivity",
-                            "loadFromParse: Error finding pinned tasks: "
-                                    + e.getMessage());
-
+                    Log.i("queryTasksFromServer()", "Error querying server" + e.getMessage());
                     endRefresh();
                 }
             }
         });
     }
 
-    private void loadListsFromParse() {
+    private void queryListsFromServer() {
         // query lists
         ParseQuery<TaskList> query = TaskList.getQuery();
         query.whereEqualTo("user", ParseUser.getCurrentUser());
-        query.orderByAscending("createdAt");
         query.findInBackground(new FindCallback<TaskList>() {
             @Override
             public void done(final List<TaskList> list, ParseException e) {
                 // If no error
                 if (e == null) {
-                    // Remove all the previously pinned tasks before adding the new ones
-                    ParseObject.unpinAllInBackground(LISTS_LABEL, new DeleteCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (e != null) {
-                                endRefresh();
-                                return;
-                            }
 
-                            // Add all the new tasks we brought down from the server
-                            ParseObject.pinAllInBackground(LISTS_LABEL, list,
-                                    new SaveCallback() {
-                                        public void done(ParseException e) {
-                                            if (e != null) {
-                                                Log.i("TaskList Query",
-                                                        "Error pinning ParseLists: "
-                                                                + e.getMessage());
-                                            }
 
-                                            endRefresh();
-                                            refreshListTitles();
-                                        }
-                                    });
-                        }
-                    });
+                    // Add all the new tasks we brought down from the server
+                    ParseObject.pinAllInBackground(LISTS_LABEL, list,
+                            new SaveCallback() {
+                                public void done(ParseException e) {
+                                    if (e != null) {
+                                        Log.i("TaskList Query",
+                                                "Error pinning ParseLists: "
+                                                        + e.getMessage());
+                                    }
+
+                                    endRefresh();
+                                    refreshListTitles();
+                                }
+                            });
+
                 } else {
                     Log.i("TaskList",
-                            "loadFromParse: Error finding pinned ParseTasks: "
+                            "queryTasksFromServer: Error finding pinned ParseTasks: "
                                     + e.getMessage());
                     endRefresh();
                 }
@@ -1068,20 +1085,5 @@ public class Dashboard extends BounceActivity implements Toolbar.OnMenuItemClick
             activeFragment.doQuery();
         }
 
-    }
-
-
-    private void loadQueryToDisplay(ParseQuery<Task> query, final boolean smallTiles) {
-        query.findInBackground(new FindCallback<Task>() {
-            @Override
-            public void done(List<Task> list, ParseException e) {
-                if(e == null) {
-                    getActiveAdapter().setUseSmallTiles(smallTiles);
-                    getActiveAdapter().replaceData(list);
-                } else {
-                    Log.e("ParseQuery", "Error:" + e.getMessage());
-                }
-            }
-        });
     }
 }

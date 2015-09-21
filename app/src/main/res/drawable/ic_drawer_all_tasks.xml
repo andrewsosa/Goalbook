@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_activated="true">
-        <bitmap android:src="@drawable/ic_access_time_black_24dp"
+        <bitmap android:src="@drawable/ic_view_headline_grey600_24dp"
             android:tint="@color/icon_active"/>
     </item>
     <item android:state_activated="false">
-        <bitmap android:src="@drawable/ic_access_time_black_24dp"
+        <bitmap android:src="@drawable/ic_view_headline_grey600_24dp"
             android:tint="@color/grey_600"/>
     </item>
 </selector>

@@ -5,111 +5,6 @@
     android:layout_height="match_parent"
     tools:context="com.andrewsosa.bounce.TaskViewActivity">
 
-    <!--<RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="226dp"
-        android:background="@color/primary"
-        android:id="@+id/color_panel">
-
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/my_toolbar"
-            android:layout_height="?android:attr/actionBarSize"
-            android:layout_width="match_parent"
-            android:contentInsetStart="72dp"
-            android:contentInsetLeft="72dp"
-            app:contentInsetLeft="72dp"
-            app:contentInsetStart="72dp"
-            android:contentInsetEnd="16dp"
-            android:contentInsetRight="16dp"
-            app:contentInsetEnd="16dp"
-            app:contentInsetRight="16dp"/>
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="160dp"
-            android:paddingStart="72dp"
-            android:paddingEnd="16dp"
-            android:id="@+id/name_wrapper"
-            android:layout_below="@+id/my_toolbar">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="80dp"
-                android:orientation="vertical"
-                android:layout_gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <com.rengwuxian.materialedittext.MaterialEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/task_name"
-                    android:hint="Name"
-                    android:text="Task Name"
-                    android:textSize="34sp"
-                    app:met_baseColor="@android:color/white"
-                    app:met_floatingLabel="highlight"
-                    app:met_primaryColor="?colorAccent"
-                    app:met_singleLineEllipsis="true"
-                    android:imeOptions="actionDone"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="vertical"
-                android:layout_gravity="center_vertical"
-                android:layout_height="wrap_content"
-                android:minHeight="72dp">
-
-                <com.rengwuxian.materialedittext.MaterialEditText
-                    android:layout_width="216dp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/dateDisplay"
-                    android:hint="Deadline"
-                    android:text="April 26th, 2015"
-                    app:met_baseColor="@android:color/white"
-                    app:met_floatingLabel="highlight"
-                    app:met_primaryColor="?colorAccent"
-                    android:editable="false"
-                    android:clickable="false"
-                    app:met_singleLineEllipsis="true"/>
-
-            </LinearLayout>
-
-
-        </LinearLayout>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/content_container"
-        android:layout_below="@+id/color_panel">
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="@color/background"
-            android:elevation="4dp"
-            android:layout_below="@+id/name_wrapper"
-            android:id="@+id/content_wrapper">
-
-            <include
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                layout="@layout/item_details" />
-
-        </LinearLayout>
-
-
-    </RelativeLayout> -->
-
     <RelativeLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -141,12 +36,23 @@
             android:layout_marginRight="@dimen/fab_margin"
             android:layout_marginBottom="-28dp"
             android:layout_alignBottom="@+id/content_header" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/edit_fab_done"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_done_white_24dp"
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentEnd="true"
+            app:elevation="12dp"
+            app:borderWidth="0dp"
+            android:tint="@color/green_500"
+            android:layout_marginRight="@dimen/fab_margin"
+            android:layout_marginBottom="-28dp"
+            android:layout_alignBottom="@+id/content_header"
+            android:visibility="invisible"
+            android:clickable="false" />
     </RelativeLayout>
 
-    <View android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:background="@color/green_500"
-        android:id="@+id/splash_done"
-        android:visibility="invisible" />
-
 </RelativeLayout>
+

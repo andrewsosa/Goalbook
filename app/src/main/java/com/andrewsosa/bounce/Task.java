@@ -232,8 +232,7 @@ public class Task extends ParseObject implements Serializable, Parcelable {
     }
 
     public static ParseQuery<Task> getQuery() {
-        return ParseQuery.getQuery(Task.class)
-                .whereEqualTo("user", ParseUser.getCurrentUser());
+        return ParseQuery.getQuery(Task.class);
     }
     
     
