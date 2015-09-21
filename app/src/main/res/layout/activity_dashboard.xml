@@ -32,6 +32,7 @@
                 app:contentInsetStart="72dp"
                 android:background="@color/primary"
                 app:titleTextAppearance="@style/ToolbarTitle"
+                app:theme="@style/AppTheme.Toolbar"
                 android:elevation="2dp" />
 
             <!-- Add box here-->
@@ -60,12 +61,6 @@
                     android:imeOptions="actionDone"
                     android:layout_weight="1" />
 
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/calendar_button"
-                    android:src="@drawable/ic_event_grey600_24dp"
-                    android:background="@android:color/transparent" />
             </LinearLayout>
 
 

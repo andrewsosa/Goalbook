@@ -48,6 +48,13 @@
         <item name="android:textSize">20sp</item>
     </style>
 
+    <style name="AppTheme.Toolbar" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primaryDark</item>
+        <item name="android:textColorPrimary">@color/primaryTextLight</item>
+        <item name="android:textColorSecondary">@color/primaryTextLight</item>
+    </style>
+
 
 
 </resources>

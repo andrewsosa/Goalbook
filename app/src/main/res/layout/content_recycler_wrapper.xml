@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@color/background"
     android:elevation="4dp"
@@ -9,28 +9,39 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <RelativeLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:visibility="gone">
+        android:layout_height="match_parent"
+        android:gravity="center_vertical|center_horizontal"
+        android:visibility="invisible"
+        android:id="@+id/empty_view">
+
+        <ImageView
+            android:layout_width="144dp"
+            android:layout_height="144dp"
+            android:id="@+id/imageView3"
+            android:src="@drawable/ic_mood_grey600_48dp"
+            android:scaleType="fitCenter"
+            android:layout_marginBottom="16dp" />
 
         <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:id="@+id/date_text"
-            android:text="January 01"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:textSize="14sp"
-            android:fontFamily="sans-serif-medium" />
-
-    </RelativeLayout>
+            android:text="No tasks in this view"
+            android:id="@+id/textView6"
+            android:textSize="18sp" />
+    </LinearLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="0dp">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/primary_recycler"
@@ -42,6 +53,6 @@
     </android.support.v4.widget.SwipeRefreshLayout>
 
 
-</LinearLayout>
+</RelativeLayout>
 
 

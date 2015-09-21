@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".Dashboard">
-    <item android:id="@+id/action_search_list" android:title="Search"
+    <!--<item android:id="@+id/action_search_list" android:title="Search"
         android:icon="@drawable/ic_search_white_24dp"
-        android:orderInCategory="100" app:showAsAction="ifRoom" />
+        android:orderInCategory="100" app:showAsAction="ifRoom" /> -->
     <item android:id="@+id/action_rename_list" android:title="Rename"
         android:icon="@drawable/ic_edit_white_24dp"
         android:orderInCategory="102" app:showAsAction="never"/>

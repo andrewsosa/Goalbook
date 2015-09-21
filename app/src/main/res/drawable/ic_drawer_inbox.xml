@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_inbox_grey600_24dp"
-        android:state_checked="false"/>
-    <item android:drawable="@drawable/ic_inbox_black_24dp"
-        android:state_checked="true"/>
+    <item android:state_activated="true">
+        <bitmap android:src="@drawable/ic_inbox_grey600_24dp"
+            android:tint="@color/icon_active"/>
+    </item>
+    <item android:state_activated="false">
+        <bitmap android:src="@drawable/ic_inbox_grey600_24dp"
+            android:tint="@color/grey_600"/>
+    </item>
 </selector>

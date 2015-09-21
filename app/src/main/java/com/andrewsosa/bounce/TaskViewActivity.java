@@ -1,11 +1,9 @@
 package com.andrewsosa.bounce;
 
 import android.animation.Animator;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
@@ -14,16 +12,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.parse.DeleteCallback;
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.Calendar;
@@ -49,7 +48,11 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
             Color.WHITE,
             Color.WHITE
     };
+
+
+
     ColorStateList fabStates = new ColorStateList(states, colors);
+    //ColorStateList doneStates = new ColorStateList(states, colors2);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,26 +83,7 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
         toolbar.setOnMenuItemClickListener(this);
         toolbar.setTitleTextColor(getResources().getColor(R.color.abc_primary_text_material_dark));
         toolbar.setNavigationIcon(R.drawable.ic_clear_white_24dp);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if(task == null){
-                    Intent data = new Intent();
-                    setResult(RESULT_MISSING_TASK, data);
-                    TaskViewActivity.this.finish();
-                } else {
-
-                    TextView taskName = (TextView) findViewById(R.id.task_name);
-                    task.setName(taskName.getText().toString());
-                    task.pinInBackground(new TaskSaveListener(task));
-
-                    Intent data = new Intent();
-                    setResult(RESULT_OK, data);
-                    TaskViewActivity.this.finish();
-                }
-            }
-        });
+        toolbar.setNavigationOnClickListener(new FinishActivityListener());
         toolbar.requestFocus();
 
         // Setup listener for deadline selection
@@ -129,54 +113,11 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
 
         // Floating Action butt
         FloatingActionButton editButton = (FloatingActionButton) findViewById(R.id.edit_fab);
+        final FloatingActionButton completeFAB = (FloatingActionButton) findViewById(R.id.edit_fab_done);
         editButton.setBackgroundTintList(fabStates);
-        //editButton.setRippleColor(getResources().getColor(R.color.green_500));
-        editButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // previously invisible view
-                View myView = findViewById(R.id.splash_done);
-
-                // get the center for the clipping circle
-                int cx = (myView.getLeft() + myView.getRight()) / 2;
-                int cy = (myView.getTop() + myView.getBottom()) / 2;
-
-                // get the final radius for the clipping circle
-                int finalRadius = Math.max(myView.getWidth(), myView.getHeight());
-
-                // create the animator for this view (the start radius is zero)
-                Animator anim =
-                        ViewAnimationUtils.createCircularReveal(myView, cx, cy, 0, finalRadius);
-
-                // make the view visible and start the animation
-                myView.setVisibility(View.VISIBLE);
-                anim.start();
-                anim.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        finish();
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
-                    }
-                });
-
-            }
-        });
-
+        editButton.setOnClickListener(new DoneFABListener());
+        completeFAB.setOnClickListener(new DoneFABListener());
+        //completeFAB.setBackgroundTintList(doneStates);
 
 
     }
@@ -207,7 +148,7 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
 
     public void receiveDate(int y, int m, int d) {
         TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
-        task.setDeadline(y, m ,d);
+        task.setDeadline(y, m, d);
         task.pinInBackground(new TaskSaveListener(task));
         deadlineText.setText(task.getDeadlineAsDateString());
     }
@@ -228,8 +169,23 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
             TextView deadlineText2 = (TextView) findViewById(R.id.dateDisplay);
             deadlineText2.setText(task.getDeadlineAsLongDateString());
             if(task.timeSpecified()) deadlineText.setText(task.getDeadlineAsTime());
-            TextView listText = (TextView) findViewById(R.id.listText);
+            final TextView listText = (TextView) findViewById(R.id.listText);
             listText.setText(task.getParentListAsString());
+            View completeFAB = findViewById(R.id.edit_fab_done);
+            if(task.isDone()) completeFAB.setVisibility(View.VISIBLE);
+
+            ParseQuery<TaskList> query = TaskList.getQuery();
+            query.fromLocalDatastore();
+            query.whereEqualTo("user", ParseUser.getCurrentUser());
+            query.orderByAscending("createdAt");
+            query.findInBackground(new FindCallback<TaskList>() {
+                @Override
+                public void done(List<TaskList> list, ParseException e) {
+                    prepareListener(listText, list);
+                }
+            });
+
+
         } catch (Exception e) {
             Toast.makeText(this, "An error has occured; task not found.", Toast.LENGTH_SHORT).show();
             Log.e("updateFields()", e.getMessage());
@@ -277,7 +233,28 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
                     @Override
                     public void onPositive(MaterialDialog dialog) {
 
-                        task.deleteEventually();
+                        task.unpinInBackground(new DeleteCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e != null) {
+                                    Log.e("unpinInBackground", e.getMessage());
+                                } else {
+                                    Log.d("unpinInBackground", "Successful unpin.");
+                                }
+                            }
+                        });
+                        task.deleteEventually(new DeleteCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e != null) {
+                                    Log.e("deleteEventually", e.getMessage());
+                                    Log.e("deleteEventually", "Attempting second unpin.");
+                                    task.unpinInBackground();
+                                } else {
+                                    Log.d("deleteEventually", "Successful delete.");
+                                }
+                            }
+                        });
                         setResult(RESULT_DELETE_TASK);
 
                         TaskViewActivity.this.finish();
@@ -285,7 +262,7 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
 
                     @Override
                     public void onNegative(MaterialDialog dialog) {
-                        Toast.makeText(TaskViewActivity.this, "Object will not be deleted", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(TaskViewActivity.this, "Object will not be deleted", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .show();
@@ -384,6 +361,97 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
                 Toast.makeText(getApplicationContext(),
                         "Error saving: " + e.getMessage(),
                         Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private class DoneFABListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+
+            final View completeFAB = findViewById(R.id.edit_fab_done);
+
+
+            if(!task.isDone()) {
+
+                task.setDone(true);
+
+                // get the center for the clipping circle
+                int cx = (completeFAB.getLeft() + completeFAB.getRight()) / 2;
+                int cy = (completeFAB.getTop() + completeFAB.getBottom()) / 2;
+
+                // get the final radius for the clipping circle
+                int finalRadius = Math.max(completeFAB.getWidth(), completeFAB.getHeight());
+
+                // create the animator for this view (the start radius is zero)
+                Animator anim =
+                        ViewAnimationUtils.createCircularReveal(completeFAB, cx, cy, 0, finalRadius);
+
+                // make the view visible and start the animation
+                completeFAB.setVisibility(View.VISIBLE);
+                anim.start();
+                anim.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        new FinishActivityListener().onClick(completeFAB);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+
+            } else {
+                task.setDone(false);
+
+                // get the center for the clipping circle
+                int cx = (completeFAB.getLeft() + completeFAB.getRight()) / 2;
+                int cy = (completeFAB.getTop() + completeFAB.getBottom()) / 2;
+
+                // get the final radius for the clipping circle
+                int finalRadius = Math.max(completeFAB.getWidth(), completeFAB.getHeight());
+
+                // create the animator for this view (the start radius is zero)
+                Animator anim =
+                        ViewAnimationUtils.createCircularReveal(completeFAB, cx, cy, finalRadius, 0);
+
+                // make the view visible and start the animation
+                completeFAB.setVisibility(View.INVISIBLE);
+                anim.start();
+
+            }
+
+        }
+    }
+
+    private class FinishActivityListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+
+            if(task == null){
+                Intent data = new Intent();
+                setResult(RESULT_MISSING_TASK, data);
+                TaskViewActivity.this.finish();
+            } else {
+
+                TextView taskName = (TextView) findViewById(R.id.task_name);
+                task.setName(taskName.getText().toString());
+                task.pinInBackground(new TaskSaveListener(task));
+
+                Intent data = new Intent();
+                setResult(RESULT_OK, data);
+                TaskViewActivity.this.finish();
             }
         }
     }
