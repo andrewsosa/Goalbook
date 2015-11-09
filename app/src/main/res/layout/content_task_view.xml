@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_done_24dp"
-            android:tint="@color/white"
+            android:tint="@color/grey_white_1000"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="false"
             app:elevation="12dp"

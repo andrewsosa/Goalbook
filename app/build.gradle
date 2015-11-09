@@ -32,7 +32,6 @@ dependencies {
     compile 'com.firebase:firebase-client-android:2.4.0+'
     compile 'com.firebaseui:firebase-ui:0.2.2'
 
-    //compile 'com.melnykov:floatingactionbutton:1.1.0'
     compile 'com.afollestad:material-dialogs:0.7.5.5'
     compile 'com.rengwuxian.materialedittext:library:2.1.4'
     compile 'com.yqritc:recyclerview-flexibledivider:1.2.6'
