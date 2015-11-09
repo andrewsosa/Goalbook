@@ -2,8 +2,8 @@ package com.andrewsosa.bounce;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.os.Parcelable;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,17 +13,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
 
 
 /**
@@ -49,7 +45,7 @@ public class DashboardFragment extends Fragment implements
     public static final String OTHER_LIST = "TAG_OTHER_LIST";
 
     private String mTag;
-    private ParseQuery<Task> query;
+    private ParseQuery<ParseTask> query;
     private OnTaskInteractionListener mListener;
     private TaskRecyclerAdapterBase mAdapter;
 
@@ -67,7 +63,7 @@ public class DashboardFragment extends Fragment implements
      * @return A new instance of fragment DashboardFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static DashboardFragment newInstance(String tag, ParseQuery<Task> query) {
+    public static DashboardFragment newInstance(String tag, ParseQuery<ParseTask> query) {
         DashboardFragment fragment = new DashboardFragment();
         fragment.setQuery(query);
         Bundle args = new Bundle();
@@ -114,7 +110,7 @@ public class DashboardFragment extends Fragment implements
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify my base adapter
-        mAdapter = new TaskRecyclerAdapterBase(new ArrayList<Task>(), this);
+        mAdapter = new TaskRecyclerAdapterBase(new ArrayList<ParseTask>(), this);
 
         TaskRecyclerAdapterSectioned mSectionedAdapter =
                 new TaskRecyclerAdapterSectioned(getActivity(), R.layout.recycler_tile_subheader,
@@ -133,12 +129,12 @@ public class DashboardFragment extends Fragment implements
             ArrayList<? extends Parcelable> parcelables =
                     savedInstanceState.getParcelableArrayList("tasks");
             if(parcelables != null) {
-                ArrayList<Task> tasks = new ArrayList<>();
+                ArrayList<ParseTask> parseTasks = new ArrayList<>();
                 try {
                     for (Object o : parcelables) {
-                        tasks.add((Task) o);
+                        parseTasks.add((ParseTask) o);
                     }
-                    mAdapter.replaceData(tasks);
+                    mAdapter.replaceData(parseTasks);
                 } catch (Exception e) {
                     Log.e("Type Error", "Error converting Parcelables to Tasks");
                 }
@@ -151,7 +147,7 @@ public class DashboardFragment extends Fragment implements
 
     }
 
-    public List<SimpleSectionedRecyclerViewAdapter.Section> detectSections(List<Task> dataset) {
+    public List<SimpleSectionedRecyclerViewAdapter.Section> detectSections(List<ParseTask> dataset) {
         List<SimpleSectionedRecyclerViewAdapter.Section> sections =
                 new ArrayList<SimpleSectionedRecyclerViewAdapter.Section>();
 
@@ -161,21 +157,21 @@ public class DashboardFragment extends Fragment implements
         return sections;
     }
 
-    public void setQuery(ParseQuery<Task> query) {
+    public void setQuery(ParseQuery<ParseTask> query) {
         this.query = query;
     }
 
-    public void onTaskSelect(Task task) {
+    public void onTaskSelect(ParseTask parseTask) {
         if (mListener != null) {
-            mAdapter.setActiveElementFromTask(task);
-            mListener.launchActivityFromTask(task);
+            mAdapter.setActiveElementFromTask(parseTask);
+            mListener.launchActivityFromTask(parseTask);
         }
     }
 
-    public void onTaskCheckboxInteraction(Task task) {
+    public void onTaskCheckboxInteraction(ParseTask parseTask) {
         if (mListener != null) {
-            // Have Dashboard handle saving
-            mListener.saveTask(task);
+            // Have DashboardActivity handle saving
+            mListener.saveTask(parseTask);
         }
     }
 
@@ -204,9 +200,9 @@ public class DashboardFragment extends Fragment implements
 
             try {
                 // Load the query results into list
-                query.findInBackground(new FindCallback<Task>() {
+                query.findInBackground(new FindCallback<ParseTask>() {
                     @Override
-                    public void done(List<Task> list, ParseException e) {
+                    public void done(List<ParseTask> list, ParseException e) {
                         if (e == null) {
                             if (list.size() == 0) {
                                 showEmptyView(true);
@@ -278,8 +274,8 @@ public class DashboardFragment extends Fragment implements
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnTaskInteractionListener {
-        void launchActivityFromTask(Task task);
-        void saveTask(Task task);
+        void launchActivityFromTask(ParseTask parseTask);
+        void saveTask(ParseTask parseTask);
         void onRefresh();
     }
 

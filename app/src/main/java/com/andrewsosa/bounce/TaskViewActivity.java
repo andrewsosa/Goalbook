@@ -1,6 +1,5 @@
 package com.andrewsosa.bounce;
 
-import android.animation.Animator;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -11,7 +10,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +30,7 @@ import java.util.List;
 public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuItemClickListener,
         DatePickerReceiver, TimePickerReceiver {
 
-    Task task;
+    ParseTask parseTask;
     String taskID;
 
     // State list for FAB
@@ -59,7 +57,7 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_view);
 
-        // Extract Task and retrieve
+        // Extract ParseTask and retrieve
         taskID = getIntent().getStringExtra("TaskID");
         queryTask(taskID);
 
@@ -79,21 +77,21 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
 
         // Toolbar craziness
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        toolbar.inflateMenu(R.menu.menu_item_view);
+        toolbar.inflateMenu(R.menu.task);
         toolbar.setOnMenuItemClickListener(this);
         toolbar.setTitleTextColor(getResources().getColor(R.color.abc_primary_text_material_dark));
-        toolbar.setNavigationIcon(R.drawable.ic_clear_white_24dp);
+        toolbar.setNavigationIcon(R.drawable.ic_close_24dp);
         toolbar.setNavigationOnClickListener(new FinishActivityListener());
         toolbar.requestFocus();
 
         // Setup listener for deadline selection
-        TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
+        TextView deadlineText = (TextView) findViewById(R.id.task_deadline);
         deadlineText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatePickerFragment newFragment = new DatePickerFragment();
-                newFragment.assignMethod(TaskViewActivity.this);
-                newFragment.passDate(task.getDeadline());
+                DatePickerFragment newFragment = DatePickerFragment.newInstance(TaskViewActivity.this);
+                //newFragment.setReceiver(TaskViewActivity.this);
+                newFragment.setDate(parseTask.getDeadline().getTime().getTime());
                 newFragment.show(getFragmentManager(), "datePicker");
             }
         });
@@ -106,31 +104,31 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
             public void onClick(View v) {
                 TimePickerFragment newFragment = new TimePickerFragment();
                 newFragment.assignMethod(TaskViewActivity.this);
-                newFragment.passTime(task.getDeadline());
+                newFragment.passTime(parseTask.getDeadline());
                 newFragment.show(getFragmentManager(), "timePicker");
             }
         });
 
         // Floating Action butt
         FloatingActionButton editButton = (FloatingActionButton) findViewById(R.id.edit_fab);
-        final FloatingActionButton completeFAB = (FloatingActionButton) findViewById(R.id.edit_fab_done);
+        //final FloatingActionButton completeFAB = (FloatingActionButton) findViewById(R.id.edit_fab_done);
         editButton.setBackgroundTintList(fabStates);
-        editButton.setOnClickListener(new DoneFABListener());
-        completeFAB.setOnClickListener(new DoneFABListener());
+        //editButton.setOnClickListener(new DoneFABListener());
+        //completeFAB.setOnClickListener(new DoneFABListener());
         //completeFAB.setBackgroundTintList(doneStates);
 
 
     }
 
     private void queryTask(String id) {
-        ParseQuery<Task> query = ParseQuery.getQuery("Task");
+        ParseQuery<ParseTask> query = ParseQuery.getQuery("ParseTask");
         query.fromLocalDatastore();
         query.whereEqualTo("uuid", id);
         try {
-            query.getFirstInBackground(new GetCallback<Task>() {
+            query.getFirstInBackground(new GetCallback<ParseTask>() {
                 @Override
-                public void done(Task task, ParseException e) {
-                    TaskViewActivity.this.task = task;
+                public void done(ParseTask parseTask, ParseException e) {
+                    TaskViewActivity.this.parseTask = parseTask;
                     updateFields();
                 }
             });
@@ -142,52 +140,52 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
     @Override
     protected void onResume() {
         super.onResume();
-        if (task != null) queryTask(task.getId());
+        if (parseTask != null) queryTask(parseTask.getId());
 
     }
 
     public void receiveDate(int y, int m, int d) {
-        TextView deadlineText = (TextView) findViewById(R.id.dateDisplay);
-        task.setDeadline(y, m, d);
-        task.pinInBackground(new TaskSaveListener(task));
-        deadlineText.setText(task.getDeadlineAsDateString());
+        TextView deadlineText = (TextView) findViewById(R.id.task_deadline);
+        parseTask.setDeadline(y, m, d);
+        parseTask.pinInBackground(new TaskSaveListener(parseTask));
+        deadlineText.setText(parseTask.getDeadlineAsDateString());
     }
 
     public void receiveTime(int h, int m) {
         TextView timeText = (TextView) findViewById(R.id.timeText);
-        task.setTime(h, m);
-        task.pinInBackground(new TaskSaveListener(task));
-        timeText.setText(task.getDeadlineAsTime());
+        parseTask.setTime(h, m);
+        parseTask.pinInBackground(new TaskSaveListener(parseTask));
+        timeText.setText(parseTask.getDeadlineAsTime());
     }
 
     private void updateFields() {
         try {
-            // Set up actual task stuff
+            // Set up actual parseTask stuff
             TextView taskName = (TextView) findViewById(R.id.task_name);
-            taskName.setText(task.getName());
+            taskName.setText(parseTask.getName());
             TextView deadlineText = (TextView) findViewById(R.id.timeText);
-            TextView deadlineText2 = (TextView) findViewById(R.id.dateDisplay);
-            deadlineText2.setText(task.getDeadlineAsLongDateString());
-            if(task.timeSpecified()) deadlineText.setText(task.getDeadlineAsTime());
+            TextView deadlineText2 = (TextView) findViewById(R.id.task_deadline);
+            deadlineText2.setText(parseTask.getDeadlineAsLongDateString());
+            if(parseTask.timeSpecified()) deadlineText.setText(parseTask.getDeadlineAsTime());
             final TextView listText = (TextView) findViewById(R.id.listText);
-            listText.setText(task.getParentListAsString());
-            View completeFAB = findViewById(R.id.edit_fab_done);
-            if(task.isDone()) completeFAB.setVisibility(View.VISIBLE);
+            listText.setText(parseTask.getParentListAsString());
+            //View completeFAB = findViewById(R.id.edit_fab_done);
+            //if(parseTask.isDone()) completeFAB.setVisibility(View.VISIBLE);
 
-            ParseQuery<TaskList> query = TaskList.getQuery();
+            ParseQuery<ParseTaskList> query = ParseTaskList.getQuery();
             query.fromLocalDatastore();
             query.whereEqualTo("user", ParseUser.getCurrentUser());
             query.orderByAscending("createdAt");
-            query.findInBackground(new FindCallback<TaskList>() {
+            query.findInBackground(new FindCallback<ParseTaskList>() {
                 @Override
-                public void done(List<TaskList> list, ParseException e) {
+                public void done(List<ParseTaskList> list, ParseException e) {
                     prepareListener(listText, list);
                 }
             });
 
 
         } catch (Exception e) {
-            Toast.makeText(this, "An error has occured; task not found.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "An error has occured; parseTask not found.", Toast.LENGTH_SHORT).show();
             Log.e("updateFields()", e.getMessage());
         }
     }
@@ -195,7 +193,7 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_item_view, menu);
+        getMenuInflater().inflate(R.menu.task, menu);
         return true;
     }
 
@@ -208,8 +206,8 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
 
         switch(id) {
             /*case R.id.action_complete:
-                Toast.makeText(TaskViewActivity.this, "Task marked complete.", Toast.LENGTH_SHORT).show();
-                task.setDone(true);
+                Toast.makeText(TaskViewActivity.this, "ParseTask marked complete.", Toast.LENGTH_SHORT).show();
+                parseTask.setDone(true);
                 finish();
                 return true;*/
             case R.id.action_delete:
@@ -226,14 +224,14 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
     private void launchDeleteDialog() {
 
         new MaterialDialog.Builder(this)
-                .content("Delete task?")
+                .content("Delete parseTask?")
                 .positiveText("Delete")
                 .negativeText("Cancel")
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
 
-                        task.unpinInBackground(new DeleteCallback() {
+                        parseTask.unpinInBackground(new DeleteCallback() {
                             @Override
                             public void done(ParseException e) {
                                 if (e != null) {
@@ -243,13 +241,13 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
                                 }
                             }
                         });
-                        task.deleteEventually(new DeleteCallback() {
+                        parseTask.deleteEventually(new DeleteCallback() {
                             @Override
                             public void done(ParseException e) {
                                 if (e != null) {
                                     Log.e("deleteEventually", e.getMessage());
                                     Log.e("deleteEventually", "Attempting second unpin.");
-                                    task.unpinInBackground();
+                                    parseTask.unpinInBackground();
                                 } else {
                                     Log.d("deleteEventually", "Successful delete.");
                                 }
@@ -283,27 +281,27 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
                     public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
                         switch (which) {
                             case 0:
-                                task.getDeadline().add(Calendar.DAY_OF_MONTH, 1);
+                                parseTask.getDeadline().add(Calendar.DAY_OF_MONTH, 1);
                                 break;
                             case 1:
-                                task.getDeadline().add(Calendar.DAY_OF_WEEK, 7);
+                                parseTask.getDeadline().add(Calendar.DAY_OF_WEEK, 7);
                                 break;
                             case 2:
-                                task.getDeadline().add(Calendar.MONTH, 1);
+                                parseTask.getDeadline().add(Calendar.MONTH, 1);
                         }
-                        task.pinInBackground(new TaskSaveListener(task));
+                        parseTask.pinInBackground(new TaskSaveListener(parseTask));
                     }
                 })
                 .show();
     }
 
-    private void prepareListener(final TextView listText, final List<TaskList> list) {
+    private void prepareListener(final TextView listText, final List<ParseTaskList> list) {
 
         String[] items = new String[list.size() + 1];
 
         int i = 1;
         items[0] = "Unassigned";
-        for(TaskList p : list) {
+        for(ParseTaskList p : list) {
             items[i] = p.toString();
             ++i;
         }
@@ -333,27 +331,27 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
         });
     }
 
-    private void assignList(TaskList list) {
-        task.setParentList(list);
+    private void assignList(ParseTaskList list) {
+        parseTask.setParentList(list);
     }
 
     public class TaskSaveListener implements SaveCallback {
 
-        Task task;
-        public TaskSaveListener(Task task) {
-            this.task = task;
+        ParseTask parseTask;
+        public TaskSaveListener(ParseTask parseTask) {
+            this.parseTask = parseTask;
         }
 
         @Override
         public void done(ParseException e) {
             if (e == null) {
-                task.saveEventually(new SaveCallback() {
+                parseTask.saveEventually(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
                         if (e != null) {
                             Log.e("TaskSaveListener", e.getMessage());
                         } else {
-                            Log.d("TaskSaveListener", "Uploaded " + task.toString());
+                            Log.d("TaskSaveListener", "Uploaded " + parseTask.toString());
                         }
                     }
                 });
@@ -365,16 +363,16 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
         }
     }
 
-    private class DoneFABListener implements View.OnClickListener {
+    /*private class DoneFABListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
 
             final View completeFAB = findViewById(R.id.edit_fab_done);
 
 
-            if(!task.isDone()) {
+            if(!parseTask.isDone()) {
 
-                task.setDone(true);
+                parseTask.setDone(true);
 
                 // get the center for the clipping circle
                 int cx = (completeFAB.getLeft() + completeFAB.getRight()) / 2;
@@ -413,7 +411,7 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
                 });
 
             } else {
-                task.setDone(false);
+                parseTask.setDone(false);
 
                 // get the center for the clipping circle
                 int cx = (completeFAB.getLeft() + completeFAB.getRight()) / 2;
@@ -433,26 +431,26 @@ public class TaskViewActivity extends BounceActivity implements Toolbar.OnMenuIt
             }
 
         }
-    }
+    } */
 
     private class FinishActivityListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
 
-            if(task == null){
+            if(parseTask == null){
                 Intent data = new Intent();
                 setResult(RESULT_MISSING_TASK, data);
                 TaskViewActivity.this.finish();
             } else {
 
                 TextView taskName = (TextView) findViewById(R.id.task_name);
-                task.setName(taskName.getText().toString());
-                task.pinInBackground(new TaskSaveListener(task));
+                parseTask.setName(taskName.getText().toString());
+                parseTask.pinInBackground(new TaskSaveListener(parseTask));
 
                 Intent data = new Intent();
                 setResult(RESULT_OK, data);
                 TaskViewActivity.this.finish();
             }
         }
-    }
+    } 
 }

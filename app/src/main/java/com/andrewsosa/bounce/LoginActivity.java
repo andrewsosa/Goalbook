@@ -2,23 +2,31 @@ package com.andrewsosa.bounce;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.firebase.client.AuthData;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
+// TODO clean up code
 
-public class LoginActivity extends ActionBarActivity {
+public class LoginActivity extends AppCompatActivity {
 
     // User fields
     EditText usernameEditText;
     EditText passwordEditText;
+    Firebase ref;
 
 
     @Override
@@ -28,6 +36,9 @@ public class LoginActivity extends ActionBarActivity {
 
         usernameEditText = (EditText) findViewById(R.id.username);
         passwordEditText = (EditText) findViewById(R.id.password);
+
+        ref = new Firebase(Bounce.URL);
+
 
 
         // Set up the submit button click handler
@@ -84,22 +95,41 @@ public class LoginActivity extends ActionBarActivity {
         dialog.show();
 
 
-
-        // Call the Parse login method
-        ParseUser.logInInBackground(username, password, new LogInCallback() {
+        // Create a handler to handle the result of the authentication
+        Firebase.AuthResultHandler authResultHandler = new Firebase.AuthResultHandler() {
             @Override
-            public void done(ParseUser user, ParseException e) {
-                dialog.dismiss();
-                if (e != null) {
-                    // Show the error message
-                    Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
-                } else {
-                    // Start an intent for the dispatch activity
-                    Intent intent = new Intent(LoginActivity.this, DispatchActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                }
+            public void onAuthenticated(AuthData authData) {
+                // Authenticated successfully with payload authData
+                startActivity(new Intent(LoginActivity.this, DispatchActivity.class));
+                finish();
             }
-        });
+            @Override
+            public void onAuthenticationError(FirebaseError firebaseError) {
+                dialog.hide();
+                Snackbar.make(usernameEditText, "Error during login.", Snackbar.LENGTH_SHORT).show();
+                Log.e("Register User", firebaseError.getMessage());
+
+                // Something went wrong :(
+                    /*switch (error.getCode()) {
+                        case FirebaseError.USER_DOES_NOT_EXIST:
+                            // handle a non existing user
+                            break;
+                        case FirebaseError.INVALID_PASSWORD:
+                            // handle an invalid password
+                            break;
+                        default:
+                            // handle other errors
+                            break;
+                    } */
+
+            }
+        };
+
+        // Or with an email/password combination
+        ref.authWithPassword(username, password, authResultHandler);
+
+
+
+
     }
 }

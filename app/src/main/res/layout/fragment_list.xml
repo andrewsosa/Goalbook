@@ -1,0 +1,30 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.andrewsosa.bounce.ListFragment"
+    android:background="@color/background">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bounce_bg"
+        android:scaleType="center"
+        android:paddingBottom="72dp"
+        android:id="@+id/rv_bg"
+        android:visibility="visible" />
+
+    <android.support.v7.widget.RecyclerView android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/rv_tasks"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+
+        android:clipToPadding="false"
+        android:paddingBottom="40dp">
+
+
+    </android.support.v7.widget.RecyclerView>
+
+
+</FrameLayout>

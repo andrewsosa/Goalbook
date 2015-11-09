@@ -4,7 +4,6 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
@@ -18,37 +17,38 @@ public class DatePickerFragment extends DialogFragment
         implements DatePickerDialog.OnDateSetListener {
 
     DatePickerReceiver method;
+    Calendar calendar;
 
-    int year = -1;
-    int month = -1;
-    int day = -1;
+    public static DatePickerFragment newInstance(DatePickerReceiver receiver) {
+        DatePickerFragment fragment = new DatePickerFragment();
+        fragment.setReceiver(receiver);
+        return fragment;
+    }
 
-    public void assignMethod(DatePickerReceiver d) {
+    private void setReceiver(DatePickerReceiver d) {
         method = d;
     }
 
-    public void passDate(GregorianCalendar c) {
+    public DatePickerFragment setDate(long timeInMillis) {
 
-        if(c !=null) {
-            year = c.get(Calendar.YEAR);
-            month = c.get(Calendar.MONTH);
-            day = c.get(Calendar.DAY_OF_MONTH);
+        if(timeInMillis > 0) {
+            calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(timeInMillis);
         }
+        return this;
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        // Use the current date as the default date in the picker
-        final Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
 
-        if(this.year != -1 && this.month != -1 && this.day != -1) {
-            year = this.year;
-            month = this.month;
-            day = this.day;
+        if(calendar == null) {
+            calendar = Calendar.getInstance();
         }
+
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
 
         // Create a new instance of DatePickerDialog and return it
         return new DatePickerDialog(getActivity(), this, year, month, day);

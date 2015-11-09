@@ -62,7 +62,7 @@ public class TaskRecyclerAdapterSectioned extends SimpleSectionedRecyclerViewAda
 
 
     public void autoSections() {
-        List<Task> tasks = mBaseAdapter.getDataset();
+        List<ParseTask> parseTasks = mBaseAdapter.getDataset();
 
         if(today) {
 

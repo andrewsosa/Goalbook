@@ -19,15 +19,7 @@
 
     </style>
 
-    <!-- Styles for main pop-up dialogs -->
-    <style name="AppTheme.DialogTheme" parent="Theme.AppCompat.Light.Dialog">
 
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primaryDark</item>
-        <item name="colorAccent">@color/accent</item>
-        <item name="android:textColorPrimary">@color/primary_text_default_material_dark</item>
-
-    </style>
 
     <!-- Style for login activity -->
     <style name="AppTheme.Login" parent="Theme.AppCompat.Light.NoActionBar">
@@ -37,13 +29,9 @@
     </style>
 
     <!-- Style for the Item View children activities -->
-    <style name="AppTheme.ItemView" parent="Theme.AppCompat.Light.DialogWhenLarge">
-
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primaryDark</item>
-        <item name="colorAccent">@color/accent</item>
+    <style name="AppTheme.ItemView" parent="AppTheme">
         <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
-
+        <item name="android:statusBarColor">@color/primaryDark</item>
     </style>
 
 
@@ -56,9 +44,6 @@
     </style>
 
 
-    <style name="menu_labels_style">
-        <item name="android:background">@drawable/fab_label_background</item>
-        <item name="android:textColor">@color/grey_white_1000</item>
-    </style>
+
 
 </resources>

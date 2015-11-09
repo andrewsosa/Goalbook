@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
     android:layout_height="48dp"
-    android:background="@drawable/drawer_item_background"
     android:duplicateParentState="false">
 
     <ImageView
@@ -10,7 +11,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/list_icon"
         android:layout_marginLeft="16dp"
-        android:src="@drawable/ic_label_grey600_24dp"
+        android:src="@drawable/ic_label_24dp"
+        android:tint="@color/grey_600"
         android:duplicateParentState="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="false"

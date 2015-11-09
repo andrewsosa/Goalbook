@@ -115,34 +115,10 @@
                             app:met_floatingLabel="normal"
                             app:met_primaryColor="@color/accent"/>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Forgot password?"
-                            android:id="@+id/textView"
-                            android:textColor="@color/secondaryTextDark"
-                            android:layout_alignParentLeft="true"
-                            android:layout_alignParentTop="false"
-                            android:layout_below="@+id/password"
-                            android:textSize="16sp"
-                            android:alpha=".6" />
-
-                        <Button
-                            android:layout_width="wrap_content"
-                            android:layout_height="36dp"
-                            android:text="Sign In"
-                            android:id="@+id/sign_in"
-                            android:background="@drawable/blue_button"
-                            android:textColor="@color/primaryTextLight"
-                            android:layout_alignParentRight="true"
-                            android:layout_alignBaseline="@+id/textView"
-                            android:layout_alignParentBottom="true"
-                            android:textSize="14sp" />
-
                     </RelativeLayout>
 
                     <LinearLayout
-                        android:orientation="vertical"
+                        android:orientation="horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="72dp"
                         android:layout_alignParentEnd="false"
@@ -154,32 +130,29 @@
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentTop="false">
 
-                        <ImageView
+                        <Button
                             android:layout_width="fill_parent"
-                            android:layout_height="1dp"
-                            android:id="@+id/imageView7"
-                            android:background="@color/dividerColor" />
+                            android:layout_height="match_parent"
+                            android:text="New User"
+                            android:id="@+id/new_user"
+                            android:textColor="@color/secondaryTextDark"
+                            android:visibility="visible"
+                            android:textSize="16sp"
+                            android:layout_weight="1"
+                            android:background="@color/grey_300" />
 
-                        <LinearLayout
-                            android:orientation="vertical"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:paddingTop="16dp"
-                            android:paddingBottom="16dp">
-
-                            <Button
-                                android:layout_width="wrap_content"
-                                android:layout_height="36dp"
-                                android:text="Create an account"
-                                android:id="@+id/new_user"
-                                android:background="#0000"
-                                android:textColor="@color/primary"
-                                android:visibility="visible"
-                                android:layout_marginLeft="32dp"
-                                android:layout_marginRight="32dp"
-                                android:textSize="14sp" />
-                        </LinearLayout>
+                        <Button
+                            android:layout_width="fill_parent"
+                            android:layout_height="match_parent"
+                            android:text="Sign In"
+                            android:id="@+id/sign_in"
+                            android:background="@color/accent"
+                            android:textColor="@color/primaryTextLight"
+                            android:layout_alignParentRight="true"
+                            android:layout_alignBaseline="@+id/textView"
+                            android:layout_alignParentBottom="true"
+                            android:textSize="16sp"
+                            android:layout_weight="1" />
 
                     </LinearLayout>
                 </RelativeLayout>

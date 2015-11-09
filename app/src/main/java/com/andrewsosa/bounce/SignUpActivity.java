@@ -2,29 +2,37 @@ package com.andrewsosa.bounce;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
+import android.support.design.widget.Snackbar;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.parse.ParseException;
-import com.parse.ParseUser;
-import com.parse.SignUpCallback;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+
+import java.util.Map;
 
 
-public class SignUpActivity extends ActionBarActivity {
+// TODO clean up code
+
+public class SignUpActivity extends AppCompatActivity {
 
     EditText passwordEditText;
     EditText passwordAgainEditText;
     EditText emailEditText;
+    Firebase ref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+
+        ref = new Firebase(Bounce.URL);
 
         passwordEditText = (EditText) findViewById(R.id.password);
         passwordAgainEditText = (EditText) findViewById(R.id.password_again);
@@ -41,7 +49,7 @@ public class SignUpActivity extends ActionBarActivity {
         findViewById(R.id.decoy).requestFocus();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_24dp);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,32 +106,30 @@ public class SignUpActivity extends ActionBarActivity {
         dialog.show();
 
         // Set username as the email
-        String username = email;
+        final String username = email;
 
-        // Set up a new Parse user
-        ParseUser user = new ParseUser();
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setEmail(email);
-
-
-        // Call the Parse signup method
-        user.signUpInBackground(new SignUpCallback() {
+        ref.createUser(username, password, new Firebase.ValueResultHandler<Map<String, Object>>() {
             @Override
-            public void done(ParseException e) {
-                // Handle the response
-                dialog.dismiss();
-                if (e != null) {
-                    // Show the error message
-                    Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
-                } else {
-                    // Start an intent for the dispatch activity
-                    Intent intent = new Intent(SignUpActivity.this, DispatchActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                }
+            public void onSuccess(Map<String, Object> result) {
+                String uid = (String) result.get("uid");
+                Log.d("Register user", "Successfully created user account with key: " + uid);
+
+                User u = new User(uid, username);
+                Firebase userRef = ref.child("users").child(uid);
+                userRef.setValue(u);
+
+                startActivity(new Intent(SignUpActivity.this, DispatchActivity.class));
+                finish();
+
+            }
+            @Override
+            public void onError(FirebaseError firebaseError) {
+                dialog.hide();
+                Snackbar.make(emailEditText, "Error during registration.", Snackbar.LENGTH_SHORT).show();
+                Log.e("Register User", firebaseError.getMessage());
             }
         });
+
 
     }
 

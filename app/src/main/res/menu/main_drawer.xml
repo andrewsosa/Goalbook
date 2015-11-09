@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:id="@+id/menu_primary" android:checkableBehavior="single">
+        <item android:id="@+id/nav_todo" android:icon="@drawable/ic_inbox_24dp"
+            android:title="To Do" />
+        <item android:id="@+id/nav_done" android:icon="@drawable/ic_done_24dp"
+            android:title="Done" />
+
+    </group>
+
+    <group android:id="@+id/menu_secondary">
+        <item android:id="@+id/nav_settings" android:title="Settings"/>
+        <item android:id="@+id/nav_help" android:title="Help \u0026 Feedback"/>
+    </group>
+
+</menu>

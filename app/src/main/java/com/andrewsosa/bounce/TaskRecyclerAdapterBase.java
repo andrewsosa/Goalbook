@@ -15,13 +15,13 @@ import java.util.List;
 public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAdapterBase.ViewHolder> {
 
     // The Dataset
-    private static List<Task> mDataset;
+    private static List<ParseTask> mDataset;
     private static TaskEventListener taskEventListener;
     private int activeItemNumber = -1;
     private boolean useSmallTiles = false;
 
     // Constructor for setting up the dataset
-    public TaskRecyclerAdapterBase(ArrayList<Task> myDataset, TaskEventListener listener) {
+    public TaskRecyclerAdapterBase(ArrayList<ParseTask> myDataset, TaskEventListener listener) {
         mDataset = new ArrayList<>(myDataset);
         taskEventListener = listener;
     }
@@ -39,25 +39,25 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
 
     }
 
-    public void replaceData(List<Task> tasks) {
-        mDataset = tasks;
+    public void replaceData(List<ParseTask> parseTasks) {
+        mDataset = parseTasks;
         notifyDataSetChanged();
     }
 
-    public ArrayList<Task> getDataset() {
+    public ArrayList<ParseTask> getDataset() {
         return new ArrayList<>(mDataset);
     }
 
 
     // Add new items to the dataset
-    public void addElement(Task e) {
+    public void addElement(ParseTask e) {
         mDataset.add(e);
         notifyItemInserted(mDataset.size()-1);
-        Log.d("Bounce", "Adding Task called ");
+        Log.d("Bounce", "Adding ParseTask called ");
 
     }
 
-    public void changeElement(int i, Task e){
+    public void changeElement(int i, ParseTask e){
         mDataset.set(i, e);
         notifyItemChanged(i);
     }
@@ -68,7 +68,7 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
 
     }
 
-    public void removeElement(Task t){
+    public void removeElement(ParseTask t){
         notifyItemRemoved(mDataset.indexOf(t));
         mDataset.remove(t);
     }
@@ -77,7 +77,7 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
         activeItemNumber =  i;
     }
 
-    public void setActiveElementFromTask(Task t) {
+    public void setActiveElementFromTask(ParseTask t) {
         this.activeItemNumber = mDataset.indexOf(t);
     }
 
@@ -93,7 +93,7 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
         return activeItemNumber;
     }
 
-    public Task getActiveItem() {
+    public ParseTask getActiveItem() {
         if(activeItemNumber!= -1) return mDataset.get(activeItemNumber);
         else return null;
     }
@@ -107,18 +107,18 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-        final Task task = mDataset.get(position);
+        final ParseTask parseTask = mDataset.get(position);
 
-        String taskName = task.getName();
+        String taskName = parseTask.getName();
         /*if(taskName.length() > 16) {
             taskName = taskName.substring(0, 15) + "...";
         } */
         holder.titleText.setText(taskName);
-        holder.checkbox.setChecked(task.isDone());
-        holder.task = task;
+        holder.checkbox.setChecked(parseTask.isDone());
+        holder.parseTask = parseTask;
 
         // Hide date text if there is not one set, else show it again
-        if(task.getDeadline() == null || useSmallTiles || task.getDeadlineAsTime().equals("Unspecified")) {
+        if(parseTask.getDeadline() == null || useSmallTiles || parseTask.getDeadlineAsTime().equals("Unspecified")) {
             holder.subtitleText.setVisibility(View.GONE);
             RelativeLayout.LayoutParams layoutParams =
                     (RelativeLayout.LayoutParams)holder.titleText.getLayoutParams();
@@ -131,8 +131,8 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
             layoutParams.removeRule(RelativeLayout.CENTER_VERTICAL);
             holder.titleText.setLayoutParams(layoutParams);
             holder.subtitleText.setVisibility(View.VISIBLE);
-            holder.subtitleText.setText(task.getDeadlineAsTime());// + " on "
-            //+ task.getDeadlineAsSimpleDateString());
+            holder.subtitleText.setText(parseTask.getDeadlineAsTime());// + " on "
+            //+ parseTask.getDeadlineAsSimpleDateString());
         }
 
         /*if(useSmallTiles) {
@@ -148,7 +148,7 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
     }
 
 
-    public Task getItem(int i) {
+    public ParseTask getItem(int i) {
         return mDataset.get(i);
     }
 
@@ -158,7 +158,7 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         // Reference for the Event that needs to be opened on the click listener
-        Task task;
+        ParseTask parseTask;
 
         // each data item is just a string in this case
         public RelativeLayout tile;
@@ -180,12 +180,12 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
                 @Override
                 public void onClick(View v) {
                     if (checkbox.isChecked()) {
-                        task.setDone(true);
+                        parseTask.setDone(true);
                     } else {
-                        task.setDone(false);
+                        parseTask.setDone(false);
                     }
-                    taskEventListener.onTaskCheckboxInteraction(task);
-                    //ViewHolder.this.t.removeElement(task); TODO REINTRODUCE CHECKBOX RESPONSE
+                    taskEventListener.onTaskCheckboxInteraction(parseTask);
+                    //ViewHolder.this.t.removeElement(parseTask); TODO REINTRODUCE CHECKBOX RESPONSE
                 }
             });
 
@@ -194,13 +194,13 @@ public class TaskRecyclerAdapterBase extends RecyclerView.Adapter<TaskRecyclerAd
         @Override
         public void onClick(View v) {
             Log.d("Bounce", "Tile onClick!");
-            taskEventListener.onTaskSelect(task);
+            taskEventListener.onTaskSelect(parseTask);
         }
     }
 
     public interface TaskEventListener {
-        void onTaskCheckboxInteraction(Task task);
-        void onTaskSelect(Task task);
+        void onTaskCheckboxInteraction(ParseTask parseTask);
+        void onTaskSelect(ParseTask parseTask);
     }
 
 }

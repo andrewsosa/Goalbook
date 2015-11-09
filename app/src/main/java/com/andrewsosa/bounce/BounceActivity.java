@@ -1,11 +1,12 @@
 package com.andrewsosa.bounce;
 
-import android.app.Activity;
+
+import android.support.v7.app.AppCompatActivity;
 
 /**
  * Created by andrewsosa on 6/27/15.
  */
-public abstract class BounceActivity extends Activity {
+public abstract class BounceActivity extends AppCompatActivity {
 
     /** Start of user-defined activity results. */
     public static final int RESULT_FIRST_USER   = 1;
