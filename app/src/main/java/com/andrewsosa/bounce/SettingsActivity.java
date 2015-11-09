@@ -9,7 +9,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.parse.ParseUser;
+import com.firebase.client.Firebase;
 
 
 public class SettingsActivity extends ActionBarActivity {
@@ -48,7 +48,7 @@ public class SettingsActivity extends ActionBarActivity {
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
-                        ParseUser.logOut();
+                        new Firebase(Bounce.URL).unauth();
                         Intent intent = new Intent(SettingsActivity.this, DispatchActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);

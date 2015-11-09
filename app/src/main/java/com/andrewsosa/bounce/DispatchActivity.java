@@ -1,13 +1,11 @@
 package com.andrewsosa.bounce;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
-import com.parse.ParseUser;
 
 
 public class DispatchActivity extends AppCompatActivity {
