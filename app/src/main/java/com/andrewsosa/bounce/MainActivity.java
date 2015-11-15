@@ -66,8 +66,12 @@ public class MainActivity extends AppCompatActivity
                 String key = tasksRef.push().getKey();
                 FirebaseTask t = new FirebaseTask(key, "New Task");
                 tasksRef.child(key).setValue(t);
-                onTaskClick(key);
 
+
+                Intent intent = new Intent(MainActivity.this, TaskActivity.class);
+                intent.putExtra("key", key);
+                intent.putExtra("mode", TaskActivity.CREATE);
+                startActivity(intent);
             }
         });
 
@@ -95,6 +99,8 @@ public class MainActivity extends AppCompatActivity
             public void onPageSelected(int position) {
                 if(position == 0) fab.show();
                 else fab.hide();
+
+
             }
 
             @Override
@@ -165,6 +171,7 @@ public class MainActivity extends AppCompatActivity
     public void onTaskClick(String key) {
         Intent intent = new Intent(this, TaskActivity.class);
         intent.putExtra("key", key);
+        intent.putExtra("mode", TaskActivity.EDIT);
         startActivity(intent);
     }
 

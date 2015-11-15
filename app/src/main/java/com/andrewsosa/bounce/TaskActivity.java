@@ -2,6 +2,8 @@ package com.andrewsosa.bounce;
 
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +20,10 @@ import com.firebase.client.ValueEventListener;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 public class TaskActivity extends AppCompatActivity implements DatePickerReceiver, Toolbar.OnMenuItemClickListener {
+
+
+    public static final int CREATE = 0;
+    public static final int EDIT = 1;
 
     // Header Views
     MaterialEditText mTaskName;
@@ -81,14 +87,22 @@ public class TaskActivity extends AppCompatActivity implements DatePickerReceive
             }
         });
 
-        mFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                task.setDone(true);
-                taskRef.setValue(task);
-                finish();
-            }
-        });
+        initFAB();
+
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent i = getIntent();
+        final int mode = i.getIntExtra("mode", EDIT);
+
+        if(mode == CREATE) {
+            taskRef.removeValue();
+            finish();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     public void initFields() {
@@ -113,6 +127,27 @@ public class TaskActivity extends AppCompatActivity implements DatePickerReceive
 
         mDeadline.setText((task.getDeadline() == -1) ?  "No Deadline" :
                 FirebaseTaskTools.fullDeadlineString(task));
+    }
+
+    public void initFAB() {
+        Intent i = getIntent();
+        final int mode = i.getIntExtra("mode", EDIT);
+
+        mFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mode == EDIT) {
+                    task.setDone(true);
+                    taskRef.setValue(task);
+                }
+                finish();
+            }
+        });
+
+        if(mode == CREATE) {
+            mFAB.setImageResource(R.drawable.ic_send_24dp);
+        }
+
     }
 
     @Override
