@@ -27,3 +27,8 @@ proguard/
 *.log
 
 res/drawable*
+*javadoc*
+
+.idea/workspace.xml
+.idea/*
+.idea/vcs.xml

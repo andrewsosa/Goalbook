@@ -4,10 +4,10 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
 
         <!-- NEVER MODIFY THESE, CHANGE THE COLORS FILE -->
-        <item name="colorPrimary">@color/primaryColor</item>
-        <item name="colorPrimaryDark">@color/primaryColorDark</item>
-        <item name="colorAccent">@color/accentColor</item>
-        <item name="android:windowBackground">@color/windowBackground</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primaryDark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:windowBackground">@color/background</item>
 
         <!-- Enable dialog stuff -->
         <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
@@ -16,68 +16,34 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
 
-    </style>
-
-    <!-- Styles for main pop-up dialogs -->
-    <style name="AppTheme.DialogTheme" parent="Theme.AppCompat.Light.Dialog">
-
-        <item name="colorPrimary">@color/primaryColor</item>
-        <item name="colorPrimaryDark">@color/primaryColorDark</item>
-        <item name="colorAccent">@color/accentColor</item>
-        <item name="android:textColorPrimary">@color/primary_text_default_material_dark</item>
 
     </style>
+
+
 
     <!-- Style for login activity -->
     <style name="AppTheme.Login" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Window stuff -->
-        <item name="android:colorPrimary">@color/primaryColor</item>
-        <item name="android:statusBarColor">@color/primaryColor</item>
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:statusBarColor">@color/primary</item>
     </style>
 
     <!-- Style for the Item View children activities -->
-    <style name="AppTheme.ItemView" parent="Theme.AppCompat.Light.DialogWhenLarge">
-
-        <item name="colorPrimary">@color/primaryColor</item>
-        <item name="colorPrimaryDark">@color/primaryColorDark</item>
-        <item name="colorAccent">@color/accentColor</item>
+    <style name="AppTheme.ItemView" parent="AppTheme">
         <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
-
+        <item name="android:statusBarColor">@color/primaryDark</item>
     </style>
 
-    <!-- Status bar override for edit activity -->
-    <style name="AppTheme.EditActivity" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/grey_white_1000</item>
-        <item name="colorPrimaryDark">@color/grey_400</item>
-        <item name="colorAccent">@color/accentColor</item>
-        <item name="android:textColorPrimary">@color/primaryTextDark</item>
-        <item name="android:statusBarColor">@color/grey_400</item>
-        <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
-        <item name="android:actionMenuTextAppearance">@style/AppTheme.EditActivity.MenuTextAppearance</item>
-        <item name="android:actionMenuTextColor">@color/grey_600</item>
-        <item name="android:textSize">16sp</item>
-    </style>
-
-
-    <style name="AppTheme.EditActivity.MenuTextAppearance" parent="AppTheme">
-        <item name="android:textColor">@color/grey_500</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textStyle">bold</item>
-    </style>
 
     <style name="AppTheme.SettingsActivity" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/primaryColor</item>
-        <item name="colorPrimaryDark">@color/primaryColorDark</item>
-        <item name="colorAccent">@color/accentColor</item>
-        <item name="android:windowBackground">@color/windowBackground</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primaryDark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:windowBackground">@color/background</item>
         <item name="android:textColor">@color/primaryTextDark</item>
     </style>
 
 
-    <style name="menu_labels_style">
-        <item name="android:background">@drawable/fab_label_background</item>
-        <item name="android:textColor">@color/grey_white_1000</item>
-    </style>
+
 
 </resources>

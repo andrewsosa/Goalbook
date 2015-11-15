@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="226dp"
+        android:background="@color/primary"
+        android:id="@+id/color_panel">
+
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_height="?android:attr/actionBarSize"
+            android:layout_width="match_parent"
+            android:contentInsetStart="72dp"
+            android:contentInsetLeft="72dp"
+            app:contentInsetLeft="72dp"
+            app:contentInsetStart="72dp"
+            android:contentInsetEnd="16dp"
+            android:contentInsetRight="16dp"
+            app:contentInsetEnd="16dp"
+            app:contentInsetRight="16dp"
+            style="@style/AppTheme.Toolbar"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="160dp"
+            android:paddingStart="72dp"
+            android:paddingEnd="16dp"
+            android:id="@+id/name_wrapper"
+            android:layout_below="@+id/toolbar">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="80dp"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <com.rengwuxian.materialedittext.MaterialEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/task_name"
+                    android:hint="Task Name"
+                    android:textSize="34sp"
+                    app:met_baseColor="@android:color/white"
+                    app:met_floatingLabel="normal"
+                    app:met_primaryColor="?colorAccent"
+                    app:met_singleLineEllipsis="true"
+                    android:imeOptions="actionDone"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:minHeight="72dp">
+
+                <com.rengwuxian.materialedittext.MaterialEditText
+                    android:layout_width="216dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/task_deadline"
+                    android:hint="Deadline"
+                    android:text="April 26th, 2015"
+                    app:met_baseColor="@android:color/white"
+                    app:met_floatingLabel="normal"
+                    app:met_primaryColor="?colorAccent"
+                    android:editable="false"
+                    android:clickable="false"
+                    app:met_singleLineEllipsis="true"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

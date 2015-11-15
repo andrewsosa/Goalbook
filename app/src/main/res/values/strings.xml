@@ -8,12 +8,22 @@
 
     <!-- Action Strings for Item View -->
     <string name="action_delete">Delete</string>
-    <string name="action_postpone">Bounce</string>
+    <string name="action_postpone">Postpone</string>
     <string name="action_complete">Complete</string>
     <string name="action_edit">Edit</string>
     <string name="title_activity_task_edit">TaskEditActivity</string>
     <string name="title_activity_dispatch">Bounce</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_sign_up">SignUpActivity</string>
+
+    <string name="about_content">Bounce To-Do is a to-do list application made by Andrew
+        Sosa and T.J. Littlejohn.</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

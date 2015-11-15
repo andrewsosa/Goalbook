@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="177dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
     android:paddingBottom="8dp">
 
     <RelativeLayout
@@ -12,8 +14,8 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:id="@+id/imageView4"
-            android:src="@drawable/drawer_background"
-            android:scaleType="center" />
+            android:src="@drawable/nav_header_bg"
+            android:scaleType="centerCrop" />
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="horizontal"
@@ -30,7 +32,8 @@
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:id="@+id/user_picture"
-                android:src="@drawable/ic_person"
+                android:src="@drawable/ic_person_36dp"
+                android:tint="@color/grey_100"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="0dp"

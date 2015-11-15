@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-
     <!-- Background Colors -->
-    <color name="primaryColor">@color/light_blue_600</color>
-    <color name="primaryColorDark">@color/light_blue_800</color>
-    <color name="accentColor">@color/pink_A200</color>
-    <color name="windowBackground">@color/grey_white_1000</color>
-    <color name="dividerColor">@color/grey_300</color>
+    <color name="primary">@color/indigo_500</color>
+    <color name="primaryDark">@color/indigo_700</color>
+    <color name="accent">@color/red_400</color>
+    <color name="background">@color/grey_200</color>
+    <color name="dividerColor">@color/grey_200</color>
+
+    <color name="tile_background">@color/grey_50</color>
 
     <!-- Text Colors -->
     <color name="primaryTextLight">@color/abc_primary_text_material_dark</color>
@@ -16,29 +17,10 @@
     <color name="secondaryTextLight">@color/abc_secondary_text_material_dark</color>
     <color name="secondaryTextDark">@color/abc_secondary_text_material_light</color>
 
-    <!-- List item colors -->
-    <color name="inbox">@color/primaryColor</color>
-    <color name="inboxDark">@color/primaryColorDark</color>
-    <color name="upcoming">@color/amber_500</color>
-    <color name="upcomingDark">@color/amber_700</color>
-    <color name="alltasks">@color/purple_500</color>
-    <color name="alltasksDark">@color/purple_700</color>
-    <color name="completed">@color/green_500</color>
-    <color name="completedDark">@color/green_700</color>
-    <color name="unassigned">@color/blue_grey_500</color>
-    <color name="unassignedDark">@color/blue_grey_700</color>
-
-    <!-- Menu stuff color -->
-    <color name="black_semi_transparent">#B2000000</color>
-    <color name="background">#e5e5e5</color>
-    <color name="half_black">#808080</color>
-    <color name="white">#fafafa</color>
-    <color name="white_pressed">#f1f1f1</color>
-    <color name="pink">#e91e63</color>
-    <color name="pink_pressed">#ec407a</color>
-    <color name="blue_semi_transparent">#805677fc</color>
-    <color name="blue_semi_transparent_pressed">#80738ffe</color>
-
+    <color name="icon_active">@color/primary</color>
+    <color name="inbox">@color/primary</color>
+    <color name="unassigned">@color/primary</color>
+    <color name="upcoming">@color/primary</color>
 
 
     <!-- Material Colors -->
