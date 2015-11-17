@@ -9,6 +9,7 @@ public class Goalbook extends Application {
     public static final String PREFS = "goalbook-prefrences";
     public static final String UID = "uid";
 
+
     @Override
     public void onCreate() {
         super.onCreate();

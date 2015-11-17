@@ -48,6 +48,29 @@ public class PagerFragment extends Fragment implements ListFragment.TaskInteract
         fragments.add(ListFragment.newInstance(Goal.LONGTERM));
         mViewPager.setAdapter(new PagerAdapter(getChildFragmentManager(), fragments));
         mPagerListener.getTabs().setupWithViewPager(mViewPager);
+
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                mPagerListener.updateActive(new String[]{
+                        Goal.DAILY,
+                        Goal.WEEKLY,
+                        Goal.INTERMEDIATE,
+                        Goal.LONGTERM
+                }[position]);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
     }
 
     @Override
@@ -79,8 +102,14 @@ public class PagerFragment extends Fragment implements ListFragment.TaskInteract
         mListListener.onTaskClick(key);
     }
 
+    @Override
+    public void onTaskLongClick(String key) {
+        //mListListener.onTaskLongClick(key);
+    }
+
     public interface PagerFragmentInteractionListener {
         TabLayout getTabs();
+        void updateActive(String mode);
     }
 
 }

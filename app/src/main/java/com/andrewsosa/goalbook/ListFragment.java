@@ -9,12 +9,12 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -24,8 +24,6 @@ import com.firebase.client.Query;
 import com.firebase.ui.FirebaseRecyclerViewAdapter;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
-import java.util.List;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,6 +32,8 @@ import java.util.List;
  */
 public class ListFragment extends Fragment {
     private static final String LIST_TYPE = "list_type";
+    public static final String ARCHIVE = "archive";
+    public static final String NOTIFICATIONS = "notifications";
 
     private String listType;
 
@@ -41,11 +41,13 @@ public class ListFragment extends Fragment {
     // Query types
     Query queryRef;
     Firebase tasksRef;
+    Firebase archiveRef;
+    Firebase remindersRef;
 
     public RecyclerView mRecyclerView;
     private TaskInteractionListener mListener;
     private FirebaseRecyclerViewAdapter mAdapter;
-    private View mEmptyView;
+    private ImageView mEmptyView;
 
     /**
      * Use this factory method to create a new instance of
@@ -74,10 +76,12 @@ public class ListFragment extends Fragment {
     }
 
     @Override
+    // If we need to do anything, we do it here.
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // If we need to do anything, we do it here.
+
+        if(listType.equals(ARCHIVE)) mEmptyView.setImageResource(R.drawable.ic_empty_archive_96dp);
 
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setHasFixedSize(true);
@@ -93,13 +97,22 @@ public class ListFragment extends Fragment {
 
         String uid = mListener.getSharedPreferences().getString(Goalbook.UID, "");
         Firebase ref = new Firebase(Goalbook.URL);
-        Firebase userRef = ref.child("users").child(uid);
-        tasksRef = userRef.child("tasks");
+        tasksRef = ref.child("tasks").child(uid);
+        archiveRef = ref.child("archive").child(uid);
 
         // Handle type
-        queryRef = tasksRef.orderByChild("priority").equalTo(listType);
+        if(listType.equals(NOTIFICATIONS)) {
+            queryRef = new Firebase(Goalbook.URL).child("messages").child(uid).limitToLast(10);
+            mAdapter = new ReminderAdapter(Reminder.class, R.layout.recycler_tile_normal, ReminderViewHolder.class, queryRef);
+        } else if (listType.equals(ARCHIVE)) {
+            queryRef = archiveRef.orderByChild("timestamp");
+            mAdapter = new ArchiveAdapter(Goal.class, R.layout.recycler_tile_normal, GoalViewHolder.class, queryRef);
+        } else {
+            // TODO break down tasks db into groups
+            queryRef = tasksRef.orderByChild("priority").equalTo(listType);
+            mAdapter = new GoalCatagoryAdapter(Goal.class, R.layout.recycler_tile_normal, GoalViewHolder.class, queryRef);
+        }
 
-        mAdapter = new GoalCatagoryAdapter(Goal.class, R.layout.recycler_tile_normal, TaskViewHolder.class, queryRef);
 
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
@@ -111,21 +124,20 @@ public class ListFragment extends Fragment {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 super.onItemRangeInserted(positionStart, itemCount);
+                //mAdapter.notifyItemRangeInserted(positionStart, itemCount);
                 updateEmptyView();
             }
 
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
                 super.onItemRangeRemoved(positionStart, itemCount);
+                //mAdapter.notifyItemRangeRemoved(positionStart, itemCount);
                 updateEmptyView();
             }
         });
 
         mRecyclerView.setAdapter(mAdapter);
         updateEmptyView();
-
-
-
 
     }
 
@@ -136,7 +148,7 @@ public class ListFragment extends Fragment {
         // Inflate layout, get items, return
         View v = inflater.inflate(R.layout.fragment_list, container, false);
         mRecyclerView = (RecyclerView) v.findViewById(R.id.rv_tasks);
-        mEmptyView = v.findViewById(R.id.rv_bg);
+        mEmptyView = (ImageView) v.findViewById(R.id.rv_bg);
         return v;
     }
 
@@ -157,7 +169,7 @@ public class ListFragment extends Fragment {
         mListener = null;
     }
 
-    public static class TaskViewHolder extends RecyclerView.ViewHolder {
+    public static class GoalViewHolder extends RecyclerView.ViewHolder {
 
         // each data item is just a string in this case
         public RelativeLayout tile;
@@ -166,12 +178,23 @@ public class ListFragment extends Fragment {
         public CheckBox checkbox;
 
         // Constructor
-        public TaskViewHolder(View v) {
+        public GoalViewHolder(View v) {
             super(v);
             tile = (RelativeLayout) v.findViewById(R.id.tile);
             titleText = (TextView) v.findViewById(R.id.tile_header);
             subtitleText = (TextView) v.findViewById(R.id.tile_subheader);
             checkbox = (CheckBox) v.findViewById(R.id.tile_checkbox);
+        }
+    }
+
+    public static class ReminderViewHolder extends RecyclerView.ViewHolder {
+        public TextView titleText;
+        public TextView subtitleText;
+
+        public ReminderViewHolder(View v) {
+            super(v);
+            titleText = (TextView) v.findViewById(R.id.tile_header);
+            subtitleText = (TextView) v.findViewById(R.id.tile_subheader);
         }
     }
 
@@ -181,17 +204,18 @@ public class ListFragment extends Fragment {
 
     public interface TaskInteractionListener {
         void onTaskClick(String key);
+        void onTaskLongClick(String key);
         SharedPreferences getSharedPreferences();
     }
 
-    public class GoalCatagoryAdapter extends FirebaseRecyclerViewAdapter<Goal, TaskViewHolder> {
+    public class GoalCatagoryAdapter extends FirebaseRecyclerViewAdapter<Goal, GoalViewHolder> {
 
-        public GoalCatagoryAdapter(Class<Goal> modelClass, int modelLayout, Class<TaskViewHolder> viewHolderClass, Query ref) {
+        public GoalCatagoryAdapter(Class<Goal> modelClass, int modelLayout, Class<GoalViewHolder> viewHolderClass, Query ref) {
             super(modelClass, modelLayout, viewHolderClass, ref);
         }
 
         @Override
-        public void populateViewHolder(TaskViewHolder viewHolder, final Goal Goal) {
+        public void populateViewHolder(GoalViewHolder viewHolder, final Goal Goal) {
             viewHolder.titleText.setText(Goal.getName());
             viewHolder.checkbox.setChecked(Goal.isDone());
             viewHolder.checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -210,13 +234,49 @@ public class ListFragment extends Fragment {
                     }
                 }
             });
-            viewHolder.subtitleText.setText(GoalTools.shortTimestampString(Goal));
+            String subtitle = "Created " + GoalTools.shortTimestampString(Goal);
+            viewHolder.subtitleText.setText(subtitle);
             viewHolder.tile.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mListener.onTaskClick(Goal.getUuid());
                 }
             });
+            viewHolder.tile.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    mListener.onTaskLongClick(Goal.getUuid());
+                    return true;
+                }
+            });
+        }
+    }
+
+    public class ArchiveAdapter extends GoalCatagoryAdapter {
+        public ArchiveAdapter(Class<Goal> modelClass, int modelLayout, Class<GoalViewHolder> viewHolderClass, Query ref) {
+            super(modelClass, modelLayout, viewHolderClass, ref);
+        }
+
+        @Override
+        public void populateViewHolder(GoalViewHolder viewHolder, final Goal Goal) {
+            viewHolder.titleText.setText(Goal.getName());
+            viewHolder.checkbox.setClickable(false);
+            viewHolder.checkbox.setChecked(Goal.isDone());
+            String subtitle = "Created " + GoalTools.shortTimestampString(Goal);
+            viewHolder.subtitleText.setText(subtitle);
+            // TODO enable archive editing
+        }
+
+    }
+
+    public class ReminderAdapter extends FirebaseRecyclerViewAdapter<Reminder, ReminderViewHolder> {
+        public ReminderAdapter(Class<Reminder> modelClass, int modelLayout, Class<ReminderViewHolder> viewHolderClass, Query ref) {
+            super(modelClass, modelLayout, viewHolderClass, ref);
+        }
+
+        @Override
+        protected void populateViewHolder(ReminderViewHolder viewHolder, Reminder model) {
+            //super.populateViewHolder(viewHolder, model);
         }
     }
 

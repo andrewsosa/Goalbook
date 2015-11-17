@@ -31,7 +31,7 @@
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme" >
         </activity>
-        <activity android:name="com.andrewsosa.goalbook.TaskActivity"
+        <activity android:name=".GoalActivity"
             android:theme="@style/AppTheme.ItemView">
         </activity>
     </application>

@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,8 +21,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -34,10 +39,17 @@ public class MainActivity extends AppCompatActivity
     final static String NOTIFACTIONS = "notifications";
     final static String ARCHIVE = "archive";
 
+    // Views
     DrawerLayout drawerLayout;
     Toolbar mToolbar;
     TabLayout mTabs;
     FloatingActionButton fab;
+    String activeMode = Goal.DAILY;
+
+    // Firebase references data
+    Firebase tasksRef;
+    Firebase archiveRef;
+    Firebase userRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,25 +72,23 @@ public class MainActivity extends AppCompatActivity
         mToolbar.inflateMenu(R.menu.main);
         mToolbar.setOnMenuItemClickListener(this);
 
+        String uid = getSharedPreferences().getString(Goalbook.UID, "");
+
+        Firebase ref = new Firebase(Goalbook.URL);
+        userRef = ref.child("users").child(uid);
+        tasksRef = ref.child("tasks").child(uid);
+        archiveRef = ref.child("archive").child(uid);
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                String uid = getSharedPreferences().getString(Goalbook.UID, "");
-                Firebase ref = new Firebase(Goalbook.URL);
-                Firebase userRef = ref.child("users").child(uid);
-                Firebase tasksRef = userRef.child("tasks");
-
                 String key = tasksRef.push().getKey();
-                Goal t = new Goal(key, "New Task");
+                Goal t = new Goal(key, "New Goal");
+                t.setPriority(activeMode);
                 tasksRef.child(key).setValue(t);
 
-
-                Intent intent = new Intent(MainActivity.this, TaskActivity.class);
-                intent.putExtra("key", key);
-                intent.putExtra("mode", TaskActivity.CREATE);
-                startActivity(intent);
             }
         });
 
@@ -88,6 +98,20 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_goalbook);
         performFragmentTransaction(R.id.nav_goalbook);
+
+        /*drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    drawerLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    //drawerLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+            }
+        });*/
     }
 
     @Override
@@ -145,6 +169,13 @@ public class MainActivity extends AppCompatActivity
                 tag = GOALS;
                 break;
             case R.id.nav_reminders:
+                fragment = ListFragment.newInstance(ListFragment.NOTIFICATIONS);
+                tag = NOTIFACTIONS;
+                break;
+            case R.id.nav_archive:
+                fragment = ListFragment.newInstance(ListFragment.ARCHIVE);
+                tag = ARCHIVE;
+                break;
         }
 
         // Confirm transaction
@@ -162,12 +193,20 @@ public class MainActivity extends AppCompatActivity
         switch (id) {
             case R.id.nav_goalbook:
                 showTabs(true);
+                fab.show();
+                mToolbar.setTitle("Goals");
                 break;
             case R.id.nav_reminders:
                 showTabs(false);
+                fab.hide();
+                mToolbar.setTitle("Reminders");
+                break;
+            case R.id.nav_archive:
+                showTabs(false);
+                fab.hide();
+                mToolbar.setTitle("Archive");
                 break;
             default:
-
         }
     }
 
@@ -183,10 +222,32 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onTaskClick(String key) {
-        Intent intent = new Intent(this, TaskActivity.class);
-        intent.putExtra("key", key);
-        intent.putExtra("mode", TaskActivity.EDIT);
-        startActivity(intent);
+
+        Intent i = new Intent(this, GoalActivity.class);
+        i.putExtra("key", key);
+        startActivity(i);
+
+    }
+
+    @Override
+    public void onTaskLongClick(String key) {
+        /*
+        // Move from
+        final Firebase ref = tasksRef.child(key);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Goal g = dataSnapshot.getValue(Goal.class);
+                archiveRef.child(g.getUuid()).setValue(g);
+                ref.removeValue();
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+        */
     }
 
     @Override
@@ -197,5 +258,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     public TabLayout getTabs() {
         return mTabs;
+    }
+
+    @Override
+    public void updateActive(String mode) {
+        activeMode = mode;
     }
 }

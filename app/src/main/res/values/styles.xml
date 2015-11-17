@@ -16,22 +16,17 @@
 
     <!-- Styles for main pop-up dialogs -->
     <style name="AppTheme.DialogTheme">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primaryDark</item>
+        <item name="colorPrimary">@color/accent</item>
         <item name="colorAccent">@color/accent</item>
     </style>
 
 
     <style name="AppTheme.ItemView">
-        <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
+        <item name="colorPrimary">@color/indigo_400</item>
+        <item name="colorPrimaryDark">@color/indigo_600</item>
+        <item name="colorAccent">@color/indigo_600</item>
     </style>
 
-    <style name="AppTheme.ItemView.Toolbar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primaryDark</item>
-        <item name="android:textColorPrimary">@color/primaryTextLight</item>
-        <item name="android:textColorSecondary">@color/primaryTextLight</item>
-    </style>
 
     <!-- <style name="AppTheme.Tabs" parent="Widget.Design.TabLayout">
         <item name="tabTextAppearance">@style/AppTheme.Tabs.Text</item>
@@ -51,6 +46,7 @@
 
     <!-- <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" /> -->
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
+    <style name="AppTheme.ItemView.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 

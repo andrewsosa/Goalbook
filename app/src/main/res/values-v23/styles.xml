@@ -20,4 +20,15 @@
 
     </style>
 
+
+    <style name="AppTheme.ItemView">
+        <item name="colorPrimary">@color/indigo_400</item>
+        <item name="colorPrimaryDark">@color/indigo_500</item>
+        <item name="colorAccent">@color/teal_A700</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+
+
 </resources>

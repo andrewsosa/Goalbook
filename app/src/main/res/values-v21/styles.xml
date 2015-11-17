@@ -19,17 +19,17 @@
 
     </style>
 
+    <style name="AppTheme.ItemView">
+        <item name="colorPrimary">@color/indigo_400</item>
+        <item name="colorPrimaryDark">@color/indigo_500</item>
+        <item name="colorAccent">@color/teal_A700</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
+    </style>
 
 
     <!-- Style for login activity -->
     <style name="AppTheme.Login">
         <item name="android:statusBarColor">@color/primary</item>
-    </style>
-
-    <!-- Style for the Item View children activities -->
-    <style name="AppTheme.ItemView">
-        <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
-        <item name="android:statusBarColor">@color/primaryDark</item>
     </style>
 
 

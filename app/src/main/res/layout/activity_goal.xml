@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:fitsSystemWindows="false"
+    tools:context="com.andrewsosa.goalbook.MainActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/appbar"
+        android:theme="@style/AppTheme.ItemView.AppBarOverlay"
+        android:background="@color/accent"
+        app:elevation="4dp">
+
+        <android.support.v7.widget.Toolbar android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:contentInsetStart="72dp"
+            app:titleTextAppearance="@style/AppTheme.MainToolbarTitle"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                style="?android:attr/borderlessButtonStyle"
+                android:text="Save" />
+
+        </android.support.v7.widget.Toolbar>
+
+        <EditText
+            android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:layout_marginStart="16dp"
+            android:textColor="@color/primaryTextLight"
+            android:textSize="16sp"
+            android:background="@android:color/transparent"
+            android:hint="What&apos;s your goal? "
+            android:textColorHint="@color/primaryTextLight"
+            android:paddingRight="16dp"
+            android:layout_marginBottom="4dp"/>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <include layout="@layout/content_goal" />
+
+    </android.support.v4.widget.NestedScrollView>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/background"
+        android:elevation="4dp"
+        android:gravity="end">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/borderlessButtonStyle"
+            android:text="Archive"
+            android:textColor="@color/accent"
+            android:id="@+id/btn_archive" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/borderlessButtonStyle"
+            android:text="Delete"
+            android:textColor="@color/accent"
+            android:id="@+id/btn_delete" />
+
+    </LinearLayout>
+
+    <!-- <android.support.design.widget.FloatingActionButton android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_done_24dp"
+        android:tint="@color/grey_white_1000"
+        app:fabSize="normal"
+        app:backgroundTint="?attr/colorAccent"/> -->
+
+
+</android.support.design.widget.CoordinatorLayout>

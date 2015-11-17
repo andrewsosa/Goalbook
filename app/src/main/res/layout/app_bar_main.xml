@@ -22,6 +22,7 @@
             android:layout_height="50dp"
             app:layout_anchor="@id/toolbar"
             app:layout_anchorGravity="left"
+            app:tabSelectedTextColor="@color/accent"
             app:tabMode="scrollable"/>
 
     </android.support.design.widget.AppBarLayout>

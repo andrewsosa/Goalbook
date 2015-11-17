@@ -6,22 +6,49 @@ package com.andrewsosa.goalbook;
 public class User {
 
     private String uid;
-    private String username;
+    private String tid;
+    private String aid;
+    private String mid;
 
 
     public User() {}
 
-    public User(String uid, String username) {
+    public User(String aid, String mid, String tid, String uid) {
+        this.aid = aid;
+        this.mid = mid;
+        this.tid = tid;
         this.uid = uid;
-        this.username = username;
     }
 
-    public String getUsername() {
-        return username;
+    public String getAid() {
+        return aid;
+    }
+
+    public void setAid(String aid) {
+        this.aid = aid;
+    }
+
+    public String getMid() {
+        return mid;
+    }
+
+    public void setMid(String mid) {
+        this.mid = mid;
+    }
+
+    public String getTid() {
+        return tid;
+    }
+
+    public void setTid(String tid) {
+        this.tid = tid;
     }
 
     public String getUid() {
         return uid;
     }
 
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
 }
