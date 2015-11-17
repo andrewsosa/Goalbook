@@ -15,18 +15,25 @@
     </style>
 
     <!-- Styles for main pop-up dialogs -->
-    <style name="AppTheme.DialogTheme" parent="Theme.AppCompat.Light.Dialog">
+    <style name="AppTheme.DialogTheme">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primaryDark</item>
         <item name="colorAccent">@color/accent</item>
     </style>
 
 
-    <style name="AppTheme.ItemView" parent="AppTheme">
+    <style name="AppTheme.ItemView">
         <item name="android:dialogTheme">@style/AppTheme.DialogTheme</item>
     </style>
 
-    <style name="AppTheme.Tabs" parent="Widget.Design.TabLayout">
+    <style name="AppTheme.ItemView.Toolbar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primaryDark</item>
+        <item name="android:textColorPrimary">@color/primaryTextLight</item>
+        <item name="android:textColorSecondary">@color/primaryTextLight</item>
+    </style>
+
+    <!-- <style name="AppTheme.Tabs" parent="Widget.Design.TabLayout">
         <item name="tabTextAppearance">@style/AppTheme.Tabs.Text</item>
         <item name="tabSelectedTextColor">@color/primaryTextLight</item>
         <item name="tabIndicatorColor">@color/primaryTextLight</item>
@@ -36,20 +43,14 @@
 
     <style name="AppTheme.Tabs.Text" parent="TextAppearance.Design.Tab">
         <item name="android:textColor">@color/primaryTextLight</item>
+    </style>  -->
+
+    <style name="AppTheme.MainToolbarTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">18sp</item>
     </style>
 
-    <style name="ToolbarTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
-        <item name="android:textSize">20sp</item>
-    </style>
-
-    <style name="AppTheme.Toolbar" parent="Base.Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primaryDark</item>
-        <item name="android:textColorPrimary">@color/primaryTextLight</item>
-        <item name="android:textColorSecondary">@color/primaryTextLight</item>
-    </style>
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <!-- <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" /> -->
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 

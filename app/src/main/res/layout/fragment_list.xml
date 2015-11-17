@@ -3,17 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.andrewsosa.bounce.ListFragment"
+    tools:context="com.andrewsosa.goalbook.ListFragment"
     android:background="@color/background">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/bounce_bg"
-        android:scaleType="center"
+        android:scaleType="fitCenter"
         android:paddingBottom="72dp"
         android:id="@+id/rv_bg"
-        android:visibility="visible" />
+        android:visibility="visible"
+        android:src="@drawable/ic_emptyview_96dp"
+        android:paddingLeft="56dp"
+        android:paddingRight="56dp" />
 
     <android.support.v7.widget.RecyclerView android:layout_width="match_parent"
         android:layout_height="match_parent"

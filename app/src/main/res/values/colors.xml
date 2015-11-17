@@ -2,13 +2,15 @@
 <resources>
 
     <!-- Background Colors -->
-    <color name="primary">@color/indigo_500</color>
-    <color name="primaryDark">@color/indigo_700</color>
-    <color name="accent">@color/red_400</color>
-    <color name="background">@color/grey_200</color>
-    <color name="dividerColor">@color/grey_200</color>
+    <color name="primary">@color/grey_100</color>
+    <color name="primaryDark">@color/grey_300</color>
+    <color name="primaryDarkv21">@color/grey_400</color>
+    <color name="accent">@color/indigo_400</color>
+    <color name="background">@color/grey_50</color>
+    <color name="dividerColor">@color/grey_300</color>
 
     <color name="tile_background">@color/grey_50</color>
+    <color name="toolbar_icon_main">@color/grey_600</color>
 
     <!-- Text Colors -->
     <color name="primaryTextLight">@color/abc_primary_text_material_dark</color>
@@ -21,6 +23,8 @@
     <color name="inbox">@color/primary</color>
     <color name="unassigned">@color/primary</color>
     <color name="upcoming">@color/primary</color>
+
+    <color name="nav_icon_checked">@color/accent</color>
 
 
     <!-- Material Colors -->

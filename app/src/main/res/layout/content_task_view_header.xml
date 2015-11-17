@@ -24,7 +24,7 @@
             android:contentInsetRight="16dp"
             app:contentInsetEnd="16dp"
             app:contentInsetRight="16dp"
-            style="@style/AppTheme.Toolbar"/>
+            style="@style/AppTheme.ItemView.Toolbar"/>
 
         <LinearLayout
             android:orientation="vertical"

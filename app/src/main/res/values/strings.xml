@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Bounce</string>
+    <string name="app_name">Goalbook</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_item_view">ItemView</string>
@@ -12,13 +12,12 @@
     <string name="action_complete">Complete</string>
     <string name="action_edit">Edit</string>
     <string name="title_activity_task_edit">TaskEditActivity</string>
-    <string name="title_activity_dispatch">Bounce</string>
+    <string name="title_activity_dispatch">Goalbook</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_sign_up">SignUpActivity</string>
 
-    <string name="about_content">Bounce To-Do is a to-do list application made by Andrew
-        Sosa and T.J. Littlejohn.</string>
-    <string name="title_activity_main">MainActivity</string>
+
+    <string name="title_activity_main">Goalbook</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
