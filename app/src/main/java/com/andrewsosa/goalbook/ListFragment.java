@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,6 +20,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 //import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.firebase.client.Firebase;
 import com.firebase.client.Query;
 import com.firebase.ui.FirebaseRecyclerViewAdapter;
@@ -258,13 +261,31 @@ public class ListFragment extends Fragment {
         }
 
         @Override
-        public void populateViewHolder(GoalViewHolder viewHolder, final Goal Goal) {
-            viewHolder.titleText.setText(Goal.getName());
+        public void populateViewHolder(GoalViewHolder viewHolder, final Goal goal) {
+            viewHolder.titleText.setText(goal.getName());
             viewHolder.checkbox.setClickable(false);
-            viewHolder.checkbox.setChecked(Goal.isDone());
-            String subtitle = "Created " + GoalTools.shortTimestampString(Goal);
+            viewHolder.checkbox.setChecked(goal.isDone());
+            String subtitle = "Created " + GoalTools.shortTimestampString(goal);
             viewHolder.subtitleText.setText(subtitle);
             // TODO enable archive editing
+
+            viewHolder.tile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new MaterialDialog.Builder(getContext())
+                            .content("Restore goal?")
+                            .positiveText("Restore")
+                            .negativeText("Cancel")
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    tasksRef.child(goal.getUuid()).setValue(goal);
+                                    archiveRef.child(goal.getUuid()).removeValue();
+                                }
+                            })
+                            .show();
+                }
+            });
         }
 
     }

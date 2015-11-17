@@ -44,7 +44,7 @@ public class PagerFragment extends Fragment implements ListFragment.TaskInteract
         ArrayList<android.support.v4.app.Fragment> fragments = new ArrayList<>();
         fragments.add(ListFragment.newInstance(Goal.DAILY));
         fragments.add(ListFragment.newInstance(Goal.WEEKLY));
-        fragments.add(ListFragment.newInstance(Goal.INTERMEDIATE));
+        fragments.add(ListFragment.newInstance(Goal.MIDRANGE));
         fragments.add(ListFragment.newInstance(Goal.LONGTERM));
         mViewPager.setAdapter(new PagerAdapter(getChildFragmentManager(), fragments));
         mPagerListener.getTabs().setupWithViewPager(mViewPager);
@@ -57,12 +57,7 @@ public class PagerFragment extends Fragment implements ListFragment.TaskInteract
 
             @Override
             public void onPageSelected(int position) {
-                mPagerListener.updateActive(new String[]{
-                        Goal.DAILY,
-                        Goal.WEEKLY,
-                        Goal.INTERMEDIATE,
-                        Goal.LONGTERM
-                }[position]);
+                if(mPagerListener!= null) mPagerListener.updateActive(GoalTools.goalTypes[position]);
             }
 
             @Override
