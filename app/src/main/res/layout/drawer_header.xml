@@ -40,26 +40,13 @@
                 android:focusableInTouchMode="false"
                 android:background="@drawable/drawer_avatar_background"
                 android:cropToPadding="true"
-                android:padding="12dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="username@email.com"
-                android:id="@+id/header_email"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="false"
-                android:layout_centerVertical="true"
-                android:fontFamily="sans-serif-regular"
-                android:textColor="@color/secondaryTextLight"
-                android:layout_alignParentBottom="true"
-                android:textSize="14sp"
+                android:padding="12dp"
                 android:visibility="gone" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Username"
+                android:text="Goalbook"
                 android:id="@+id/header_name"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"

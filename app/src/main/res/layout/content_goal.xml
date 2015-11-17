@@ -9,15 +9,15 @@
     android:background="@color/background"
     android:orientation="vertical"
     android:divider="@drawable/linear_layout_divider"
-    android:showDividers="middle|end">
+    android:showDividers="middle">
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="72dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -31,46 +31,41 @@
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/checkBox2"
+            android:id="@+id/cb_done"
             android:checked="false"
             android:gravity="right" />
 
     </LinearLayout>
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="72dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:gravity="center_vertical" >
+        android:gravity="center_vertical"
+        android:id="@+id/typeView"
+        android:onClick="onClick"
+        android:background="?android:attr/selectableItemBackground"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Priority"
+            android:text="Goal Type"
             android:id="@+id/textView17"
             android:textSize="16sp"
             android:textColor="@color/primaryTextDark" />
 
         <TextView
-            android:layout_width="144dp"
-            android:layout_height="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Daily"
-            android:id="@+id/textView18"
-            android:textSize="16sp"
+            android:id="@+id/tv_type"
+            android:textSize="14sp"
             android:textColor="@color/secondaryTextDark"
-            android:paddingLeft="16dp"
             android:gravity="center_vertical|end"
-            android:layout_weight="1" />
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:id="@+id/imageView"
-            android:layout_marginLeft="8dp"
-            android:src="@drawable/ic_arrow_drop_down_24dp"
-            android:tint="@color/grey_600" />
+            android:textIsSelectable="false"
+            android:layout_marginTop="4dp" />
 
     </LinearLayout>
 
@@ -113,7 +108,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:text="Jan 01, 2015"
-                android:id="@+id/textView3"
+                android:id="@+id/tv_createdOn"
                 android:textSize="16sp"
                 android:textColor="@color/secondaryTextDark"
                 android:paddingLeft="16dp"
@@ -140,7 +135,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:text="Unfinished"
-                android:id="@+id/textView16"
+                android:id="@+id/tv_finishedOn"
                 android:textSize="16sp"
                 android:textColor="@color/secondaryTextDark"
                 android:paddingLeft="16dp"

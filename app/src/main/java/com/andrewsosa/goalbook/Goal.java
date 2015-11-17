@@ -7,15 +7,16 @@ import java.util.Calendar;
  */
 public class Goal {
 
-    public static final String DAILY = "daily";
-    public static final String WEEKLY = "weekly";
-    public static final String INTERMEDIATE = "intermediate";
-    public static final String LONGTERM = "longterm";
+    public static final String DAILY = "Daily";
+    public static final String WEEKLY = "Weekly";
+    public static final String MIDRANGE = "Mid-Range";
+    public static final String LONGTERM = "Longterm";
 
     String uuid;
     String name;
     String priority;
     long timestamp;
+    long completedTime;
     boolean done;
 
     public Goal() {}
@@ -58,5 +59,15 @@ public class Goal {
 
     public void setDone(boolean done) {
         this.done = done;
+
+        if(done) {
+            this.completedTime = Calendar.getInstance().getTime().getTime();
+        } else {
+            this.completedTime = -1;
+        }
+    }
+
+    public long getCompletedTime() {
+        return completedTime;
     }
 }

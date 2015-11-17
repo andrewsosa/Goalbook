@@ -89,6 +89,11 @@ public class MainActivity extends AppCompatActivity
                 t.setPriority(activeMode);
                 tasksRef.child(key).setValue(t);
 
+                Intent i = new Intent(MainActivity.this, GoalActivity.class);
+                i.putExtra("key", key);
+                i.putExtra("mode", GoalActivity.CREATE);
+                startActivity(i);
+
             }
         });
 
@@ -99,19 +104,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setCheckedItem(R.id.nav_goalbook);
         performFragmentTransaction(R.id.nav_goalbook);
 
-        /*drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    drawerLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    //drawerLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-            }
-        });*/
     }
 
     @Override
@@ -147,6 +139,10 @@ public class MainActivity extends AppCompatActivity
 
         performFragmentTransaction(id);
         updateUI(id);
+
+        if(id == R.id.nav_help || id == R.id.nav_settings) {
+            Snackbar.make(mToolbar, "Coming soon!", Snackbar.LENGTH_LONG).show();
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -200,6 +196,7 @@ public class MainActivity extends AppCompatActivity
                 showTabs(false);
                 fab.hide();
                 mToolbar.setTitle("Reminders");
+                Snackbar.make(mToolbar, "Reminders coming soon!", Snackbar.LENGTH_LONG).show();
                 break;
             case R.id.nav_archive:
                 showTabs(false);

@@ -8,6 +8,13 @@ import java.util.GregorianCalendar;
 
 public class GoalTools {
 
+    public final static String[] goalTypes = new String[]{
+            Goal.DAILY,
+            Goal.WEEKLY,
+            Goal.MIDRANGE,
+            Goal.LONGTERM
+    };
+
     private static String formatLong(long deadline, DateFormat formatter) {
         if(deadline == -1) {
             return "No Deadline";
@@ -26,6 +33,16 @@ public class GoalTools {
     public static String fullTimestampString(Goal goal) {
         DateFormat formatter = new SimpleDateFormat("MMMM dd, yyyy");
         return formatLong(goal.getTimestamp(), formatter);
+    }
+
+    public static String shortCompletedString(Goal goal) {
+        DateFormat formatter = new SimpleDateFormat("MMM dd, yyyy");
+        return formatLong(goal.getCompletedTime(), formatter);
+    }
+
+    public static String fullCompletedString(Goal goal) {
+        DateFormat formatter = new SimpleDateFormat("MMMM dd, yyyy");
+        return formatLong(goal.getCompletedTime(), formatter);
     }
 
     public static long calToLong(GregorianCalendar calendar) {

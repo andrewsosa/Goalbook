@@ -26,7 +26,9 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="end"
                 style="?android:attr/borderlessButtonStyle"
-                android:text="Save" />
+                android:text="Save"
+                android:onClick="onClick"
+                android:id="@+id/btn_save" />
 
         </android.support.v7.widget.Toolbar>
 
@@ -36,11 +38,14 @@
             android:layout_marginStart="16dp"
             android:textColor="@color/primaryTextLight"
             android:textSize="16sp"
+
             android:background="@android:color/transparent"
             android:hint="What&apos;s your goal? "
             android:textColorHint="@color/primaryTextLight"
             android:paddingRight="16dp"
-            android:layout_marginBottom="4dp"/>
+            android:layout_marginBottom="4dp"
+            android:id="@+id/et_goalName"
+            android:singleLine="true" />
 
     </android.support.design.widget.AppBarLayout>
 
@@ -68,7 +73,8 @@
             style="?android:attr/borderlessButtonStyle"
             android:text="Archive"
             android:textColor="@color/accent"
-            android:id="@+id/btn_archive" />
+            android:id="@+id/btn_archive"
+            android:onClick="onClick" />
 
         <Button
             android:layout_width="wrap_content"
@@ -76,7 +82,8 @@
             style="?android:attr/borderlessButtonStyle"
             android:text="Delete"
             android:textColor="@color/accent"
-            android:id="@+id/btn_delete" />
+            android:id="@+id/btn_delete"
+            android:onClick="onClick" />
 
     </LinearLayout>
 
